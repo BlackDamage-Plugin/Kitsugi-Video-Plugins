@@ -93,12 +93,7 @@ class Anizm : MainAPI(), AnizmHttp {
         "$mainUrl/kategoriler/8?sayfa={page}" to "Bilim Kurgu",
         "$mainUrl/kategoriler/28?sayfa={page}" to "Romantizm",
         "$mainUrl/kategoriler/34?sayfa={page}" to "Shounen",
-        "$mainUrl/kategoriler/11?sayfa={page}" to "Doğaüstü Güçler",
         "$mainUrl/temalar/3?sayfa={page}" to "Isekai",
-        "$mainUrl/temalar/24?sayfa={page}" to "Okul",
-        "$mainUrl/kategoriler/21?sayfa={page}" to "Mecha",
-        "$mainUrl/kategoriler/30?sayfa={page}" to "Spor",
-        "$mainUrl/kategoriler/22?sayfa={page}" to "Film"
     )
 
     /**
@@ -695,7 +690,7 @@ class Anizm : MainAPI(), AnizmHttp {
             val sectionId = SECTION_PATTERN.find(template)?.groupValues?.getOrNull(1)
             if (sectionId != null) {
                 val homeUrl = template.substringBefore('#')
-                val html = getText(homeUrl, mainUrl + "/")
+                val html = cachedHome(homeUrl)
                 if (html.isNullOrBlank()) return newHomePageResponse(request.name, emptyList(), false)
                 val doc = Jsoup.parse(html, homeUrl)
                 val section = doc.selectFirst("section#$sectionId") ?: doc
@@ -737,6 +732,23 @@ class Anizm : MainAPI(), AnizmHttp {
             Log.e(LOG_TAG, "getMainPage('${request.name}') hatası: ${e.javaClass.simpleName}: ${e.message}")
             newHomePageResponse(request.name, emptyList(), false)
         }
+    }
+
+    /**
+     * Ana sayfa HTML'i, bölüm satırları için kısa süreli önbelleklenir.
+     *
+     * `Popüler` / `Son Bölümler` / `Yeni Seriler` satırları aynı `/` sayfasından
+     * besleniyor; önbellek olmadan tek ana sayfa açılışında 3 istek gidiyordu.
+     */
+    @Volatile
+    private var homeCache: Pair<Long, String>? = null
+
+    private suspend fun cachedHome(url: String): String? {
+        val now = System.currentTimeMillis()
+        homeCache?.let { (at, html) -> if (now - at < HOME_CACHE_MS) return html }
+        val html = getText(url, mainUrl + "/") ?: return null
+        homeCache = now to html
+        return html
     }
 
     // ------------------------------------------------------------------
@@ -986,6 +998,9 @@ class Anizm : MainAPI(), AnizmHttp {
         private const val SEARCH_PAGE_SIZE = 24
         private const val MAX_MAIN_PAGE = 60
         private const val BASE_TTL_MS = 10 * 60 * 1000L
+
+        /** Ana sayfa bölüm satırları için önbellek ömrü. */
+        private const val HOME_CACHE_MS = 60_000L
         private const val CATALOGUE_TTL_MS = 6 * 60 * 60 * 1000L
 
         /**
