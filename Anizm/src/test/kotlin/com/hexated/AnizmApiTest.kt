@@ -315,11 +315,15 @@ class AnizmApiTest {
         assertTrue("kart sayısı: ${cards.size}", cards.size >= 10)
         val titles = cards.map { it.name }
         assertTrue("Dreamland listede: $titles", titles.any { it == "Dreamland" })
-        // Bölüm kartları bölüm adresine gider; seri adresi türetilemeyenler için
-        // `Anizm.load` kanonik adresten seri sayfasına döner (ayrı test).
+        // Bölüm kartları SERİ adresine indirgenir: `dreamland-3-bolum-izle` →
+        // `dreamland`. (Kart tıklanınca seri sayfası açılmalı, bölüm sayfası değil.)
         assertTrue(
-            "en az bir bölüm bağlantısı: ${cards.map { it.url }}",
-            cards.any { it.url.contains("-bolum-izle") || it.url.endsWith("-izle") }
+            "Dreamland seri adresi: ${cards.map { it.url }}",
+            cards.any { it.url == "https://anizm.com.tr/dreamland" }
+        )
+        assertFalse(
+            "bölüm adresi seri sanılmamalı: ${cards.map { it.url }}",
+            cards.any { it.url.contains("-bolum-izle") }
         )
     }
 
