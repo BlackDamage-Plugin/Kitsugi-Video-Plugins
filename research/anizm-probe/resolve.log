@@ -9,9 +9,9 @@
 
 - [Aincrad (Reklamsız)] video=1739970 → 200 player=https://anizm.com.tr/player/1739970
    /player → 302 → https://anizmplayer.com/video/5bf8509788862cf237bc3a048e090698
-      page 200 22050B cookie=['fireplayer_player=969fc85ad004980023ad63d188ef1d78; path=/; ']
-      getVideo[player+origin] → 200 624B '{"hls":true,"videoImage":"https:\\/\\/anz-gth-2-06.com.tr\\/cdn\\/down\\/7b59f064409c3403a381d29c7676d2c6\\/thumb.jpg","videoSource":"https:\\/\\/anizmplayer.com\\/cdn\\/hls\\/7b59f064409c3403a381d29c7676d2c6\\/m'
-   => getVideo:securedLink :: https://anizmplayer.com/cdn/hls/7b59f064409c3403a381d29c7676d2c6/master.m3u8?md5=lMLtzTVibHtFP6Jx7pVBFg&expires=1793617550
+      page 200 22050B cookie=['fireplayer_player=f4591ca40536f51fdd8280d1b1dde007; path=/; ']
+      getVideo[player+origin] → 200 624B '{"hls":true,"videoImage":"https:\\/\\/anz-gth-2-08.com.tr\\/cdn\\/down\\/7b59f064409c3403a381d29c7676d2c6\\/thumb.jpg","videoSource":"https:\\/\\/anizmplayer.com\\/cdn\\/hls\\/7b59f064409c3403a381d29c7676d2c6\\/m'
+   => getVideo:securedLink :: https://anizmplayer.com/cdn/hls/7b59f064409c3403a381d29c7676d2c6/master.m3u8?md5=vl3XSQVFMwHCY5XVXX-HVg&expires=1793617906
 
 - [Sistenn] video=1739962 → 200 player=https://anizm.com.tr/player/1739962
    /player → 302 → https://sistenn.uns.bio/#epccep
@@ -40,7 +40,7 @@
 
 - [GDrive] video=1739960 → 200 player=https://anizm.com.tr/player/1739960
    /player → 302 → https://drive.google.com/file/d/1-dJzqs7mRdOc7rZWAhDSPLlDdHuoYQkQ/preview
-      preview 200 131949B
+      preview 200 131921B
       playback 429 392B
    => akış adresi yok :: None
 
@@ -51,20 +51,20 @@
 
 - [Abyss] video=1739968 → 200 player=https://anizm.com.tr/player/1739968
    /player → 302 → https://player.abyssplayer.com/oaa7fvZZ2
-      sayfa 200 10960B final=https://player.abyssplayer.com/oaa7fvZZ2
+      sayfa 200 10963B final=https://player.abyssplayer.com/oaa7fvZZ2
    => akış yok :: None
 
 - [UQload] video=1739963 → 200 player=https://anizm.com.tr/player/1739963
    /player → 302 → https://uqload.io/embed-k1wrlkfx05sm.html
-      sayfa 200 29969B final=https://uqload.vc/embed-k1wrlkfx05sm.html?utm_source=mirror_io&
+      sayfa 200 29964B final=https://uqload.vc/embed-k1wrlkfx05sm.html?utm_source=mirror_io&
    => akış yok :: None
 
 - [Vidmoly] video=1739932 → 200 player=https://anizm.com.tr/player/1739932
    /player → 302 → https://vidmoly.biz/embed-l878k7lqgnkx.html
-      sayfa 200 39674B final=https://vidmoly.biz/embed-l878k7lqgnkx.html
-      aday: https://prx-1590-for.vmnow.online/hls2/05/01825/l878k7lqgnkx_,n,l,.urlset/master.m3u8?t=J3F9n-rVjujPHVMRClC1JwFfF2RMv5pPRxa5zsKISsE=&s=17936
+      sayfa 200 39670B final=https://vidmoly.biz/embed-l878k7lqgnkx.html
+      aday: https://prx-1590-for.vmnow.online/hls2/05/01825/l878k7lqgnkx_,n,l,.urlset/master.m3u8?t=ku7NyJ4bfUqO84RRKGI1d0ppBB7YU1UlPBo2ZDBSM6c=&s=17936
       m3u8 200 1152B '#EXTM3U #EXT-X-STREAM-INF:PROGRAM-ID=1,BANDWIDTH=2188920,RESOLUTION=1920x1080,FR'
-   => html:m3u8 :: https://prx-1590-for.vmnow.online/hls2/05/01825/l878k7lqgnkx_,n,l,.urlset/master.m3u8?t=J3F9n-rVjujPHVMRClC1JwFfF2RMv5pPRxa5zsKISsE=&s=1793610365&e=43200&v=&srv=rck12&i=0.4&sp=0&asn=8075
+   => html:m3u8 :: https://prx-1590-for.vmnow.online/hls2/05/01825/l878k7lqgnkx_,n,l,.urlset/master.m3u8?t=ku7NyJ4bfUqO84RRKGI1d0ppBB7YU1UlPBo2ZDBSM6c=&s=1793610722&e=43200&v=&srv=rck12&i=0.4&sp=0&asn=8075
 
 - [Vidmoly] video=1739965 → 200 player=https://anizm.com.tr/player/1739965
    /player → 302 → https://vidmoly.biz/embed-04pnj175izud.html
@@ -73,7 +73,7 @@
 
 - [HDVid] video=1739931 → 200 player=https://anizm.com.tr/player/1739931
    /player → 302 → https://hdvid.tv/embed-euza9664vhie-950x480.html
-      sayfa 522 7201B final=https://hdvid.tv/embed-euza9664vhie-950x480.html
+      sayfa 522 7204B final=https://hdvid.tv/embed-euza9664vhie-950x480.html
    => akış yok :: None
 
 - [Voe] video=1739933 → 200 player=https://anizm.com.tr/player/1739933
@@ -87,7 +87,7 @@
    => akış yok :: None
 
 ## ÖZET
-- ✓ Aincrad (Reklamsız)    getVideo:securedLink     https://anizmplayer.com/cdn/hls/7b59f064409c3403a381d29c7676d2c6/master.m3u8?md5=lMLtzTVib
+- ✓ Aincrad (Reklamsız)    getVideo:securedLink     https://anizmplayer.com/cdn/hls/7b59f064409c3403a381d29c7676d2c6/master.m3u8?md5=vl3XSQVFM
 - ✗ Sistenn                api 500                  
 - ✗ Sistenn1               çözülemedi: Odd-length string 
 - ✗ Sistenn2               çözülemedi: Odd-length string 
@@ -97,7 +97,7 @@
 - ✗ Abyss                  akış yok                 
 - ✗ Abyss                  akış yok                 
 - ✗ UQload                 akış yok                 
-- ✓ Vidmoly                html:m3u8                https://prx-1590-for.vmnow.online/hls2/05/01825/l878k7lqgnkx_,n,l,.urlset/master.m3u8?t=J3
+- ✓ Vidmoly                html:m3u8                https://prx-1590-for.vmnow.online/hls2/05/01825/l878k7lqgnkx_,n,l,.urlset/master.m3u8?t=ku
 - ✗ Vidmoly                akış yok                 
 - ✗ HDVid                  akış yok                 
 - ✗ Voe                    akış yok                 
