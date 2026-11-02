@@ -1,0 +1,384 @@
+document.addEventListener('DOMContentLoaded', () => {
+    const watch = document.getElementById('v3-watch');
+    if (!watch) return;
+
+    const screen = document.getElementById('v3-player-screen');
+    const videoOptions = document.getElementById('v3-source-options');
+    const translatorButtons = [...document.querySelectorAll('[data-v3-translator]')];
+    const credits = document.getElementById('v3-credits');
+    const roomPanel = document.getElementById('v3-watch-together');
+    const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
+    const initialPlayerLoadDelay = 1000;
+    const loggedIn = watch.dataset.auth === '1';
+    const initialRoom = roomPanel?.dataset.initialRoom || '';
+    let translatorRequest = 0;
+    let playerRequest = 0;
+    let progressScheduled = false;
+    let playerInitializationStarted = false;
+    let playerUnlocked = !document.querySelector('[data-v3-content-warning]') || window.v3ContentWarningAccepted === true;
+    let pendingRoomSource = null;
+    let defaultSourceRequested = false;
+
+    const notify = message => window.v3Toast ? window.v3Toast(message) : alert(message);
+
+    async function request(url, options = {}) {
+        const response = await fetch(url, {
+            credentials: 'same-origin',
+            ...options,
+            headers: { Accept: 'application/json', 'X-Requested-With': 'XMLHttpRequest', 'X-CSRF-TOKEN': csrfToken, ...options.headers }
+        });
+        const data = await response.json();
+        if (!response.ok || !data.success) throw new Error(data.message || 'İşlem tamamlanamadı.');
+        return data;
+    }
+
+    function setPlayerMessage(message) {
+        const state = document.createElement('p');
+        state.className = 'v3-player-state';
+        state.textContent = message;
+        screen.replaceChildren(state);
+    }
+
+    function resetReport() {
+        const report = document.getElementById('v3-report');
+        report.setAttribute('aria-disabled', 'true');
+        report.setAttribute('tabindex', '-1');
+    }
+
+    function sameOriginUrl(value) {
+        if (!value) return null;
+        try {
+            const url = new URL(value, location.origin);
+            return url.origin === location.origin && ['http:', 'https:'].includes(url.protocol) ? url.href : null;
+        } catch (_) {
+            return null;
+        }
+    }
+
+    function markCreditsLoading() {
+        if (!credits) return;
+        credits.setAttribute('aria-busy', 'true');
+        const status = document.getElementById('v3-credits-status');
+        if (status) status.textContent = 'Yeni kaynak yükleniyor…';
+    }
+
+    function finishCreditsUpdate(message = 'Önceki kaynak bilgisi gösteriliyor') {
+        if (!credits) return;
+        credits.removeAttribute('aria-busy');
+        const status = document.getElementById('v3-credits-status');
+        if (status) status.textContent = message;
+    }
+
+    function updateCredits(data) {
+        if (!credits) return;
+
+        const translator = document.getElementById('v3-credits-translator');
+        if (translator) translator.textContent = data.translator || 'Belirtilmemiş';
+
+        const redaktorItem = document.getElementById('v3-credits-redaktor-item');
+        if (redaktorItem) redaktorItem.hidden = !data.redaktor;
+        const redaktor = document.getElementById('v3-credits-redaktor');
+        if (redaktor) redaktor.textContent = data.redaktor || '';
+
+        const encoder = document.getElementById('v3-credits-encoder');
+        if (encoder) {
+            encoder.hidden = !data.encoder;
+            const encoderName = encoder.querySelector('strong');
+            if (encoderName) encoderName.textContent = data.encoder || '';
+        }
+
+        const uploaderCard = document.getElementById('v3-credit-uploader-card');
+        const uploaderLink = document.getElementById('v3-credit-uploader');
+        const uploaderFollowButton = document.getElementById('v3-credit-uploader-follow');
+        const uploaderMissing = document.getElementById('v3-credit-uploader-missing');
+        const uploader = data.uploader;
+        const profileUrl = sameOriginUrl(uploader?.url);
+        const avatarUrl = sameOriginUrl(uploader?.avatar);
+        if (uploaderCard) uploaderCard.hidden = !uploader || !profileUrl;
+        if (uploaderMissing) uploaderMissing.hidden = Boolean(uploader && profileUrl);
+
+        if (uploader && profileUrl) {
+            if (uploaderLink) uploaderLink.href = profileUrl;
+            const avatar = document.getElementById('v3-credit-uploader-avatar');
+            if (avatar) {
+                avatar.hidden = !avatarUrl;
+                if (avatarUrl) avatar.src = avatarUrl;
+            }
+            const uploaderName = document.getElementById('v3-credit-uploader-name');
+            const uploaderGroup = document.getElementById('v3-credit-uploader-group');
+            const uploaderCount = document.getElementById('v3-credit-uploader-count');
+            if (uploaderName) uploaderName.textContent = uploader.name || 'Anizm kullanıcısı';
+            if (uploaderGroup) uploaderGroup.textContent = uploader.group || 'Bilinmiyor';
+            if (uploaderCount) uploaderCount.textContent = `${Number(uploader.uploads) || 0} video yükledi`;
+            if (uploaderFollowButton) {
+                const isFollowing = uploader.isFollowing === true;
+                uploaderFollowButton.hidden = uploader.canFollow !== true;
+                uploaderFollowButton.dataset.following = isFollowing ? '1' : '0';
+                uploaderFollowButton.dataset.followUrl = uploader.followUrl || '';
+                uploaderFollowButton.dataset.unfollowUrl = uploader.unfollowUrl || '';
+                uploaderFollowButton.setAttribute('aria-pressed', String(isFollowing));
+                uploaderFollowButton.textContent = isFollowing ? 'Takipten çık' : 'Takip et';
+                uploaderFollowButton.disabled = false;
+            }
+        } else if (uploaderFollowButton) {
+            uploaderFollowButton.hidden = true;
+        }
+
+        credits.hidden = false;
+        finishCreditsUpdate();
+    }
+
+    document.addEventListener('click', async event => {
+        const button = event.target.closest('[data-v3-uploader-follow]');
+        if (!button || button.disabled) return;
+
+        const isFollowing = button.dataset.following === '1';
+        const endpoint = isFollowing ? button.dataset.unfollowUrl : button.dataset.followUrl;
+        if (!endpoint) return;
+
+        button.disabled = true;
+        try {
+            const response = await fetch(endpoint, {
+                method: 'POST',
+                credentials: 'same-origin',
+                headers: {
+                    Accept: 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRF-TOKEN': csrfToken
+                }
+            });
+            const data = await response.json().catch(() => ({}));
+            if (!response.ok) throw new Error(data.message || 'Takip işlemi tamamlanamadı.');
+
+            const nowFollowing = !isFollowing;
+            button.dataset.following = nowFollowing ? '1' : '0';
+            button.setAttribute('aria-pressed', String(nowFollowing));
+            button.textContent = nowFollowing ? 'Takipten çık' : 'Takip et';
+            if (data.message) notify(data.message);
+        } catch (error) {
+            notify(error.message || 'Takip işlemi tamamlanamadı.');
+        } finally {
+            button.disabled = false;
+        }
+    });
+
+    async function selectVideo(button) {
+        if (!playerUnlocked) return;
+        const videoId = Number(button.dataset.video);
+        if (window.v3WatchTogether && !window.v3WatchTogether.canSelectVideo(videoId)) {
+            notify('Oda sürerken video kaynağı değiştirilemez. Önce odadan ayrılın.');
+            return;
+        }
+
+        const requestId = ++playerRequest;
+        document.dispatchEvent(new CustomEvent('v3:player-loading', { detail: { videoId } }));
+        videoOptions.querySelectorAll('button').forEach(option => {
+            option.setAttribute('aria-pressed', String(option === button));
+        });
+        resetReport();
+        markCreditsLoading();
+        setPlayerMessage('Oynatıcı yükleniyor...');
+
+        try {
+            const data = await request(button.dataset.url);
+            if (requestId !== playerRequest) return;
+
+            const playerUrl = new URL(data.url);
+            if (playerUrl.protocol !== 'https:' || playerUrl.host !== location.host) throw new Error('Oynatıcı adresi geçersiz.');
+
+            const frame = document.createElement('iframe');
+            frame.title = 'Anime video oynatıcı';
+            frame.src = playerUrl.href;
+            // /player/{id} redirects to external providers; delegate PiP to the final origin too.
+            frame.setAttribute('allow', 'autoplay; fullscreen *; picture-in-picture *');
+            screen.replaceChildren(frame);
+            document.dispatchEvent(new CustomEvent('v3:player-loaded', {
+                detail: {
+                    frame,
+                    videoId,
+                    watchTogether: data.watchTogether === true,
+                    playerOrigin: data.playerOrigin || null,
+                }
+            }));
+            document.getElementById('v3-now-playing').textContent = data.source;
+
+            const report = document.getElementById('v3-report');
+            report.href = report.href.replace(/\/video\/\d+$/, '/video/' + button.dataset.video);
+            report.removeAttribute('aria-disabled');
+            report.removeAttribute('tabindex');
+
+            updateCredits(data);
+
+            if (loggedIn && watch.dataset.autoProgress === '1' && !progressScheduled) {
+                progressScheduled = true;
+                setTimeout(() => request(watch.dataset.progress, { method: 'POST' }).catch(() => {}), 120000);
+            }
+        } catch (error) {
+            if (requestId !== playerRequest) return;
+            finishCreditsUpdate();
+            setPlayerMessage(error.message);
+            if (window.v3WatchTogether?.isActive()) {
+                document.dispatchEvent(new CustomEvent('v3:watch-together-source-error', { detail: { message: error.message } }));
+            }
+        }
+    }
+
+    async function selectTranslator(button, preferredVideoId = null) {
+        if (!playerUnlocked) return;
+        playerInitializationStarted = true;
+        const requestId = ++translatorRequest;
+        ++playerRequest;
+        translatorButtons.forEach(option => option.setAttribute('aria-pressed', String(option === button)));
+        videoOptions.replaceChildren();
+        resetReport();
+        markCreditsLoading();
+        setPlayerMessage('Kaynaklar yükleniyor...');
+
+        try {
+            const data = await request(button.dataset.sources);
+            if (requestId !== translatorRequest) return;
+            if (!data.videos.length) {
+                finishCreditsUpdate();
+                setPlayerMessage('Bu çeviri için hazır kaynak bulunamadı.');
+                return;
+            }
+            data.videos.forEach(video => {
+                const option = document.createElement('button');
+                option.type = 'button';
+                option.textContent = video.name;
+                option.dataset.video = video.id;
+                option.dataset.url = button.dataset.sources.replace(/\/cevirmen\/\d+$/, '/video/' + video.id);
+                option.dataset.watchTogether = video.watchTogether ? '1' : '0';
+                option.setAttribute('aria-pressed', 'false');
+                option.disabled = Boolean(window.v3WatchTogether?.isActive());
+                option.addEventListener('click', () => selectVideo(option));
+                videoOptions.append(option);
+            });
+            const preferredOption = preferredVideoId === null
+                ? null
+                : [...videoOptions.querySelectorAll('button')].find(option => Number(option.dataset.video) === Number(preferredVideoId));
+            if (preferredVideoId !== null && !preferredOption) {
+                throw new Error('Oda için seçilen BetaPlayer kaynağı bu bölümde artık kullanılamıyor.');
+            }
+            selectVideo(preferredOption || videoOptions.firstElementChild);
+        } catch (error) {
+            if (requestId !== translatorRequest) return;
+            finishCreditsUpdate();
+            setPlayerMessage(error.message);
+            if (preferredVideoId !== null) {
+                document.dispatchEvent(new CustomEvent('v3:watch-together-source-error', { detail: { message: error.message } }));
+            }
+        }
+    }
+
+    translatorButtons.forEach(button => button.addEventListener('click', () => {
+        if (window.v3WatchTogether?.isActive()) {
+            notify('Oda sürerken çeviri kaynağı değiştirilemez. Önce odadan ayrılın.');
+            return;
+        }
+        selectTranslator(button);
+    }));
+    document.addEventListener('v3:watch-together-select-source', event => {
+        if (!playerUnlocked) {
+            pendingRoomSource = event.detail;
+            return;
+        }
+        const button = translatorButtons.find(option => Number(option.dataset.translatorId) === Number(event.detail.translatorId));
+        if (!button) {
+            document.dispatchEvent(new CustomEvent('v3:watch-together-source-error', {
+                detail: { message: 'Oda kaynağının çevirisi bu bölümde bulunamadı.' }
+            }));
+            return;
+        }
+        selectTranslator(button, Number(event.detail.videoId));
+    });
+    document.addEventListener('v3:watch-together-restore-default-source', () => {
+        if (!playerUnlocked) {
+            pendingRoomSource = null;
+            defaultSourceRequested = true;
+            return;
+        }
+        if (translatorButtons.length) selectTranslator(translatorButtons[0]);
+        else setPlayerMessage('Bu bölüm için yayınlanmış video bulunamadı.');
+    });
+    const initializePlayer = () => {
+        if (playerInitializationStarted) return;
+        playerInitializationStarted = true;
+
+        if (pendingRoomSource) {
+            const source = pendingRoomSource;
+            pendingRoomSource = null;
+            document.dispatchEvent(new CustomEvent('v3:watch-together-select-source', { detail: source }));
+        } else if (translatorButtons.length && (!initialRoom || defaultSourceRequested)) {
+            selectTranslator(translatorButtons[0]);
+        } else if (!initialRoom) {
+            setPlayerMessage('Bu bölüm için hazır video bulunamadı.');
+        } else {
+            setPlayerMessage('Watch Together odasına bağlanılıyor...');
+        }
+    };
+
+    if (playerUnlocked) {
+        window.setTimeout(initializePlayer, initialPlayerLoadDelay);
+    }
+    else {
+        setPlayerMessage(`Video kaynaklarını yüklemek için +${document.querySelector('[data-v3-content-warning]')?.dataset.rating} uyarısını kabul edin.`);
+        document.addEventListener('v3:content-warning-accepted', () => {
+            playerUnlocked = true;
+            initializePlayer();
+        }, { once: true });
+    }
+
+    document.getElementById('v3-fullscreen').addEventListener('click', () => {
+        if (document.fullscreenElement) document.exitFullscreen();
+        else screen.requestFullscreen?.();
+    });
+
+    const watchedButton = document.getElementById('v3-watched');
+    watchedButton.addEventListener('click', async () => {
+        if (!loggedIn) { location.href = watch.dataset.login; return; }
+        watchedButton.disabled = true;
+        const wasWatched = watchedButton.dataset.watched === '1';
+        try {
+            await request(watchedButton.dataset.url, { method: 'POST', body: new URLSearchParams({ watched: wasWatched ? '0' : '1' }) });
+            watchedButton.dataset.watched = wasWatched ? '0' : '1';
+            watchedButton.setAttribute('aria-pressed', String(!wasWatched));
+            watchedButton.querySelector('span').textContent = wasWatched ? 'İzledim' : 'İzlendi';
+            notify(wasWatched ? 'İzlendi işareti kaldırıldı.' : 'İzlendi olarak kaydedildi.');
+        } catch (error) { notify(error.message); }
+        finally { watchedButton.disabled = false; }
+    });
+
+    const followButton = document.getElementById('v3-follow');
+    followButton.addEventListener('click', async () => {
+        if (!loggedIn) { location.href = watch.dataset.login; return; }
+        followButton.disabled = true;
+        try {
+            const data = await request(followButton.dataset.url, { method: 'POST' });
+            followButton.dataset.following = data.is_following ? '1' : '0';
+            followButton.setAttribute('aria-pressed', String(data.is_following));
+            followButton.querySelector('span').textContent = data.is_following ? 'Bildirim açık' : 'Takip et';
+            notify(data.is_following ? 'Bölüm bildirimleri açıldı.' : 'Bölüm bildirimleri kapatıldı.');
+        } catch (error) { notify(error.message); }
+        finally { followButton.disabled = false; }
+    });
+
+    document.getElementById('v3-episode-filter').addEventListener('input', event => {
+        const search = event.target.value.trim().toLocaleLowerCase('tr-TR');
+        let visible = 0;
+        document.querySelectorAll('[data-v3-episode-item]').forEach(item => {
+            item.hidden = !item.textContent.toLocaleLowerCase('tr-TR').includes(search);
+            if (!item.hidden) visible++;
+        });
+        document.getElementById('v3-no-episodes').hidden = visible !== 0;
+    });
+
+    const comments = document.getElementById('v3-comments-root');
+    const keepCommentLinksInV3 = () => {
+        comments.querySelectorAll('a[href^="/profil/"], a[href="/magaza"], a[href="/girisyap"]').forEach(link => {
+            link.setAttribute('href', '/v3' + link.getAttribute('href'));
+        });
+    };
+    keepCommentLinksInV3();
+    new MutationObserver(keepCommentLinksInV3).observe(comments, { childList: true, subtree: true });
+});
