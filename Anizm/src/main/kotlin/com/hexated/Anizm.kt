@@ -719,9 +719,26 @@ class Anizm : MainAPI(), AnizmHttp {
 
     override suspend fun load(url: String): LoadResponse? {
         ensureBase()
-        val pageUrl = remapBase(url).let { if (AnizmSite.isEpisodeUrl(it)) AnizmSite.toSeriesUrl(it) ?: it else it }
-        val html = getText(pageUrl, mainUrl + "/") ?: throw ErrorLoadingException("Anizm sayfası yüklenemedi")
-        val doc = Jsoup.parse(html, pageUrl)
+        var pageUrl = remapBase(url).let { if (AnizmSite.isEpisodeUrl(it)) AnizmSite.toSeriesUrl(it) ?: it else it }
+        var html = getText(pageUrl, mainUrl + "/") ?: throw ErrorLoadingException("Anizm sayfası yüklenemedi")
+        var doc = Jsoup.parse(html, pageUrl)
+
+        // Doğrudan BÖLÜM sayfasına gelinmiş olabilir (derin bağlantı, film/OVA
+        // bölümü, arama sonucu). O sayfadan "seri" kurmak yanlış detay üretir;
+        // kanonik adres varsa seri sayfasına dönülür. Ek istek yalnızca bu
+        // durumda yapılır — normal akışta maliyet yok.
+        if (doc.selectFirst("[data-v3-translator], #v3-player-screen, section.v3-player") != null) {
+            val canonical = doc.selectFirst("link[rel=canonical]")?.attr("href")?.trim()
+                ?.takeIf { it.startsWith("http") }
+                ?: doc.selectFirst("meta[property=og:url]")?.attr("content")?.trim()
+                    ?.takeIf { it.startsWith("http") }
+            if (canonical != null && canonical.trimEnd('/') != pageUrl.trimEnd('/')) {
+                Log.d(LOG_TAG, "bölüm sayfasından seri sayfasına: $canonical")
+                pageUrl = canonical
+                html = getText(pageUrl, mainUrl + "/") ?: html
+                doc = Jsoup.parse(html, pageUrl)
+            }
+        }
         val detail = AnizmSite.parseDetail(doc, pageUrl, pageUrl)
 
         // Sayfa düzeyinde hiç bölüm yoksa "tek parça" (film/OVA) olarak sunulur.
