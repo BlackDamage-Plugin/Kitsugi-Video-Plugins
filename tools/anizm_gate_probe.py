@@ -311,7 +311,7 @@ def main() -> int:
         r = req(s, referer=ep_url)
         body = r.text or ""
         log(f"\n- {s.rsplit('/', 1)[-1]} → {r.status} {len(body)}B")
-        if re.search(r"content-warning|v3-episode|v3\.js|player", s, re.I):
+        if re.search(r"content-warning", s, re.I):
             log(f"    --- TAM DOSYA ({len(body)}B) ---")
             for chunk in body.splitlines():
                 log(f"      » {chunk[:400]}")
@@ -352,7 +352,10 @@ def main() -> int:
         r = req(base + path, referer=ep_url, follow=False)
         log(f"- GET {path} → {r.status} loc={r.header('Location')[:80]!r}")
 
-    # ── 5) kaynak zinciri ──────────────────────────────────────────────────
+    # ── 5) kaynak zinciri (ölçülen sözleşme) ──────────────────────────────
+    # data-sources  → {success, videos:[{id,name,watchTogether}]}
+    # .../video/<id> → {success, url:"/player/<id>", source, playerOrigin, watchTogether}
+    # /player/<id>   → 302 → sağlayıcı sayfası
     log("\n## 5) Kaynak zinciri")
     translators = []
     for pat in (r"""data-sources=["']([^"']+)["']""",
@@ -361,68 +364,81 @@ def main() -> int:
         for m in re.finditer(pat, page, re.I):
             translators.append(html_mod.unescape(m.group(1)))
     translators = list(dict.fromkeys(translators))
-    log(f"- çevirmen yolu: {len(translators)} → {[t[:120] for t in translators[:5]]}")
+    log(f"- çevirmen yolu: {len(translators)} → {translators[:5]}")
 
-    video_paths: list[str] = []
-    for i, t in enumerate(translators[:6]):
+    xhr_headers = {
+        "Accept": "application/json",
+        "X-Requested-With": "XMLHttpRequest",
+        "Sec-Fetch-Mode": "cors",
+        "Sec-Fetch-Dest": "empty",
+        "Sec-Fetch-Site": "same-origin",
+    }
+    if csrf:
+        xhr_headers["X-CSRF-TOKEN"] = csrf
+
+    videos: list[tuple[str, str, str]] = []   # (fansub, host, sourcesUrl+id)
+    for i, t in enumerate(translators[:4]):
         turl = urllib.parse.urljoin(base + "/", html_mod.unescape(t))
-        for tag, kw2 in (("plain", {}), ("xhr", {"X-Requested-With": "XMLHttpRequest"}),
-                         ("xhrcsrf", {"X-Requested-With": "XMLHttpRequest", "X-CSRF-TOKEN": csrf})):
-            r = req(turl, referer=ep_url, extra=kw2)
-            snippet = (r.text or "").strip()[:1200]
-            log(f"  - çevirmen[{i}]/{tag} → {r.status} {len(r.text)}B {snippet!r}")
-            if r.ok and r.text:
-                payload = r.text
-                try:
-                    j = json.loads(payload)
-                    if isinstance(j, dict) and isinstance(j.get("data"), str):
-                        payload = j["data"]
-                except Exception:  # noqa: BLE001
-                    pass
-                for a, b in re.findall(r"/bolum/(\d+)/video/(\d+)", payload):
-                    video_paths.append(f"/bolum/{a}/video/{b}")
-                for v in re.findall(r"""video=["']/video/(\d+)""", payload):
-                    video_paths.append(f"/video/{v}")
-                for v in re.findall(r"""data-video=["'](\d+)""", payload):
-                    video_paths.append(f"/video/{v}")
-                if video_paths:
-                    break
+        r = req(turl, referer=ep_url, extra=xhr_headers)
+        log(f"  - çevirmen[{i}] {turl} → {r.status} {len(r.text)}B")
+        try:
+            data = json.loads(r.text or "{}")
+        except Exception:  # noqa: BLE001
+            data = {}
+        for v in (data.get("videos") or []):
+            vid = str(v.get("id"))
+            videos.append((turl.rsplit("/", 2)[-2] if "/cevirmen/" in turl else "?", str(v.get("name")), vid))
+            log(f"      · video id={vid} ad={v.get('name')} watchTogether={v.get('watchTogether')}")
+        log(f"      · toplam {len(data.get('videos') or [])} video")
 
-    video_paths = list(dict.fromkeys(video_paths))
-    log(f"- video yolu: {len(video_paths)} → {video_paths[:6]}")
-
-    hashes: set[str] = set()
-    for i, v in enumerate(video_paths[:10]):
-        vurl = urllib.parse.urljoin(base + "/", v)
-        r = req(vurl, referer=ep_url, xhr=True, extra={"Accept": "application/json, text/plain, */*"})
+    final_targets: list[tuple[str, str]] = []
+    for fansub, host, vid in videos[:20]:
+        surl = next((t for t in translators if f"/cevirmen/{fansub}" in t), translators[0] if translators else "")
+        if not surl:
+            continue
+        vurl = re.sub(r"/cevirmen/\d+$", "/video/" + vid, urllib.parse.urljoin(base + "/", surl))
+        r = req(vurl, referer=ep_url, extra=xhr_headers)
         body = (r.text or "").strip()
-        log(f"  - video[{i}] {v} → {r.status} {len(body)}B")
-        for line in body.splitlines()[:30]:
-            log(f"      » {line[:400]}")
+        log(f"  - video {vid} ({host}) → {r.status} {len(body)}B")
+        for line in body.splitlines()[:6]:
+            log(f"      » {line[:300]}")
         try:
             j = json.loads(body)
         except Exception:  # noqa: BLE001
-            j = None
-        if isinstance(j, dict):
-            for key in ("url", "player", "playerOrigin", "videoSource", "securedLink", "source"):
-                val = j.get(key)
-                if isinstance(val, str):
-                    log(f"      {key} = {val[:200]}")
-                    hashes |= set(re.findall(r"\b[a-f0-9]{32}\b", val))
-        pid = re.search(r"/(?:video|player)/(\d+)", vurl)
-        if pid:
-            pr = req(f"{base}/player/{pid.group(1)}", referer=ep_url, follow=False)
-            log(f"      /player/{pid.group(1)} → {pr.status} location={pr.header('Location')[:200]!r}")
-            hashes |= set(re.findall(r"\b[a-f0-9]{32}\b", pr.header("Location") or ""))
+            j = {}
+        if isinstance(j, dict) and j.get("url"):
+            player_url = urllib.parse.urljoin(base + "/", j["url"])
+            log(f"      player={player_url} source={j.get('source')} origin={j.get('playerOrigin')}")
+            pr = req(player_url, referer=ep_url, follow=False, extra={
+                "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+                "Sec-Fetch-Mode": "navigate", "Sec-Fetch-Dest": "iframe", "Sec-Fetch-Site": "same-origin",
+            })
+            loc = pr.header("Location")
+            log(f"      /player → {pr.status} location={loc[:220]!r} bytes={len(pr.text)}")
+            final_targets.append((host, loc or player_url))
 
-    log("\n## 6) anizmplayer getVideo")
-    for h in sorted(hashes)[:4]:
-        for tag, ref in (("site", base + "/"), ("player", f"https://anizmplayer.com/video/{h}")):
-            body = urllib.parse.urlencode({"hash": h, "r": ref})
-            r = req(f"https://anizmplayer.com/player/index.php?data={h}&do=getVideo",
-                    referer="https://anizmplayer.com/", data=body, xhr=True,
-                    extra={"Origin": "https://anizmplayer.com"})
-            log(f"  - {h[:10]}/{tag} → {r.status} {len(r.text)}B {(r.text or '')[:220]!r}")
+    # ── 6) sağlayıcı sayfaları ─────────────────────────────────────────────
+    log("\n## 6) Sağlayıcı sayfaları (son hedefler)")
+    for host, target in final_targets[:14]:
+        if not target.startswith("http"):
+            continue
+        r = req(target, referer=ep_url, follow=True)
+        body = r.text or ""
+        log(f"- [{host}] {target[:120]} → {r.status} {len(body)}B başlık={title_of(body)!r} final={r.final[:120]}")
+        media = sorted(set(re.findall(r"""https?://[^"'\s<>]+?\.(?:m3u8|mp4)(?:\?[^"'\s<>]*)?""", body)))[:6]
+        frames = re.findall(r"""<iframe[^>]+src=["']([^"']+)["']""", body, re.I)[:4]
+        scripts = re.findall(r"""<script[^>]+src=["']([^"']+)["']""", body, re.I)[:6]
+        for m in media:
+            log(f"    medya: {m[:200]}")
+        for f in frames:
+            log(f"    iframe: {f[:200]}")
+        for sc in scripts:
+            log(f"    script: {sc[:160]}")
+        for key in ("masterUrl", "master.txt", "native.m3u8", "securedLink", "videoSource",
+                    "file:", "source:", "sources:", ".m3u8", "/api/v1/video", "videoId"):
+            idx = body.find(key)
+            if idx >= 0:
+                log(f"    ipucu {key!r}: …{body[max(0, idx - 120):idx + 220].replace(chr(10), ' ')[:340]}")
 
     log("\n## 7) kavanozun son hâli")
     log(f"- {jar_state()}")
