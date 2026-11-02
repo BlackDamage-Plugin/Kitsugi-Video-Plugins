@@ -215,6 +215,12 @@ class AnizmApiTest {
             detail.episodes.first().url.contains("-bolum-izle")
         )
         assertFalse("bölüm adresi http olmalı", detail.episodes.first().url.startsWith("/"))
+        // Kanonik/breadcrumb adresi bölüm sayılmamalı: film sayfasında tek bölüm var.
+        assertEquals("film bölüm sayısı: ${detail.episodes.map { it.url }}", 1, detail.episodes.size)
+        assertFalse(
+            "sayfanın kendisi bölüm olarak eklenmemeli",
+            detail.episodes.any { it.url.trimEnd('/') == url }
+        )
     }
 
     // ------------------------------------------------------------------

@@ -598,9 +598,13 @@ internal object AnizmSite {
         // bölümler sayılır; ön gösterim/çift bölüm sayacı kaydırmaz).
         var counter = 0
 
+        val pageKey = pageUrl.trimEnd('/').substringBefore('?').substringBefore('#')
+
         fun consider(anchor: Element, forceNumber: Int? = null) {
             val url = absolute(base, anchor.attr("href")) ?: return
             if (!isSiteUrl(url)) return
+            // Sayfanın KENDİSİNE giden bağlantı (breadcrumb / kanonik adres) bölüm değildir.
+            if (url.trimEnd('/').substringBefore('?').substringBefore('#') == pageKey) return
             if (strict.containsKey(url) || loose.containsKey(url)) return
 
             // v3 bölüm kartı: `<a data-episode-title="1. Bölüm">…<strong>…</strong>`.
@@ -688,7 +692,11 @@ internal object AnizmSite {
         // Film/OVA sayfalarında bölüm slug'ı seri slug'ından FARKLI oluyor
         // (ör. `…-the-last-attack-shingeki-…---the-last-attack-bolum-izle`);
         // eski sürüm bu durumda sayfadaki TÜM bağlantıları bölüm sayıyordu.
+        // Bölüm eki taşıyanlar her zaman önce gelir: seri yolu eşleşmesi
+        // breadcrumb/kanonik bağlantı yüzünden yanlış olumlu verebiliyor.
+        val realEpisodes = strict.filterKeys { containsEpisodeSuffix(it) }
         val chosen = when {
+            realEpisodes.isNotEmpty() -> realEpisodes.values
             strict.isNotEmpty() -> strict.values
             episodeLike.isNotEmpty() -> episodeLike.values
             else -> loose.values
