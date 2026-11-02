@@ -1,8 +1,8 @@
 name: Anizm Kategori Probu
 
 # Kategori satırlarının neden aynı listeyi gösterdiğini ölçer.
-# Sonucu `research/anizm-probe/kategori.log` olarak dala yazar (artifact
-# indirilemeyen ortamlarda da okunabilsin diye).
+# Çıktı hem log'a hem `probe-data` dalına yazılır (artifact indirilemeyen
+# ortamlarda da okunabilsin diye).
 
 on:
   push:
@@ -25,14 +25,31 @@ jobs:
           python-version: "3.11"
 
       - name: Kategori probu
-        continue-on-error: true
-        run: python3 tools/anizm_category_probe.py | tee /tmp/kategori.log
-
-      - name: Sonucu dala yaz
-        if: always()
         run: |
+          set +e
+          python3 -u tools/anizm_category_probe.py > /tmp/kategori.log 2>&1
+          echo "python çıkış=$?"
+          cat /tmp/kategori.log
+          mkdir -p research/anizm-probe
+          {
+            echo "python çıkış kodu yukarıda; ham çıktı:"
+            echo
+            cat /tmp/kategori.log
+          } > research/anizm-probe/kategori.log
+          set -e
+
+      - name: Sonucu dal yaz
+        if: always()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          rm -rf /tmp/push && mkdir -p /tmp/push
+          cp research/anizm-probe/kategori.log /tmp/push/kategori.log
+          cd /tmp/push
+          git init -q
           git config user.email "actions@github.com"
           git config user.name "GitHub Actions"
-          git add research/anizm-probe/kategori.log || true
-          git commit -m "probe: anizm kategori olcumu" || true
-          git push || true
+          git checkout -q -b probe-data
+          git add -A
+          git commit -qm "anizm kategori olcumu ${GITHUB_RUN_ID}"
+          git push -q -f "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" HEAD:probe-data && echo "probe-data dalına yazıldı"
