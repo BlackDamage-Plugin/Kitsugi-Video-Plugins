@@ -8,6 +8,7 @@ on:
   push:
     paths:
       - "tools/anizm_category_probe.py"
+      - "tools/anizm_home_probe.py"
       - ".github/workflows/Anizm-Kategori-Probu.yml"
   workflow_dispatch:
 
@@ -27,15 +28,12 @@ jobs:
       - name: Kategori probu
         run: |
           set +e
-          python3 -u tools/anizm_category_probe.py > /tmp/kategori.log 2>&1
-          echo "python çıkış=$?"
-          cat /tmp/kategori.log
+          python3 -u tools/anizm_category_probe.py > /tmp/kategori.log 2>&1 || true
+          python3 -u tools/anizm_home_probe.py > /tmp/anasayfa.log 2>&1 || true
+          cat /tmp/anasayfa.log
           mkdir -p research/anizm-probe
-          {
-            echo "python çıkış kodu yukarıda; ham çıktı:"
-            echo
-            cat /tmp/kategori.log
-          } > research/anizm-probe/kategori.log
+          cp /tmp/kategori.log research/anizm-probe/kategori.log 2>/dev/null || true
+          cp /tmp/anasayfa.log research/anizm-probe/anasayfa.log 2>/dev/null || true
           set -e
 
       - name: Sonucu dal yaz
@@ -44,7 +42,7 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           rm -rf /tmp/push && mkdir -p /tmp/push
-          cp research/anizm-probe/kategori.log /tmp/push/kategori.log
+          cp research/anizm-probe/*.log /tmp/push/ 2>/dev/null || true
           cd /tmp/push
           git init -q
           git config user.email "actions@github.com"
