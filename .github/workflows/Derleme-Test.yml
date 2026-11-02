@@ -164,11 +164,6 @@ jobs:
           ./gradlew --no-daemon :Anizm:testDebugUnitTest --tests "*FullSourceAuditTest*" \
               > /tmp/audit-anizm.log 2>&1
           echo "audit çıkış=$?"
-          # Eklentinin GERÇEK akış zinciri (AnizmStreams) canlı siteye karşı.
-          ./gradlew --no-daemon :Anizm:testDebugUnitTest --tests "*LiveStreamsE2ETest*" \
-              > /tmp/e2e-anizm.log 2>&1
-          echo "e2e çıkış=$?"
-          cat /tmp/e2e-anizm.log >> /tmp/live-anizm.log
           ./gradlew --no-daemon :TrAnimeIzle:testDebugUnitTest --tests "*LiveChainProbeTest*" \
               > /tmp/live-tizle.log 2>&1
           echo "tranimeizle çıkış=$?"

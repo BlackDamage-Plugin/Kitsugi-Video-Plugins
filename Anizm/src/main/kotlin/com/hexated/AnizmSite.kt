@@ -570,6 +570,8 @@ internal object AnizmSite {
     fun parseEpisodes(doc: Document, base: String, pageUrl: String): List<AnizmEpisode> {
         val targetSeries = seriesPathOf(pageUrl)
         val strict = LinkedHashMap<String, AnizmEpisode>()
+        /** Seri yolu tutmasa da **bölüm eki** taşıyan bağlantılar (film sayfaları). */
+        val episodeLike = LinkedHashMap<String, AnizmEpisode>()
         val loose = LinkedHashMap<String, AnizmEpisode>()
         // Numara etiketten/URL'den okunamazsa sıra numarası verilir (yalnızca düzenli
         // bölümler sayılır; ön gösterim/çift bölüm sayacı kaydırmaz).
@@ -622,6 +624,7 @@ internal object AnizmSite {
                 poster = imageUrl(anchor.selectFirst("img"), base)
             )
             loose[url] = episode
+            if (containsEpisodeSuffix(url)) episodeLike[url] = episode
             val series = seriesPathOf(url)
             if (targetSeries == null || series == null || series == targetSeries) strict[url] = episode
         }
@@ -660,7 +663,15 @@ internal object AnizmSite {
             for (anchor in doc.select("a[href]")) consider(anchor)
         }
 
-        val chosen = if (strict.isNotEmpty()) strict.values else loose.values
+        // Seçim sırası: seri yolu eşleşenler → bölüm eki taşıyanlar → son çare hepsi.
+        // Film/OVA sayfalarında bölüm slug'ı seri slug'ından FARKLI oluyor
+        // (ör. `…-the-last-attack-shingeki-…---the-last-attack-bolum-izle`);
+        // eski sürüm bu durumda sayfadaki TÜM bağlantıları bölüm sayıyordu.
+        val chosen = when {
+            strict.isNotEmpty() -> strict.values
+            episodeLike.isNotEmpty() -> episodeLike.values
+            else -> loose.values
+        }
         return chosen
             .distinctBy { it.url }
             .sortedWith(compareBy({ it.number ?: Int.MAX_VALUE }, { it.url }))
