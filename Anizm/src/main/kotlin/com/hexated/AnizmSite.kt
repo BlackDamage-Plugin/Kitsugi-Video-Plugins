@@ -605,6 +605,10 @@ internal object AnizmSite {
             if (!isSiteUrl(url)) return
             // Sayfanın KENDİSİNE giden bağlantı (breadcrumb / kanonik adres) bölüm değildir.
             if (url.trimEnd('/').substringBefore('?').substringBefore('#') == pageKey) return
+            // Menü/gezinme bağlantıları (ana sayfa, /arama, /girisyap…) bölüm değildir.
+            val firstSegment = url.substringAfter("://").substringAfter("/", "")
+                .substringBefore('/').substringBefore('?').lowercase()
+            if (firstSegment.isEmpty() || firstSegment in BLOCKED_PATHS) return
             if (strict.containsKey(url) || loose.containsKey(url)) return
 
             // v3 bölüm kartı: `<a data-episode-title="1. Bölüm">…<strong>…</strong>`.
@@ -650,8 +654,11 @@ internal object AnizmSite {
             )
             loose[url] = episode
             if (containsEpisodeSuffix(url)) episodeLike[url] = episode
+            // `series == null` (ana sayfa gibi yolu olmayan adresler) ESKİDEN
+            // strict'e ekleniyordu → film sayfasında ana sayfa bağlantısı
+            // "1. bölüm" olarak listeye giriyordu.
             val series = seriesPathOf(url)
-            if (targetSeries == null || series == null || series == targetSeries) strict[url] = episode
+            if (targetSeries == null || series == targetSeries) strict[url] = episode
         }
 
         // 1) v3: tüm bölümler tek ızgarada (12'lik gruplar istemci tarafında).
