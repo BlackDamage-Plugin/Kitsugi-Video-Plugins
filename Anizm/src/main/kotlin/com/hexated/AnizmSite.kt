@@ -645,11 +645,15 @@ internal object AnizmSite {
                 consider(anchor)
             }
         }
-        // 4) Sayfa URL'sinden türetilen dar tarama, sonra genel tarama.
-        if (strict.isEmpty()) {
-            val root = pageUrl.trimEnd('/').substringBefore('?')
+        // 4) Seri yoluna göre dar tarama (host'tan bağımsız).
+        //    Eski sürüm `"$root-"` ön ekini karşılaştırıyordu: sayfa
+        //    anizm.net'ten, bağlantılar anizm.com.tr'den geldiğinde hiçbir şey
+        //    eşleşmiyor ve dizi sayfasındaki TÜM bağlantılar (ilgili animeler
+        //    dahil) bölüm sanılıyordu.
+        if (strict.isEmpty() && targetSeries != null) {
             for (anchor in doc.select("a[href]")) {
-                if (absolute(base, anchor.attr("href"))?.startsWith("$root-") == true) consider(anchor)
+                val url = absolute(base, anchor.attr("href")) ?: continue
+                if (seriesPathOf(url) == targetSeries) consider(anchor)
             }
         }
         if (strict.isEmpty()) {

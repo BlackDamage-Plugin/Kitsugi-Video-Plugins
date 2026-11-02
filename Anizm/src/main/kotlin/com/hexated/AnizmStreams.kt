@@ -952,58 +952,30 @@ internal class AnizmStreams(
             return false
         }
         var found = false
-        val json = runCatching { JSONObject(body) }.getOrNull()
-        if (json != null) {
-            val secured = resolvePlayerUrl(json.optString("securedLink"))
-            val videoSource = resolvePlayerUrl(json.optString("videoSource"))
-            // 1) İmzalı HLS master'ı — asıl oynatılabilir adres.
-            val ordered = buildList {
-                secured?.takeUnless { it.isTextualManifest() }?.let { add(it) }
-                videoSource?.takeUnless { it.isTextualManifest() }?.let { add(it) }
-                secured?.takeIf { it.isTextualManifest() }?.let { add(it) }
-            }.distinct()
-            for (url in ordered) {
-                emitMedia(url, label, "$PLAYER_HOST/", callback, trusted = true)
+        val parsed = AnizmApi.parseAnizmPlayerMedia(body)
+        for (url in parsed.media) {
+            emitMedia(url, label, "$PLAYER_HOST/", callback, trusted = true)
+            found = true
+        }
+        // Yalnızca `.txt` kopya varsa: gövde gerçekten HLS listesi mi?
+        if (!found) {
+            for (textual in parsed.textual) {
+                val manifest = http.get(textual, "$PLAYER_HOST/") ?: continue
+                if (!manifest.trimStart().startsWith("#EXTM3U")) {
+                    Log.d(TAG, "anizmplayer: metin kopya HLS değil, atlandı ($textual)")
+                    continue
+                }
+                emitLink(
+                    textual,
+                    label,
+                    "$PLAYER_HOST/",
+                    ExtractorLinkType.M3U8,
+                    null,
+                    streamHeaders("$PLAYER_HOST/"),
+                    callback,
+                    trusted = true
+                )
                 found = true
-            }
-            // 2) Yalnızca `.txt` kopya varsa: gövde gerçekten HLS listesi mi?
-            if (ordered.isEmpty() && videoSource != null) {
-                val manifest = http.get(videoSource, "$PLAYER_HOST/")
-                if (manifest != null && manifest.trimStart().startsWith("#EXTM3U")) {
-                    emitLink(
-                        videoSource,
-                        label,
-                        "$PLAYER_HOST/",
-                        ExtractorLinkType.M3U8,
-                        null,
-                        streamHeaders("$PLAYER_HOST/"),
-                        callback,
-                        trusted = true
-                    )
-                    found = true
-                } else {
-                    Log.d(TAG, "anizmplayer: yalnızca metin kopya var, atlandı ($videoSource)")
-                }
-            }
-            val array = json.optJSONArray("video")
-                ?: json.optJSONArray("videoSources")
-                ?: json.optJSONArray("sources")
-            array?.let { sources ->
-                for (index in 0 until sources.length()) {
-                    val item = sources.optJSONObject(index) ?: continue
-                    val file = item.optString("file").ifBlank { item.optString("src") }
-                        .ifBlank { item.optString("url") }
-                    if (file.isBlank()) continue
-                    val quality = item.optString("label").ifBlank { item.optString("quality") }
-                    emitMedia(
-                        file,
-                        if (quality.isBlank()) label else "$label • $quality",
-                        "$PLAYER_HOST/",
-                        callback,
-                        trusted = true
-                    )
-                    found = true
-                }
             }
         }
         if (!found) {
@@ -1049,12 +1021,6 @@ internal class AnizmStreams(
      * veriyordu (v6'da cihazda kanıtlandı). Bu durumda adres uydurmak yerine
      * `null` döneriz; başka adaylar (`video[]`, sayfa taraması) denenir.
      */
-    /** `.txt`/`.html` uzantılı kopya: HLS listesi olsa bile doğrudan akış sayılmaz. */
-    private fun String.isTextualManifest(): Boolean {
-        val path = substringBefore('?').substringBefore('#').lowercase()
-        return path.endsWith(".txt") || path.endsWith(".html") || path.endsWith(".htm")
-    }
-
     private fun resolvePlayerUrl(raw: String?): String? {
         val value = raw?.trim()?.replace("\\/", "/") ?: return null
         if (value.isEmpty()) return null

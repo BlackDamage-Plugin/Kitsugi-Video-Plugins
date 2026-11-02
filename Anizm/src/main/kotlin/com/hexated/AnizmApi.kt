@@ -259,6 +259,62 @@ internal object AnizmApi {
         return null
     }
 
+    // ------------------------------------------------------------------
+    // anizmplayer.com `getVideo` cevabı
+    // ------------------------------------------------------------------
+
+    /** `getVideo` cevabındaki adresler: oynatılabilirler ve metin kopyaları. */
+    data class PlayerMedia(val media: List<String>, val textual: List<String>)
+
+    /**
+     * Canlı ölçüm (02.11.2026):
+     * ```json
+     * {"hls":true,
+     *  "videoSource":"https://anizmplayer.com/cdn/hls/<md5>/master.txt",
+     *  "securedLink":"https://anizmplayer.com/cdn/hls/<md5>/master.m3u8?md5=…&expires=…"}
+     * ```
+     * `videoSource` bir **metin kopyasıdır**; akış olarak verilmez. `securedLink`
+     * imzalı HLS master'ıdır ve sıra onunladır. `master.txt` yalnızca gövdesi
+     * `#EXTM3U` ise oynatılabilir (o kontrol çağıran tarafta yapılır).
+     */
+    fun parseAnizmPlayerMedia(body: String?): PlayerMedia {
+        val text = body?.trim().orEmpty()
+        val json = runCatching { JSONObject(text) }.getOrNull()
+            ?: return PlayerMedia(emptyList(), emptyList())
+        val secured = json.optString("securedLink").asAbsoluteUrl()
+        val videoSource = json.optString("videoSource").asAbsoluteUrl()
+        val media = buildList {
+            secured?.takeUnless { it.isTextualCopy() }?.let { add(it) }
+            videoSource?.takeUnless { it.isTextualCopy() }?.let { add(it) }
+            for (key in listOf("video", "videoSources", "sources")) {
+                val array = json.optJSONArray(key) ?: continue
+                for (index in 0 until array.length()) {
+                    val item = array.optJSONObject(index) ?: continue
+                    val file = item.optString("file").ifBlank { item.optString("src") }
+                        .ifBlank { item.optString("url") }
+                    val url = file.asAbsoluteUrl() ?: continue
+                    if (!url.isTextualCopy()) add(url)
+                }
+            }
+        }.distinct()
+        val textual = listOfNotNull(secured, videoSource).filter { it.isTextualCopy() }.distinct()
+        return PlayerMedia(media, textual)
+    }
+
+    private fun String.asAbsoluteUrl(): String? {
+        val value = trim().replace("\\/", "/")
+        if (value.isEmpty()) return null
+        if (value.startsWith("//")) return "https:$value"
+        if (!value.startsWith("http")) return null
+        return value
+    }
+
+    /** `.txt`/`.html` uzantılı kopya — doğrudan akış sayılmaz. */
+    fun String.isTextualCopy(): Boolean {
+        val path = substringBefore('?').substringBefore('#').lowercase()
+        return path.endsWith(".txt") || path.endsWith(".html") || path.endsWith(".htm")
+    }
+
     private fun iframeSrc(html: String, base: String): String? {
         val doc = runCatching { Jsoup.parse(html, base) }.getOrNull() ?: return null
         val src = doc.selectFirst("iframe[src], iframe[data-src]")
