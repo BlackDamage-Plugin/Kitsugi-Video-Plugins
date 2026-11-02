@@ -1,0 +1,220 @@
+# Anizm +18 kapısı + kaynak zinciri probu
+- UA: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36
+
+## 1) Alan adı erişimi (çerez kavanozu ile)
+- https://anizm.net/ → 403 5687B başlık='Just a moment...' cf=True via=urllib
+- https://anizm.com.tr/ → 200 147432B başlık='Anime İzle | Türkçe Altyazılı Anime Bölümleri - Anizm' cf=False via=urllib
+    set-cookie: XSRF-TOKEN=eyJpdiI6IkFiaWtoRTBkdGQxS2hjZ3VSVW1FM3c9PSIsInZhbHVlIjoiR1AxQU4zT3Nkd3RvVEY2VXdHemVHYnljcERnKzQ3c1ZveGxhRVNpNjFBWUxBZnJKb2ZaRmxTR0xGSVA4TzNVclo4dWFab
+- https://www.puffytr.com/ → 525 11015B başlık='puffytr.com | 525: SSL handshake failed' cf=False via=urllib
+- seçilen taban: https://anizm.com.tr
+- kavanoz: anizm.com.tr|XSRF-TOKEN=eyJpdiI6IkFiaWtoRTBkdGQxS2hjZ3VSVW1FM3c9 (exp=1794214351), anizm.com.tr|anizm_session=eyJpdiI6Im9Pa2JXWFpFSkc2ZFRGZUFoYlVDbkE9 (exp=1794214351)
+- bölüm adresi: https://anizm.com.tr/shingeki-no-kyojin-movie-kanketsu-hen-the-last-attack-shingeki-no-kyojin-movie-kanketsu-hen---the-last-attack-bolum-izle
+
+## 2) Bölüm sayfası (onay öncesi)
+- 200 109263B başlık='Shingeki no Kyojin Movie: Kanketsu-hen - The Last Attack Shingeki no K...' final=https://anizm.com.tr/shingeki-no-kyojin-movie-kanketsu-hen-the-last-attack-shingeki-no-kyojin-movie-kanketsu-hen---the-last-attack-bolum-izle
+    set-cookie: XSRF-TOKEN=eyJpdiI6Ilk5b3d3U1ppZFMzaHBzQm5Rdm9JNnc9PSIsInZhbHVlIjoiWjZSZHYwUlRGcklKdGJ4ZzdmTGZtUDRXanhrSU9UNXR5QjQ5TU9jN1BiWlZQejRXVnZZc213TmF1UzdwSlRmSUpjQ3NkQ
+- kavanoz: anizm.com.tr|XSRF-TOKEN=eyJpdiI6Ilk5b3d3U1ppZFMzaHBzQm5Rdm9JNnc9 (exp=1794214351), anizm.com.tr|anizm_session=eyJpdiI6IlJjME9KUHJYWVZyNlZ6RzNWOHBYV2c9 (exp=1794214351)
+- HTML işaretleri:
+    'data-translatorclick': 0
+    'data-playerclick': 0
+    'episodePlayerContent': 0
+    'episodePlayers': 0
+    'translatorCompactBox': 0
+    'data-sources': 1
+    'data-v3-translator': 1
+    'csrf-token': 10
+    'Video kaynaklarını yüklemek': 0
+    '+18': 4
+    'Yaş sınırı uyarısı': 1
+    'yasKontrol': 0
+    'age-gate': 0
+    'agegate': 0
+    'onay': 1
+    'cerez': 0
+    'cookie': 3
+    'localStorage': 1
+    'section.v3-hero': 0
+    'v3-': 192
+- form sayısı: 2
+    form[0] method=GET action=https://anizm.com.tr/arama
+        <input id="v3-search" name="q" type="search" placeholder="Anime, seri ara" maxlength="100" autocomplete="off" aria-controls="v3-search-suggestions" aria-expanded="false" value="">
+    form[1] method=? action=?
+- kapı penceresi (HTML):
+--- Yaş sınırı uyarısı ---
+s://anizm.com.tr/magaza"><i data-lucide="sparkles" aria-hidden="true"></i><span>Premium</span></a>
+        </div>
+    </aside>
+
+    <main class="v3-main" id="main">
+                    <dialog class="v3-content-warning" data-v3-content-warning data-rating="18" data-anime-id="18521" data-account-managed="0" aria-labelledby="v3-content-warning-title" aria-describedby="v3-content-warning-description">
+    <div class="v3-content-warning-card">
+        <span class="v3-content-warning-badge">+18</span>
+        <p class="v3-section-kicker">İÇERİK UYARISI</p>
+        <h2 id="v3-content-warning-title">Yaş sınırı uyarısı</h2>
+        <p id="v3-content-warning-description">
+                            Bu anime +18 olarak işaretlenmiştir. Devam ederek 18 yaşında veya daha büyük olduğunuzu onaylarsınız.
+                    </p>
+                                    <p class="v3-content-warning-note">Seçim yalnızca bu tarayıcıda saklanır. +16 ve +18 uyarıları bu tarayıcıda gösterilmez; hesap tercihin değişmez.</p>
+                            <div class="v3-content-warning-actions">
+            <button type="button" class="v3-primary-button" data-v3-content-warning-accept>Uyarıyı kabul et ve devam et</button>
+                                                <button type="button" class="v3-secondary-button" data-v3-content-warning-remember="browser">Kabul et ve +16/+18 uyarılarını bu tarayıcıda gizle</button>
+                                        <a class="v3-secondary-button" href="https://anizm.com.tr">Geri dön</a>
+        </div>
+    </div>
+</dialog>
+        
+    <div class="v3-episode-background is-default" aria-hidden="true">
+        <img src="https://anizm.com.tr/upload/assets/headercover.webp" alt="" draggable="false" fetchpriority="high" style="--episode-bg-x:50%;--episode-bg-y:27%;--episode-bg-zoom:1.015;--episode-bg-mobile-x:59%;--episode-bg-mobile-y:0%;--episode-bg-mobile-zoom:1.015;">
+    </div>
+    <div class="v3-shell v3-watch" id="v3-watch" data-auth="0" data-login="https://anizm.com.tr/girisyap"
+         data-progress="https://anizm.com.tr/bolum/78177/ilerleme"
+         data-auto-progress="0">
+        <nav class="v3-breadcrumb" aria-label="Sayfa yolu">
+            <a href="https://anizm.com.tr">Ana sayfa</a><i data-lucide="chevron-right" aria-hidden="true"></i>
+            <a href="https://anizm.com.tr/shingeki-no-kyojin-movie-kanketsu-hen-the-last-attack">Shingeki no Kyojin Movie: Kanketsu-hen - The Last Attack</a><i data-lucide="chevron-right" aria-hidden="true"></i>
+            <span aria-current="page">Shingeki no Kyojin Movie: Kanketsu-hen - The Last Attack. Bölüm</span>
+        </nav>
+
+        <div class="v3-watch-heading">
+            <div><span class="v3-section-kicker">BÖLÜM İZLE / 1</span><h1><a class="v3-watch-series-button" href="https://anizm.com.tr/shingeki-no-kyojin-movie-kanketsu-hen-the-last-attack" aria-label="Shingeki no Kyojin Movie: Kanketsu-hen - The Last Attack anime bilgi sayfasını aç">Shingeki no Kyojin Movie: Kanketsu-hen - The Last Attack<i data-lucide="arrow-up-right" aria-hidden="true"></i></a><span>Shingeki no Kyojin Movie: Kanketsu-hen - The Last Attack. Bölüm</span></h1></div>
+            <span class="v3-watch-date">26 Nisan 2025</span>
+        </div>
+
+        <div class="v3-watch-grid">
+            <div class="v3-watch-primary">
+                                                                    
+                
+                <div class="v3-watch-controls">
+                    <div class="v3-watch-toggles">
+                        <button type="button" id="v3-watched" data-watched="0" data-url="https:
+--- /Yaş sınırı uyarısı ---
+- çevirmen düğmeleri (ham):
+    <button class="v3-translator-button" type="button" aria-pressed="false"
+                                        data-translator-id="101517"
+                                        data-v3-translator data-sources="https://anizm.com.tr/bolum/78177/cevirmen/101517"
+                                        title="Seicode">
+
+## 3) Script dosyaları
+- 16 script: jquery-3.7.1.min.js, avi.js?date=20261102&v=0, v833ccba57c9e4_68.js?query=0&id=57&class=video-card&v=1, anizm-counter.js?v=1.0.0, cookie-consent.js?v=1.0.5, v3-measurement.js?v=1.0.4, v3-push.js?v=1.0.0, lucide.min.js, v3.js?v=3.1.6, v3-content-warning.js?v=1.0.5, semantic.min.js, discordInvite.js, v3-episode.js?v=1.3.7, v3-watch-together.js?v=1.0.6, v3-chatango.js?v=1.1.0, vce701823e78c4301a35b7e07294d87301792088814092
+
+- jquery-3.7.1.min.js → 200 87533B
+
+- avi.js?date=20261102&v=0 → 200 6494B
+
+- v833ccba57c9e4_68.js?query=0&id=57&class=video-card&v=1 → 200 19521B
+    yaş/çerez satırı: 1
+      | var __pd="sH3rThVji0WktmbYfUnsAW9MfImq49VqNuzNWXQ3VFRjGmcQ-uO8hHPvTZ5WA_KhHbTbp_-37uKDoSTzb9Pr-oUkqno4hzWM91X0UfEGxtWXXIb9MtLsmDrYP64iIGJnu9CIzjQR4qnlTIOzwgZLD1L-n5b9pyskxJuNSkLBwJvmiRrKfyqWbvuo__3EBlNi_fk-KXuzuH4f6i1Z_anp7GNbqVzTjStBBJp8sExKhXGIhQIFayzsz9eEqgTowvayxEXqoT49PuoK4A0_GVLAppNrT-XBO9Np5u
+
+- anizm-counter.js?v=1.0.0 → 200 809B
+
+- cookie-consent.js?v=1.0.5 → 200 14240B
+    yaş/çerez satırı: 93
+      | /* JavaScript dosyası: Çerez onay bildirimi için fonksiyonlar - Düzeltilmiş */
+      | initCookieBanner();
+      | function initCookieBanner() {
+      | let banner = document.querySelector('.cookie-consent-banner');
+      | createCookieConsentBanner();
+      | banner = document.querySelector('.cookie-consent-banner');
+      | const consentLevel = getCookie('cookie_consent_level');
+      | if (!consentLevel) {
+      | function openCookieSettings() {
+      | initCookieBanner();
+      | const banner = document.querySelector('.cookie-consent-banner');
+      | const savedPreferences = JSON.parse(getCookie('cookie_consent_preferences') || '{}');
+      | const checkbox = banner.querySelector(`#${name}_cookies`);
+      | const settingsPanel = banner.querySelector('.cookie-settings');
+      | const customizeButton = banner.querySelector('.cookie-customize');
+      | window.openCookieSettings = openCookieSettings;
+      | ? event.target.closest('[data-cookie-preferences]')
+      | openCookieSettings();
+      | const banner = document.querySelector('.cookie-consent-banner');
+      | const acceptAllButtons = document.querySelectorAll('.cookie-accept-all');
+      | setCookieConsent('all');
+      | hideCookieBanner();
+      | const rejectBtn = document.querySelector('.cookie-reject');
+      | setCookieConsent('necessary');
+
+- v3-measurement.js?v=1.0.4 → 200 1367B
+
+- v3-push.js?v=1.0.0 → 200 7365B
+
+- lucide.min.js → 200 357796B
+    yaş/çerez satırı: 2
+      | (function(a,n){typeof exports=="object"&&typeof module<"u"?n(exports):typeof define=="function"&&define.amd?define(["exports"],n):(a=typeof globalThis<"u"?globalThis:a||self,n(a.lucide={}))})(this,function(a){"use strict";const n=(t,d,c=[])=>{const p=document.createElementNS("http://www.w3.org/2000/
+      | lucide.createIcons({icons});\``);if(typeof document>"u")throw new Error("`createIcons()` only works in a browser environment.");const p=document.querySelectorAll(`[${d}]`);if(Array.from(p).forEach(M=>E0(M,{nameAttr:d,icons:t,attrs:c})),d==="data-lucide"){const M=document.querySelectorAll("[icon-name
+
+- v3.js?v=3.1.6 → 200 6509B
+
+- v3-content-warning.js?v=1.0.5 → 200 6268B
+    yaş/çerez satırı: 7
+      | const sessionStorageKey = `anizm.v3.content-warning.${animeId}`;
+      | return Number(window.sessionStorage.getItem(sessionStorageKey)) || 0;
+      | return Number(window.localStorage.getItem(rememberedStorageKey)) || 0;
+      | ? '18 yaşında veya daha büyük olduğumu onaylıyorum. Tercihim hesabıma kaydedilecek; +16 ve +18 içerik uyarılarının hiçbiri gösterilmeyecek. Bu anime uyarısı da bu oturumda tekrar gösterilmeyecek.'
+      | : '18 yaşında veya daha büyük olduğumu onaylıyorum. Tercihim hesabıma kaydedilecek; +16 uyarıları gizlenecek, +18 içerik uyarıları gösterilmeye devam edecek. Bu anime uyarısı bu oturumda tekrar gösterilmeyecek.';
+      | window.sessionStorage.setItem(sessionStorageKey, String(Math.max(readSessionRating(), rating)));
+      | window.localStorage.setItem(rememberedStorageKey, String(Math.max(readRememberedRating(), rating)));
+
+- semantic.min.js → 200 275703B
+    yaş/çerez satırı: 1
+      | !function(p,h,v,b){p.site=p.fn.site=function(e){var s,l,i=(new Date).getTime(),o=[],t=e,n="string"==typeof t,c=[].slice.call(arguments,1),u=p.isPlainObject(e)?p.extend(!0,{},p.site.settings,e):p.extend({},p.site.settings),a=u.namespace,d=u.error,r="module-"+a,f=p(v),m=this,g=f.data(r);return s={init
+
+- discordInvite.js → 200 4550B
+    yaş/çerez satırı: 1
+      | d = '<div id="joinedDiscord">' + i.joinedText + '<svg name="Checkmark" width="18" height="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg" id="discordSVG"><g fill="none" fill-rule="evenodd" id="gDiscord"><polyline stroke="currentColor" stroke-width="2" points="3.5 9.5 7 13 15 5" id="discor
+
+- v3-episode.js?v=1.3.7 → 200 17938B
+
+- v3-watch-together.js?v=1.0.6 → 200 24146B
+    yaş/çerez satırı: 3
+      | try { return sessionStorage.getItem(tokenStorageKey(code)) || ''; }
+      | try { sessionStorage.setItem(tokenStorageKey(code), token); }
+      | try { sessionStorage.removeItem(tokenStorageKey(code)); }
+
+- v3-chatango.js?v=1.1.0 → 200 1827B
+
+- vce701823e78c4301a35b7e07294d87301792088814092 → 200 31853B
+
+- JS'ten çıkan aday uçlar:
+    /video/
+- csrf-token: VAR (vo4rXmv0veBu…)
+- kapı öncesi (kaynak işareti, kapı işareti): (1, 1)
+
+## 4) Kapıyı aşma denemeleri
+- GET /18-yas-onay → 404 loc='' set-cookie=['XSRF-TOKEN=eyJpdiI6InZZeW4zS2c5UkdvMmEwRmxNVFFVOFE9PSIsInZhbHVlIjoiZndmSEs3b3ZtRjJFdjc0ZVYvS1JwY2lvZE1aQjcxOHZ']
+    kavanoz: anizm.com.tr|XSRF-TOKEN=eyJpdiI6InZZeW4zS2c5UkdvMmEwRmxNVFFVOFE9 (exp=1794214355), anizm.com.tr|anizm_session=eyJpdiI6Imp3ZTlFQzRMLzV1TGxnVkd3QjlkMnc9 (exp=1794214355), wargamings.net|PHPSESSID=jtqtqvl52ca4v63ji14i0kcpg0 (exp=None)
+    sonrası (kaynak, kapı): (1, 1)  boyut=109263
+- GET /yas-onayi → 404 loc='' set-cookie=['XSRF-TOKEN=eyJpdiI6IlEwWVg5OVhWckhUZTFiVzM3RmFBNWc9PSIsInZhbHVlIjoiREJkZTE4Q09zTlRFQnBKZUtLckR2T0EwWmp2T3pBbHl']
+    kavanoz: anizm.com.tr|XSRF-TOKEN=eyJpdiI6IlEwWVg5OVhWckhUZTFiVzM3RmFBNWc9 (exp=1794214357), anizm.com.tr|anizm_session=eyJpdiI6IjZkTDlYUk5BUVVOVE5QV1BaOWpxdVE9 (exp=1794214357), wargamings.net|PHPSESSID=jtqtqvl52ca4v63ji14i0kcpg0 (exp=None)
+    sonrası (kaynak, kapı): (1, 1)  boyut=109263
+- GET /yas-onay → 404 loc='' set-cookie=['XSRF-TOKEN=eyJpdiI6IlZncEk2R3dUK2tJNEdNb0k3bEpOdXc9PSIsInZhbHVlIjoiRklydUM1VjBETmN5QzdJOGdOdDQ5Qy9TcnhNS21meHd']
+    kavanoz: anizm.com.tr|XSRF-TOKEN=eyJpdiI6IlZncEk2R3dUK2tJNEdNb0k3bEpOdXc9 (exp=1794214359), anizm.com.tr|anizm_session=eyJpdiI6Im1BbnpYWGthZU9FSVBqYVc0S1NtR1E9 (exp=1794214359), wargamings.net|PHPSESSID=jtqtqvl52ca4v63ji14i0kcpg0 (exp=None)
+    sonrası (kaynak, kapı): (1, 1)  boyut=109263
+- GET /age-verify → 404 loc='' set-cookie=['XSRF-TOKEN=eyJpdiI6IjJFN2NXcVlPUG9wUHA1amlBWUFmZVE9PSIsInZhbHVlIjoiYkpSUzd5dFAzKzJaMmVMZm9rZGdVeFNCblhzYm1iUVB']
+    kavanoz: anizm.com.tr|XSRF-TOKEN=eyJpdiI6IjJFN2NXcVlPUG9wUHA1amlBWUFmZVE9 (exp=1794214361), anizm.com.tr|anizm_session=eyJpdiI6InlEVnNyeTB3UHA5aE80NVFkMXZIM0E9 (exp=1794214361), wargamings.net|PHPSESSID=jtqtqvl52ca4v63ji14i0kcpg0 (exp=None)
+    sonrası (kaynak, kapı): (1, 1)  boyut=109263
+- GET /age-verification → 404 loc='' set-cookie=['XSRF-TOKEN=eyJpdiI6ImVwVW02MmdNaEw3SEwxT1JEMEhYMGc9PSIsInZhbHVlIjoiTDJGUm1DYTZFdTJLZGJubmg3bVhMbTdBRmZOR2ZLbnV']
+    kavanoz: anizm.com.tr|XSRF-TOKEN=eyJpdiI6ImVwVW02MmdNaEw3SEwxT1JEMEhYMGc9 (exp=1794214362), anizm.com.tr|anizm_session=eyJpdiI6IlNLTGN6NU40QXNUSEJINmR0NlFPRHc9 (exp=1794214362), wargamings.net|PHPSESSID=jtqtqvl52ca4v63ji14i0kcpg0 (exp=None)
+    sonrası (kaynak, kapı): (1, 1)  boyut=109263
+- GET /onay → 404 loc='' set-cookie=['XSRF-TOKEN=eyJpdiI6IjE4YkpJMjRMSnRSTlBDc3VJbWx5QkE9PSIsInZhbHVlIjoiWjEvTGZUQzY3ZzdKK3Vub25nVzY4L2RHTVF5MmtKNnV']
+    kavanoz: anizm.com.tr|XSRF-TOKEN=eyJpdiI6IjE4YkpJMjRMSnRSTlBDc3VJbWx5QkE9 (exp=1794214364), anizm.com.tr|anizm_session=eyJpdiI6Ik1hRGxrWTFFUjRJekVHNjdicExsSEE9 (exp=1794214364), wargamings.net|PHPSESSID=jtqtqvl52ca4v63ji14i0kcpg0 (exp=None)
+    sonrası (kaynak, kapı): (1, 1)  boyut=109263
+- GET /18 → 404 loc='' set-cookie=['XSRF-TOKEN=eyJpdiI6IjJHNDRXbU44eU5YSmZNUVhKMURGSnc9PSIsInZhbHVlIjoiTDgvWjIxcllUSDhPbjNWU2xPdlpYN3kvQ3ZJVHRLZmp']
+    kavanoz: anizm.com.tr|XSRF-TOKEN=eyJpdiI6IjJHNDRXbU44eU5YSmZNUVhKMURGSnc9 (exp=1794214365), anizm.com.tr|anizm_session=eyJpdiI6ImVpMTFVeWVyZGc2RDk4ZXN3eGpLc0E9 (exp=1794214365), wargamings.net|PHPSESSID=jtqtqvl52ca4v63ji14i0kcpg0 (exp=None)
+    sonrası (kaynak, kapı): (1, 1)  boyut=109263
+- GET /18plus → 404 loc='' set-cookie=['XSRF-TOKEN=eyJpdiI6IlEvQjVYU0Y4UXU5MERkeWtNYTlVVUE9PSIsInZhbHVlIjoicW1ibFpKeUl4bnBsbzVqRXYzY0F0Ymt2ZUt6QVFmK1V']
+    kavanoz: anizm.com.tr|XSRF-TOKEN=eyJpdiI6IlEvQjVYU0Y4UXU5MERkeWtNYTlVVUE9 (exp=1794214367), anizm.com.tr|anizm_session=eyJpdiI6ImN0WVBmMmt5SkkwOFhuYXczek41eWc9 (exp=1794214367), wargamings.net|PHPSESSID=jtqtqvl52ca4v63ji14i0kcpg0 (exp=None)
+    sonrası (kaynak, kapı): (1, 1)  boyut=109263
+- GET /nsfw-onay → 404 loc='' set-cookie=['XSRF-TOKEN=eyJpdiI6Ijk2WjFtMEg1bXFSQTdBaURXWU55VXc9PSIsInZhbHVlIjoiQlBaOVpYT2twM3RiTlVTcWtpZllFRjZlV081VWFGbU1']
+    kavanoz: anizm.com.tr|XSRF-TOKEN=eyJpdiI6Ijk2WjFtMEg1bXFSQTdBaURXWU55VXc9 (exp=1794214368), anizm.com.tr|anizm_session=eyJpdiI6IjhmYm43VDVBU2JJRE1tSElKNUpBSFE9 (exp=1794214368), wargamings.net|PHPSESSID=jtqtqvl52ca4v63ji14i0kcpg0 (exp=None)
+    sonrası (kaynak, kapı): (1, 1)  boyut=109263
+
+## 5) Kaynak zinciri
+- çevirmen yolu: 0 → []
+- video yolu: 0 → []
+
+## 6) anizmplayer getVideo
+
+## 7) kavanozun son hâli
+- anizm.com.tr|XSRF-TOKEN=eyJpdiI6InpKQit6cnBzSlg5RVVuT3huT1oxN1E9 (exp=1794214369), anizm.com.tr|anizm_session=eyJpdiI6InZ2d2cyVk41Rld5K0dZcklNS1doemc9 (exp=1794214369), wargamings.net|PHPSESSID=jtqtqvl52ca4v63ji14i0kcpg0 (exp=None)
+- toplam günlük satırı: 145
