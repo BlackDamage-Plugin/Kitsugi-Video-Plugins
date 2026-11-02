@@ -71,6 +71,10 @@ jobs:
           python3 -u tools/anizm_resolve_probe.py $ARGS > research/anizm-probe/resolve.log 2>&1 || true
           tail -30 research/anizm-probe/resolve.log || true
 
+      - name: Sistenn oynatıcı sözleşmesi
+        continue-on-error: true
+        run: python3 -u tools/anizm_sistenn_probe.py > research/anizm-probe/sistenn.log 2>&1 || true
+
       - name: Raporu dala geri yaz
         if: always()
         run: |
