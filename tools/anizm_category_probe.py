@@ -127,10 +127,13 @@ def report(path: str) -> None:
         r"<span class=\"v3-section-kicker\">(.*?)</span>", html, re.S | re.I
     )
     h1 = re.search(r"<h1[^>]*>(.*?)</h1>", html, re.S | re.I)
+    def flat(raw: str) -> str:
+        return re.sub(r"\s+", " ", re.sub(r"<[^>]+>", "", raw)).strip()
+
     if h1:
-        log(f"  h1         : {re.sub(r'\\s+', ' ', re.sub(r'<[^>]+>', '', h1.group(1))).strip()[:90]}")
+        log("  h1         : " + flat(h1.group(1))[:90])
     if kicker:
-        log(f"  kicker     : {re.sub(r'\\s+', ' ', re.sub(r'<[^>]+>', '', kicker.group(1))).strip()[:90]}")
+        log("  kicker     : " + flat(kicker.group(1))[:90])
 
     log("  ilk kartlar:")
     for t in card_titles(html):
