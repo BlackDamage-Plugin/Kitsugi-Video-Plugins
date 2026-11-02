@@ -12,6 +12,8 @@ on:
       - arena/b539cd4c-kitsugi-plugins
     paths:
       - "tools/anizm_gate_probe.py"
+      - "tools/anizm_resolve_probe.py"
+      - "tools/anizm_sistenn_probe.py"
       - ".github/workflows/Anizm-Gate-Probe.yml"
   workflow_dispatch:
     inputs:
