@@ -4,16 +4,16 @@
 ## 1) Alan adı erişimi (çerez kavanozu ile)
 - https://anizm.net/ → 403 5687B başlık='Just a moment...' cf=True via=urllib
 - https://anizm.com.tr/ → 200 147432B başlık='Anime İzle | Türkçe Altyazılı Anime Bölümleri - Anizm' cf=False via=urllib
-    set-cookie: XSRF-TOKEN=eyJpdiI6IjVFZzhRUkRrTFJralRKcjBpd2JiVXc9PSIsInZhbHVlIjoib3J0Y3dxZTE1T1lJUXV1TFRNek41NmlCNCtWd210WFpqSlFodHVWVWxWdTBHTG1zUWgzUlFnWW9nVUYzRk9VcHUrV25mU
-- https://www.puffytr.com/ → 525 11010B başlık='puffytr.com | 525: SSL handshake failed' cf=False via=urllib
+    set-cookie: XSRF-TOKEN=eyJpdiI6IjZiNHNuOG9ZdDQ0UFp5SC9kOUtKRHc9PSIsInZhbHVlIjoiWUpVc3RzcEpQZmFjRXZWaS92L1hPcmdUczc5NkpVaWt4ZTFkS1JPVkN5amlxdE9nWkFWUGVkaDQvcFBJc0wwTUduNE5Qa
+- https://www.puffytr.com/ → 525 11008B başlık='puffytr.com | 525: SSL handshake failed' cf=False via=urllib
 - seçilen taban: https://anizm.com.tr
-- kavanoz: anizm.com.tr|XSRF-TOKEN=eyJpdiI6IjVFZzhRUkRrTFJralRKcjBpd2JiVXc9 (exp=1794214430), anizm.com.tr|anizm_session=eyJpdiI6ImsveDVsclZQNTlRN2tJU29RRUJoYkE9 (exp=1794214430)
+- kavanoz: anizm.com.tr|XSRF-TOKEN=eyJpdiI6IjZiNHNuOG9ZdDQ0UFp5SC9kOUtKRHc9 (exp=1794214571), anizm.com.tr|anizm_session=eyJpdiI6Imw1ZHZjNmVIOFUwRXUzcXkrUjMyZ0E9 (exp=1794214571)
 - bölüm adresi: https://anizm.com.tr/shingeki-no-kyojin-movie-kanketsu-hen-the-last-attack-shingeki-no-kyojin-movie-kanketsu-hen---the-last-attack-bolum-izle
 
 ## 2) Bölüm sayfası (onay öncesi)
 - 200 109263B başlık='Shingeki no Kyojin Movie: Kanketsu-hen - The Last Attack Shingeki no K...' final=https://anizm.com.tr/shingeki-no-kyojin-movie-kanketsu-hen-the-last-attack-shingeki-no-kyojin-movie-kanketsu-hen---the-last-attack-bolum-izle
-    set-cookie: XSRF-TOKEN=eyJpdiI6IldKcTYyZ3JaSXhhVmFxd3I4eDg4bWc9PSIsInZhbHVlIjoiQStIbjBPMXUzZ0c0TE1MNURQQ3p2d2tPdXBwdkY4WHlMd2lzamxId3VZZ055UjRrUDJXaUJuNFU0bUNMamt6NCt2SXFDW
-- kavanoz: anizm.com.tr|XSRF-TOKEN=eyJpdiI6IldKcTYyZ3JaSXhhVmFxd3I4eDg4bWc9 (exp=1794214431), anizm.com.tr|anizm_session=eyJpdiI6IkgyYWN0VWZYb2dnTnZveEtOcnZqTUE9 (exp=1794214431)
+    set-cookie: XSRF-TOKEN=eyJpdiI6Ikh5cS9wVE1aOVVzcC9IbmpML3VPWFE9PSIsInZhbHVlIjoiVkFsM29KTzRVNnA2RE8rR0xDandmakd2S0M5TWErUGRKK1ZFUEc5TXB2MTZLbUFQcXo1ZjdSNEhEcDFvNVNTUTF6dXRne
+- kavanoz: anizm.com.tr|XSRF-TOKEN=eyJpdiI6Ikh5cS9wVE1aOVVzcC9IbmpML3VPWFE9 (exp=1794214573), anizm.com.tr|anizm_session=eyJpdiI6ImxTZ0NXY0NNcExjaHozQlZiTkNVOVE9 (exp=1794214573)
 - HTML işaretleri:
     'data-translatorclick': 0
     'data-playerclick': 0
@@ -102,8 +102,6 @@ s://anizm.com.tr/magaza"><i data-lucide="sparkles" aria-hidden="true"></i><span>
 - avi.js?date=20261102&v=0 → 200 6494B
 
 - v833ccba57c9e4_68.js?query=0&id=57&class=video-card&v=1 → 200 19501B
-    yaş/çerez satırı: 1
-      | var __pd="wSi6lFdiHZBUmjIaK_-fwqHnVpTvbadR_XSAEZkWaH3uyPMXCcBlHcnwgrg5P5A0PFOS83-NALqrO5-avAyu9q4GEOJigTk3iW39uB5KO36QLSKxb13MC3nKmTBgnjwdA7VWSsUwKb_nvT18E-wWYvvqLOe_YZB6wvYtkXkRSJSQBTETkVx7fXDLcp-BMF8UhvRTZ1-4FnaFWLC9GLw83tIwHaCJ5agHNZGi_oq1UuoYLY36Lcx6xyTyo5xZaT8vzCVSSWDeXPw41vneXlHNJIhsgVSNdshJiC
 
 - anizm-counter.js?v=1.0.0 → 200 809B
 
@@ -144,161 +142,6 @@ s://anizm.com.tr/magaza"><i data-lucide="sparkles" aria-hidden="true"></i><span>
       | lucide.createIcons({icons});\``);if(typeof document>"u")throw new Error("`createIcons()` only works in a browser environment.");const p=document.querySelectorAll(`[${d}]`);if(Array.from(p).forEach(M=>E0(M,{nameAttr:d,icons:t,attrs:c})),d==="data-lucide"){const M=document.querySelectorAll("[icon-name
 
 - v3.js?v=3.1.6 → 200 6509B
-    --- TAM DOSYA (6509B) ---
-      » (() => {
-      »     const slider = document.querySelector('[data-v3-slider]');
-      »     const slides = slider ? [...slider.querySelectorAll('[data-v3-slide]')] : [];
-      »     const dots = slider ? [...slider.querySelectorAll('[data-v3-slide-to]')] : [];
-      »     let activeSlide = Math.max(0, slides.findIndex(slide => slide.classList.contains('is-active')));
-      »     let rotationTimer;
-      » 
-      »     const showSlide = index => {
-      »         if (!slides.length) return;
-      »         activeSlide = (index + slides.length) % slides.length;
-      »         slides.forEach((slide, slideIndex) => {
-      »             const active = slideIndex === activeSlide;
-      »             slide.classList.toggle('is-active', active);
-      »             slide.setAttribute('aria-hidden', String(!active));
-      »         });
-      »         dots.forEach((dot, dotIndex) => dot.setAttribute('aria-pressed', String(dotIndex === activeSlide)));
-      »     };
-      » 
-      »     const stopRotation = () => window.clearInterval(rotationTimer);
-      »     const startRotation = () => {
-      »         stopRotation();
-      »         if (slides.length < 2 || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-      »         rotationTimer = window.setInterval(() => showSlide(activeSlide + 1), 8000);
-      »     };
-      » 
-      »     if (slider && slides.length > 1) {
-      »         slider.querySelectorAll('[data-v3-slide-step]').forEach(button => {
-      »             button.addEventListener('click', () => {
-      »                 showSlide(activeSlide + Number(button.dataset.v3SlideStep));
-      »                 startRotation();
-      »             });
-      »         });
-      »         dots.forEach((dot, index) => dot.addEventListener('click', () => {
-      »             showSlide(index);
-      »             startRotation();
-      »         }));
-      »         slider.addEventListener('mouseenter', stopRotation);
-      »         slider.addEventListener('mouseleave', startRotation);
-      »         slider.addEventListener('focusin', stopRotation);
-      »         slider.addEventListener('focusout', startRotation);
-      »         document.addEventListener('visibilitychange', () => document.hidden ? stopRotation() : startRotation());
-      » 
-      »         let pointerStart = null;
-      »         slider.addEventListener('pointerdown', event => { pointerStart = event.clientX; });
-      »         slider.addEventListener('pointerup', event => {
-      »             if (pointerStart !== null && Math.abs(event.clientX - pointerStart) >= 55) {
-      »                 showSlide(activeSlide + (event.clientX < pointerStart ? 1 : -1));
-      »                 startRotation();
-      »             }
-      »             pointerStart = null;
-      »         });
-      »         slider.addEventListener('pointercancel', () => { pointerStart = null; });
-      »         startRotation();
-      »     }
-      » 
-      »     document.querySelectorAll('[data-v3-scroll]').forEach(button => {
-      »         button.addEventListener('click', () => {
-      »             const rail = document.getElementById(button.dataset.v3Target);
-      »             if (!rail) return;
-      »             const direction = button.dataset.v3Scroll === 'left' ? -1 : 1;
-      »             rail.scrollBy({ left: direction * Math.max(rail.clientWidth * 0.82, 240), behavior: 'smooth' });
-      »         });
-      »     });
-      » 
-      »     document.querySelectorAll('.v3-wide-rail, .v3-poster-rail').forEach(rail => {
-      »         let drag = null;
-      »         let suppressClick = false;
-      » 
-      »         const prefersReducedMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-      » 
-      »         const animateDragTarget = () => {
-      »             if (!drag || drag.frameId) return;
-      »             const step = () => {
-      »                 if (!drag) return;
-      »                 const remaining = drag.targetScrollLeft - rail.scrollLeft;
-      »                 if (Math.abs(remaining) < 0.5) {
-      »                     rail.scrollLeft = drag.targetScrollLeft;
-      »                     drag.frameId = 0;
-      »                     return;
-      »                 }
-      »                 rail.scrollLeft += remaining * 0.22;
-      »                 drag.frameId = window.requestAnimationFrame(step);
-      »             };
-      »             drag.frameId = window.requestAnimationFrame(step);
-      »         };
-      » 
-      »         rail.addEventListener('dragstart', event => event.preventDefault());
-      »         rail.addEventListener('click', event => {
-      »             if (!suppressClick) return;
-      »             event.preventDefault();
-      »             event.stopPropagation();
-      »             suppressClick = false;
-      »         }, true);
-      » 
-      »         rail.addEventListener('pointerdown', event => {
-      »             if (event.pointerType === 'touch' || event.button !== 0) return;
-      »             drag = { pointerId: event.pointerId, startX: event.clientX, scrollLeft: rail.scrollLeft, targetScrollLeft: rail.scrollLeft, frameId: 0, moved: false };
-      »         });
-      » 
-      »         rail.addEventListener('pointermove', event => {
-      »             if (!drag || drag.pointerId !== event.pointerId) return;
-      »             const distance = event.clientX - drag.startX;
-      »             if (!drag.moved && Math.abs(distance) < 6) return;
-      »             if (!drag.moved) {
-      »                 drag.moved = true;
-      »                 rail.classList.add('is-dragging');
-      »                 rail.setPointerCapture(event.pointerId);
-      »             }
-      »             drag.targetScrollLeft = Math.max(0, Math.min(rail.scrollWidth - rail.clientWidth, drag.scrollLeft - distance));
-      »             if (prefersReducedMotion()) {
-      »                 rail.scrollLeft = drag.targetScrollLeft;
-      »             } else {
-      »                 animateDragTarget();
-      »             }
-      »             event.preventDefault();
-      »         });
-      » 
-      »         rail.addEventListener('pointerup', event => {
-      »             if (!drag || drag.pointerId !== event.pointerId) return;
-      »             if (drag.moved) {
-      »                 suppressClick = true;
-      »                 window.setTimeout(() => { suppressClick = false; }, 0);
-      »                 if (drag.frameId) window.cancelAnimationFrame(drag.frameId);
-      »             }
-      »             rail.classList.remove('is-dragging');
-      »             drag = null;
-      »         });
-      » 
-      »         rail.addEventListener('pointercancel', () => {
-      »             if (drag?.frameId) window.cancelAnimationFrame(drag.frameId);
-      »             rail.classList.remove('is-dragging');
-      »             drag = null;
-      »             suppressClick = false;
-      »         });
-      »     });
-      » 
-      »     const menus = [...document.querySelectorAll('[data-v3-menu]')];
-      »     document.addEventListener('click', event => {
-      »         menus.forEach(menu => {
-      »             if (menu.open && !menu.contains(event.target)) menu.open = false;
-      »         });
-      »     });
-      »     document.addEventListener('keydown', event => {
-      »         if (event.key !== 'Escape') return;
-      »         menus.forEach(menu => {
-      »             if (!menu.open) return;
-      »             menu.open = false;
-      »             menu.querySelector('summary')?.focus();
-      »         });
-      »     });
-      » 
-      »     if (window.lucide) window.lucide.createIcons();
-      » })();
-    --- /TAM DOSYA ---
 
 - v3-content-warning.js?v=1.0.5 → 200 6268B
     --- TAM DOSYA (6268B) ---
@@ -466,392 +309,6 @@ s://anizm.com.tr/magaza"><i data-lucide="sparkles" aria-hidden="true"></i><span>
       | d = '<div id="joinedDiscord">' + i.joinedText + '<svg name="Checkmark" width="18" height="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg" id="discordSVG"><g fill="none" fill-rule="evenodd" id="gDiscord"><polyline stroke="currentColor" stroke-width="2" points="3.5 9.5 7 13 15 5" id="discor
 
 - v3-episode.js?v=1.3.7 → 200 17938B
-    --- TAM DOSYA (17938B) ---
-      » document.addEventListener('DOMContentLoaded', () => {
-      »     const watch = document.getElementById('v3-watch');
-      »     if (!watch) return;
-      » 
-      »     const screen = document.getElementById('v3-player-screen');
-      »     const videoOptions = document.getElementById('v3-source-options');
-      »     const translatorButtons = [...document.querySelectorAll('[data-v3-translator]')];
-      »     const credits = document.getElementById('v3-credits');
-      »     const roomPanel = document.getElementById('v3-watch-together');
-      »     const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
-      »     const initialPlayerLoadDelay = 1000;
-      »     const loggedIn = watch.dataset.auth === '1';
-      »     const initialRoom = roomPanel?.dataset.initialRoom || '';
-      »     let translatorRequest = 0;
-      »     let playerRequest = 0;
-      »     let progressScheduled = false;
-      »     let playerInitializationStarted = false;
-      »     let playerUnlocked = !document.querySelector('[data-v3-content-warning]') || window.v3ContentWarningAccepted === true;
-      »     let pendingRoomSource = null;
-      »     let defaultSourceRequested = false;
-      » 
-      »     const notify = message => window.v3Toast ? window.v3Toast(message) : alert(message);
-      » 
-      »     async function request(url, options = {}) {
-      »         const response = await fetch(url, {
-      »             credentials: 'same-origin',
-      »             ...options,
-      »             headers: { Accept: 'application/json', 'X-Requested-With': 'XMLHttpRequest', 'X-CSRF-TOKEN': csrfToken, ...options.headers }
-      »         });
-      »         const data = await response.json();
-      »         if (!response.ok || !data.success) throw new Error(data.message || 'İşlem tamamlanamadı.');
-      »         return data;
-      »     }
-      » 
-      »     function setPlayerMessage(message) {
-      »         const state = document.createElement('p');
-      »         state.className = 'v3-player-state';
-      »         state.textContent = message;
-      »         screen.replaceChildren(state);
-      »     }
-      » 
-      »     function resetReport() {
-      »         const report = document.getElementById('v3-report');
-      »         report.setAttribute('aria-disabled', 'true');
-      »         report.setAttribute('tabindex', '-1');
-      »     }
-      » 
-      »     function sameOriginUrl(value) {
-      »         if (!value) return null;
-      »         try {
-      »             const url = new URL(value, location.origin);
-      »             return url.origin === location.origin && ['http:', 'https:'].includes(url.protocol) ? url.href : null;
-      »         } catch (_) {
-      »             return null;
-      »         }
-      »     }
-      » 
-      »     function markCreditsLoading() {
-      »         if (!credits) return;
-      »         credits.setAttribute('aria-busy', 'true');
-      »         const status = document.getElementById('v3-credits-status');
-      »         if (status) status.textContent = 'Yeni kaynak yükleniyor…';
-      »     }
-      » 
-      »     function finishCreditsUpdate(message = 'Önceki kaynak bilgisi gösteriliyor') {
-      »         if (!credits) return;
-      »         credits.removeAttribute('aria-busy');
-      »         const status = document.getElementById('v3-credits-status');
-      »         if (status) status.textContent = message;
-      »     }
-      » 
-      »     function updateCredits(data) {
-      »         if (!credits) return;
-      » 
-      »         const translator = document.getElementById('v3-credits-translator');
-      »         if (translator) translator.textContent = data.translator || 'Belirtilmemiş';
-      » 
-      »         const redaktorItem = document.getElementById('v3-credits-redaktor-item');
-      »         if (redaktorItem) redaktorItem.hidden = !data.redaktor;
-      »         const redaktor = document.getElementById('v3-credits-redaktor');
-      »         if (redaktor) redaktor.textContent = data.redaktor || '';
-      » 
-      »         const encoder = document.getElementById('v3-credits-encoder');
-      »         if (encoder) {
-      »             encoder.hidden = !data.encoder;
-      »             const encoderName = encoder.querySelector('strong');
-      »             if (encoderName) encoderName.textContent = data.encoder || '';
-      »         }
-      » 
-      »         const uploaderCard = document.getElementById('v3-credit-uploader-card');
-      »         const uploaderLink = document.getElementById('v3-credit-uploader');
-      »         const uploaderFollowButton = document.getElementById('v3-credit-uploader-follow');
-      »         const uploaderMissing = document.getElementById('v3-credit-uploader-missing');
-      »         const uploader = data.uploader;
-      »         const profileUrl = sameOriginUrl(uploader?.url);
-      »         const avatarUrl = sameOriginUrl(uploader?.avatar);
-      »         if (uploaderCard) uploaderCard.hidden = !uploader || !profileUrl;
-      »         if (uploaderMissing) uploaderMissing.hidden = Boolean(uploader && profileUrl);
-      » 
-      »         if (uploader && profileUrl) {
-      »             if (uploaderLink) uploaderLink.href = profileUrl;
-      »             const avatar = document.getElementById('v3-credit-uploader-avatar');
-      »             if (avatar) {
-      »                 avatar.hidden = !avatarUrl;
-      »                 if (avatarUrl) avatar.src = avatarUrl;
-      »             }
-      »             const uploaderName = document.getElementById('v3-credit-uploader-name');
-      »             const uploaderGroup = document.getElementById('v3-credit-uploader-group');
-      »             const uploaderCount = document.getElementById('v3-credit-uploader-count');
-      »             if (uploaderName) uploaderName.textContent = uploader.name || 'Anizm kullanıcısı';
-      »             if (uploaderGroup) uploaderGroup.textContent = uploader.group || 'Bilinmiyor';
-      »             if (uploaderCount) uploaderCount.textContent = `${Number(uploader.uploads) || 0} video yükledi`;
-      »             if (uploaderFollowButton) {
-      »                 const isFollowing = uploader.isFollowing === true;
-      »                 uploaderFollowButton.hidden = uploader.canFollow !== true;
-      »                 uploaderFollowButton.dataset.following = isFollowing ? '1' : '0';
-      »                 uploaderFollowButton.dataset.followUrl = uploader.followUrl || '';
-      »                 uploaderFollowButton.dataset.unfollowUrl = uploader.unfollowUrl || '';
-      »                 uploaderFollowButton.setAttribute('aria-pressed', String(isFollowing));
-      »                 uploaderFollowButton.textContent = isFollowing ? 'Takipten çık' : 'Takip et';
-      »                 uploaderFollowButton.disabled = false;
-      »             }
-      »         } else if (uploaderFollowButton) {
-      »             uploaderFollowButton.hidden = true;
-      »         }
-      » 
-      »         credits.hidden = false;
-      »         finishCreditsUpdate();
-      »     }
-      » 
-      »     document.addEventListener('click', async event => {
-      »         const button = event.target.closest('[data-v3-uploader-follow]');
-      »         if (!button || button.disabled) return;
-      » 
-      »         const isFollowing = button.dataset.following === '1';
-      »         const endpoint = isFollowing ? button.dataset.unfollowUrl : button.dataset.followUrl;
-      »         if (!endpoint) return;
-      » 
-      »         button.disabled = true;
-      »         try {
-      »             const response = await fetch(endpoint, {
-      »                 method: 'POST',
-      »                 credentials: 'same-origin',
-      »                 headers: {
-      »                     Accept: 'application/json',
-      »                     'X-Requested-With': 'XMLHttpRequest',
-      »                     'X-CSRF-TOKEN': csrfToken
-      »                 }
-      »             });
-      »             const data = await response.json().catch(() => ({}));
-      »             if (!response.ok) throw new Error(data.message || 'Takip işlemi tamamlanamadı.');
-      » 
-      »             const nowFollowing = !isFollowing;
-      »             button.dataset.following = nowFollowing ? '1' : '0';
-      »             button.setAttribute('aria-pressed', String(nowFollowing));
-      »             button.textContent = nowFollowing ? 'Takipten çık' : 'Takip et';
-      »             if (data.message) notify(data.message);
-      »         } catch (error) {
-      »             notify(error.message || 'Takip işlemi tamamlanamadı.');
-      »         } finally {
-      »             button.disabled = false;
-      »         }
-      »     });
-      » 
-      »     async function selectVideo(button) {
-      »         if (!playerUnlocked) return;
-      »         const videoId = Number(button.dataset.video);
-      »         if (window.v3WatchTogether && !window.v3WatchTogether.canSelectVideo(videoId)) {
-      »             notify('Oda sürerken video kaynağı değiştirilemez. Önce odadan ayrılın.');
-      »             return;
-      »         }
-      » 
-      »         const requestId = ++playerRequest;
-      »         document.dispatchEvent(new CustomEvent('v3:player-loading', { detail: { videoId } }));
-      »         videoOptions.querySelectorAll('button').forEach(option => {
-      »             option.setAttribute('aria-pressed', String(option === button));
-      »         });
-      »         resetReport();
-      »         markCreditsLoading();
-      »         setPlayerMessage('Oynatıcı yükleniyor...');
-      » 
-      »         try {
-      »             const data = await request(button.dataset.url);
-      »             if (requestId !== playerRequest) return;
-      » 
-      »             const playerUrl = new URL(data.url);
-      »             if (playerUrl.protocol !== 'https:' || playerUrl.host !== location.host) throw new Error('Oynatıcı adresi geçersiz.');
-      » 
-      »             const frame = document.createElement('iframe');
-      »             frame.title = 'Anime video oynatıcı';
-      »             frame.src = playerUrl.href;
-      »             // /player/{id} redirects to external providers; delegate PiP to the final origin too.
-      »             frame.setAttribute('allow', 'autoplay; fullscreen *; picture-in-picture *');
-      »             screen.replaceChildren(frame);
-      »             document.dispatchEvent(new CustomEvent('v3:player-loaded', {
-      »                 detail: {
-      »                     frame,
-      »                     videoId,
-      »                     watchTogether: data.watchTogether === true,
-      »                     playerOrigin: data.playerOrigin || null,
-      »                 }
-      »             }));
-      »             document.getElementById('v3-now-playing').textContent = data.source;
-      » 
-      »             const report = document.getElementById('v3-report');
-      »             report.href = report.href.replace(/\/video\/\d+$/, '/video/' + button.dataset.video);
-      »             report.removeAttribute('aria-disabled');
-      »             report.removeAttribute('tabindex');
-      » 
-      »             updateCredits(data);
-      » 
-      »             if (loggedIn && watch.dataset.autoProgress === '1' && !progressScheduled) {
-      »                 progressScheduled = true;
-      »                 setTimeout(() => request(watch.dataset.progress, { method: 'POST' }).catch(() => {}), 120000);
-      »             }
-      »         } catch (error) {
-      »             if (requestId !== playerRequest) return;
-      »             finishCreditsUpdate();
-      »             setPlayerMessage(error.message);
-      »             if (window.v3WatchTogether?.isActive()) {
-      »                 document.dispatchEvent(new CustomEvent('v3:watch-together-source-error', { detail: { message: error.message } }));
-      »             }
-      »         }
-      »     }
-      » 
-      »     async function selectTranslator(button, preferredVideoId = null) {
-      »         if (!playerUnlocked) return;
-      »         playerInitializationStarted = true;
-      »         const requestId = ++translatorRequest;
-      »         ++playerRequest;
-      »         translatorButtons.forEach(option => option.setAttribute('aria-pressed', String(option === button)));
-      »         videoOptions.replaceChildren();
-      »         resetReport();
-      »         markCreditsLoading();
-      »         setPlayerMessage('Kaynaklar yükleniyor...');
-      » 
-      »         try {
-      »             const data = await request(button.dataset.sources);
-      »             if (requestId !== translatorRequest) return;
-      »             if (!data.videos.length) {
-      »                 finishCreditsUpdate();
-      »                 setPlayerMessage('Bu çeviri için hazır kaynak bulunamadı.');
-      »                 return;
-      »             }
-      »             data.videos.forEach(video => {
-      »                 const option = document.createElement('button');
-      »                 option.type = 'button';
-      »                 option.textContent = video.name;
-      »                 option.dataset.video = video.id;
-      »                 option.dataset.url = button.dataset.sources.replace(/\/cevirmen\/\d+$/, '/video/' + video.id);
-      »                 option.dataset.watchTogether = video.watchTogether ? '1' : '0';
-      »                 option.setAttribute('aria-pressed', 'false');
-      »                 option.disabled = Boolean(window.v3WatchTogether?.isActive());
-      »                 option.addEventListener('click', () => selectVideo(option));
-      »                 videoOptions.append(option);
-      »             });
-      »             const preferredOption = preferredVideoId === null
-      »                 ? null
-      »                 : [...videoOptions.querySelectorAll('button')].find(option => Number(option.dataset.video) === Number(preferredVideoId));
-      »             if (preferredVideoId !== null && !preferredOption) {
-      »                 throw new Error('Oda için seçilen BetaPlayer kaynağı bu bölümde artık kullanılamıyor.');
-      »             }
-      »             selectVideo(preferredOption || videoOptions.firstElementChild);
-      »         } catch (error) {
-      »             if (requestId !== translatorRequest) return;
-      »             finishCreditsUpdate();
-      »             setPlayerMessage(error.message);
-      »             if (preferredVideoId !== null) {
-      »                 document.dispatchEvent(new CustomEvent('v3:watch-together-source-error', { detail: { message: error.message } }));
-      »             }
-      »         }
-      »     }
-      » 
-      »     translatorButtons.forEach(button => button.addEventListener('click', () => {
-      »         if (window.v3WatchTogether?.isActive()) {
-      »             notify('Oda sürerken çeviri kaynağı değiştirilemez. Önce odadan ayrılın.');
-      »             return;
-      »         }
-      »         selectTranslator(button);
-      »     }));
-      »     document.addEventListener('v3:watch-together-select-source', event => {
-      »         if (!playerUnlocked) {
-      »             pendingRoomSource = event.detail;
-      »             return;
-      »         }
-      »         const button = translatorButtons.find(option => Number(option.dataset.translatorId) === Number(event.detail.translatorId));
-      »         if (!button) {
-      »             document.dispatchEvent(new CustomEvent('v3:watch-together-source-error', {
-      »                 detail: { message: 'Oda kaynağının çevirisi bu bölümde bulunamadı.' }
-      »             }));
-      »             return;
-      »         }
-      »         selectTranslator(button, Number(event.detail.videoId));
-      »     });
-      »     document.addEventListener('v3:watch-together-restore-default-source', () => {
-      »         if (!playerUnlocked) {
-      »             pendingRoomSource = null;
-      »             defaultSourceRequested = true;
-      »             return;
-      »         }
-      »         if (translatorButtons.length) selectTranslator(translatorButtons[0]);
-      »         else setPlayerMessage('Bu bölüm için yayınlanmış video bulunamadı.');
-      »     });
-      »     const initializePlayer = () => {
-      »         if (playerInitializationStarted) return;
-      »         playerInitializationStarted = true;
-      » 
-      »         if (pendingRoomSource) {
-      »             const source = pendingRoomSource;
-      »             pendingRoomSource = null;
-      »             document.dispatchEvent(new CustomEvent('v3:watch-together-select-source', { detail: source }));
-      »         } else if (translatorButtons.length && (!initialRoom || defaultSourceRequested)) {
-      »             selectTranslator(translatorButtons[0]);
-      »         } else if (!initialRoom) {
-      »             setPlayerMessage('Bu bölüm için hazır video bulunamadı.');
-      »         } else {
-      »             setPlayerMessage('Watch Together odasına bağlanılıyor...');
-      »         }
-      »     };
-      » 
-      »     if (playerUnlocked) {
-      »         window.setTimeout(initializePlayer, initialPlayerLoadDelay);
-      »     }
-      »     else {
-      »         setPlayerMessage(`Video kaynaklarını yüklemek için +${document.querySelector('[data-v3-content-warning]')?.dataset.rating} uyarısını kabul edin.`);
-      »         document.addEventListener('v3:content-warning-accepted', () => {
-      »             playerUnlocked = true;
-      »             initializePlayer();
-      »         }, { once: true });
-      »     }
-      » 
-      »     document.getElementById('v3-fullscreen').addEventListener('click', () => {
-      »         if (document.fullscreenElement) document.exitFullscreen();
-      »         else screen.requestFullscreen?.();
-      »     });
-      » 
-      »     const watchedButton = document.getElementById('v3-watched');
-      »     watchedButton.addEventListener('click', async () => {
-      »         if (!loggedIn) { location.href = watch.dataset.login; return; }
-      »         watchedButton.disabled = true;
-      »         const wasWatched = watchedButton.dataset.watched === '1';
-      »         try {
-      »             await request(watchedButton.dataset.url, { method: 'POST', body: new URLSearchParams({ watched: wasWatched ? '0' : '1' }) });
-      »             watchedButton.dataset.watched = wasWatched ? '0' : '1';
-      »             watchedButton.setAttribute('aria-pressed', String(!wasWatched));
-      »             watchedButton.querySelector('span').textContent = wasWatched ? 'İzledim' : 'İzlendi';
-      »             notify(wasWatched ? 'İzlendi işareti kaldırıldı.' : 'İzlendi olarak kaydedildi.');
-      »         } catch (error) { notify(error.message); }
-      »         finally { watchedButton.disabled = false; }
-      »     });
-      » 
-      »     const followButton = document.getElementById('v3-follow');
-      »     followButton.addEventListener('click', async () => {
-      »         if (!loggedIn) { location.href = watch.dataset.login; return; }
-      »         followButton.disabled = true;
-      »         try {
-      »             const data = await request(followButton.dataset.url, { method: 'POST' });
-      »             followButton.dataset.following = data.is_following ? '1' : '0';
-      »             followButton.setAttribute('aria-pressed', String(data.is_following));
-      »             followButton.querySelector('span').textContent = data.is_following ? 'Bildirim açık' : 'Takip et';
-      »             notify(data.is_following ? 'Bölüm bildirimleri açıldı.' : 'Bölüm bildirimleri kapatıldı.');
-      »         } catch (error) { notify(error.message); }
-      »         finally { followButton.disabled = false; }
-      »     });
-      » 
-      »     document.getElementById('v3-episode-filter').addEventListener('input', event => {
-      »         const search = event.target.value.trim().toLocaleLowerCase('tr-TR');
-      »         let visible = 0;
-      »         document.querySelectorAll('[data-v3-episode-item]').forEach(item => {
-      »             item.hidden = !item.textContent.toLocaleLowerCase('tr-TR').includes(search);
-      »             if (!item.hidden) visible++;
-      »         });
-      »         document.getElementById('v3-no-episodes').hidden = visible !== 0;
-      »     });
-      » 
-      »     const comments = document.getElementById('v3-comments-root');
-      »     const keepCommentLinksInV3 = () => {
-      »         comments.querySelectorAll('a[href^="/profil/"], a[href="/magaza"], a[href="/girisyap"]').forEach(link => {
-      »             link.setAttribute('href', '/v3' + link.getAttribute('href'));
-      »         });
-      »     };
-      »     keepCommentLinksInV3();
-      »     new MutationObserver(keepCommentLinksInV3).observe(comments, { childList: true, subtree: true });
-      » });
-    --- /TAM DOSYA ---
 
 - v3-watch-together.js?v=1.0.6 → 200 24146B
     yaş/çerez satırı: 3
@@ -865,7 +322,7 @@ s://anizm.com.tr/magaza"><i data-lucide="sparkles" aria-hidden="true"></i><span>
 
 - JS'ten çıkan aday uçlar:
     /video/
-- csrf-token: VAR (FrBTcy2Lc2fw…)
+- csrf-token: VAR (Q3FdSVvA8sdk…)
 - kapı öncesi (kaynak işareti, kapı işareti): (1, 1)
 
 ## 4) Kapıyı aşma denemeleri (sunucu tarafı kapı var mı?)
@@ -875,13 +332,152 @@ s://anizm.com.tr/magaza"><i data-lucide="sparkles" aria-hidden="true"></i><span>
 
 ## 5) Kaynak zinciri
 - çevirmen yolu: 1 → ['https://anizm.com.tr/bolum/78177/cevirmen/101517']
-  - çevirmen[0]/plain → 200 839B '{"success":true,"videos":[{"id":1739970,"name":"Aincrad (Reklams\\u0131z)","watchTogether":false},{"id":1739962,"name":"Sistenn","watchTogether":false},{"id":1739966,"name":"Sistenn1","watchTogether":false},{"id":1739967,"name":"Sistenn2","watchTogether":false},{"id":1739930,"name":"Mail.ru","watchTogether":false},{"id":1739928,"name":"GDrive","watchTogether":false},{"id":1739960,"name":"GDrive","watchTogether":false},{"id":1739959,"name":"Abyss","watchTogether":false},{"id":1739968,"name":"Abyss","watchTogether":false},{"id":1739963,"name":"UQload","watchTogether":false},{"id":1739932,"name":"Vidmoly","watchTogether":false},{"id":1739965,"name":"Vidmoly","watchTogether":false},{"id":1739931,"name":"HDVid","watchTogether":false},{"id":1739933,"name":"Voe","watchTogether":false},{"id":1739969,"name":"Voe","watchTogether":false}]}'
-  - çevirmen[0]/xhr → 200 839B '{"success":true,"videos":[{"id":1739970,"name":"Aincrad (Reklams\\u0131z)","watchTogether":false},{"id":1739962,"name":"Sistenn","watchTogether":false},{"id":1739966,"name":"Sistenn1","watchTogether":false},{"id":1739967,"name":"Sistenn2","watchTogether":false},{"id":1739930,"name":"Mail.ru","watchTogether":false},{"id":1739928,"name":"GDrive","watchTogether":false},{"id":1739960,"name":"GDrive","watchTogether":false},{"id":1739959,"name":"Abyss","watchTogether":false},{"id":1739968,"name":"Abyss","watchTogether":false},{"id":1739963,"name":"UQload","watchTogether":false},{"id":1739932,"name":"Vidmoly","watchTogether":false},{"id":1739965,"name":"Vidmoly","watchTogether":false},{"id":1739931,"name":"HDVid","watchTogether":false},{"id":1739933,"name":"Voe","watchTogether":false},{"id":1739969,"name":"Voe","watchTogether":false}]}'
-  - çevirmen[0]/xhrcsrf → 200 839B '{"success":true,"videos":[{"id":1739970,"name":"Aincrad (Reklams\\u0131z)","watchTogether":false},{"id":1739962,"name":"Sistenn","watchTogether":false},{"id":1739966,"name":"Sistenn1","watchTogether":false},{"id":1739967,"name":"Sistenn2","watchTogether":false},{"id":1739930,"name":"Mail.ru","watchTogether":false},{"id":1739928,"name":"GDrive","watchTogether":false},{"id":1739960,"name":"GDrive","watchTogether":false},{"id":1739959,"name":"Abyss","watchTogether":false},{"id":1739968,"name":"Abyss","watchTogether":false},{"id":1739963,"name":"UQload","watchTogether":false},{"id":1739932,"name":"Vidmoly","watchTogether":false},{"id":1739965,"name":"Vidmoly","watchTogether":false},{"id":1739931,"name":"HDVid","watchTogether":false},{"id":1739933,"name":"Voe","watchTogether":false},{"id":1739969,"name":"Voe","watchTogether":false}]}'
-- video yolu: 0 → []
+  - çevirmen[0] https://anizm.com.tr/bolum/78177/cevirmen/101517 → 200 839B
+      · video id=1739970 ad=Aincrad (Reklamsız) watchTogether=False
+      · video id=1739962 ad=Sistenn watchTogether=False
+      · video id=1739966 ad=Sistenn1 watchTogether=False
+      · video id=1739967 ad=Sistenn2 watchTogether=False
+      · video id=1739930 ad=Mail.ru watchTogether=False
+      · video id=1739928 ad=GDrive watchTogether=False
+      · video id=1739960 ad=GDrive watchTogether=False
+      · video id=1739959 ad=Abyss watchTogether=False
+      · video id=1739968 ad=Abyss watchTogether=False
+      · video id=1739963 ad=UQload watchTogether=False
+      · video id=1739932 ad=Vidmoly watchTogether=False
+      · video id=1739965 ad=Vidmoly watchTogether=False
+      · video id=1739931 ad=HDVid watchTogether=False
+      · video id=1739933 ad=Voe watchTogether=False
+      · video id=1739969 ad=Voe watchTogether=False
+      · toplam 15 video
+  - video 1739970 (Aincrad (Reklamsız)) → 200 496B
+      » {"success":true,"url":"https:\/\/anizm.com.tr\/player\/1739970","source":"Aincrad (Reklams\u0131z)","translator":"Nisan","redaktor":"","encoder":"Kingsama","uploader":{"name":"Rinrintan","url":"https:\/\/anizm.com.tr\/profil\/Rinrintan","avatar":"\/storage\/pavatars\/tumblr_d76f10ec6fc4cac367b65d004
+      player=https://anizm.com.tr/player/1739970 source=Aincrad (Reklamsız) origin=None
+      /player → 302 location='https://anizmplayer.com/video/5bf8509788862cf237bc3a048e090698' bytes=861
+  - video 1739962 (Sistenn) → 200 479B
+      » {"success":true,"url":"https:\/\/anizm.com.tr\/player\/1739962","source":"Sistenn","translator":"Nisan","redaktor":"","encoder":"Kingsama","uploader":{"name":"Rinrintan","url":"https:\/\/anizm.com.tr\/profil\/Rinrintan","avatar":"\/storage\/pavatars\/tumblr_d76f10ec6fc4cac367b65d004246fe9a_f9e320eb_
+      player=https://anizm.com.tr/player/1739962 source=Sistenn origin=None
+      /player → 302 location='https://sistenn.uns.bio/#epccep' bytes=737
+  - video 1739966 (Sistenn1) → 200 480B
+      » {"success":true,"url":"https:\/\/anizm.com.tr\/player\/1739966","source":"Sistenn1","translator":"Nisan","redaktor":"","encoder":"Kingsama","uploader":{"name":"Rinrintan","url":"https:\/\/anizm.com.tr\/profil\/Rinrintan","avatar":"\/storage\/pavatars\/tumblr_d76f10ec6fc4cac367b65d004246fe9a_f9e320eb
+      player=https://anizm.com.tr/player/1739966 source=Sistenn1 origin=None
+      /player → 302 location='https://anizm.rpmvid.com/#8e1lx' bytes=737
+  - video 1739967 (Sistenn2) → 200 480B
+      » {"success":true,"url":"https:\/\/anizm.com.tr\/player\/1739967","source":"Sistenn2","translator":"Nisan","redaktor":"","encoder":"Kingsama","uploader":{"name":"Rinrintan","url":"https:\/\/anizm.com.tr\/profil\/Rinrintan","avatar":"\/storage\/pavatars\/tumblr_d76f10ec6fc4cac367b65d004246fe9a_f9e320eb
+      player=https://anizm.com.tr/player/1739967 source=Sistenn2 origin=None
+      /player → 302 location='https://anizm.strp2p.com/#nkwqg' bytes=737
+  - video 1739930 (Mail.ru) → 200 422B
+      » {"success":true,"url":"https:\/\/anizm.com.tr\/player\/1739930","source":"Mail.ru","translator":"Nisan","redaktor":"","encoder":"Kingsama","uploader":{"name":"Seicode","url":"https:\/\/anizm.com.tr\/profil\/Seicode","avatar":"\/storage\/pavatars\/47583362-1736516084.webp","group":"Fansub","uploads":
+      player=https://anizm.com.tr/player/1739930 source=Mail.ru origin=None
+      /player → 302 location='https://my.mail.ru/xmail.ru/seicodesubs/video/embed/_myvideo/29' bytes=865
+  - video 1739928 (GDrive) → 200 421B
+      » {"success":true,"url":"https:\/\/anizm.com.tr\/player\/1739928","source":"GDrive","translator":"Nisan","redaktor":"","encoder":"Kingsama","uploader":{"name":"Seicode","url":"https:\/\/anizm.com.tr\/profil\/Seicode","avatar":"\/storage\/pavatars\/47583362-1736516084.webp","group":"Fansub","uploads":4
+      player=https://anizm.com.tr/player/1739928 source=GDrive origin=None
+      /player → 302 location='https://drive.google.com/file/d/1le8EVsw5RJ0EwHQHSyxbIZJanXLMakZO/preview' bytes=905
+  - video 1739960 (GDrive) → 200 478B
+      » {"success":true,"url":"https:\/\/anizm.com.tr\/player\/1739960","source":"GDrive","translator":"Nisan","redaktor":"","encoder":"Kingsama","uploader":{"name":"Rinrintan","url":"https:\/\/anizm.com.tr\/profil\/Rinrintan","avatar":"\/storage\/pavatars\/tumblr_d76f10ec6fc4cac367b65d004246fe9a_f9e320eb_5
+      player=https://anizm.com.tr/player/1739960 source=GDrive origin=None
+      /player → 302 location='https://drive.google.com/file/d/1-dJzqs7mRdOc7rZWAhDSPLlDdHuoYQkQ/preview' bytes=905
+  - video 1739959 (Abyss) → 200 477B
+      » {"success":true,"url":"https:\/\/anizm.com.tr\/player\/1739959","source":"Abyss","translator":"Nisan","redaktor":"","encoder":"Kingsama","uploader":{"name":"Rinrintan","url":"https:\/\/anizm.com.tr\/profil\/Rinrintan","avatar":"\/storage\/pavatars\/tumblr_d76f10ec6fc4cac367b65d004246fe9a_f9e320eb_54
+      player=https://anizm.com.tr/player/1739959 source=Abyss origin=None
+      /player → 302 location='https://player.abyssplayer.com/aRzhgcnST' bytes=773
+  - video 1739968 (Abyss) → 200 477B
+      » {"success":true,"url":"https:\/\/anizm.com.tr\/player\/1739968","source":"Abyss","translator":"Nisan","redaktor":"","encoder":"Kingsama","uploader":{"name":"Rinrintan","url":"https:\/\/anizm.com.tr\/profil\/Rinrintan","avatar":"\/storage\/pavatars\/tumblr_d76f10ec6fc4cac367b65d004246fe9a_f9e320eb_54
+      player=https://anizm.com.tr/player/1739968 source=Abyss origin=None
+      /player → 302 location='https://player.abyssplayer.com/oaa7fvZZ2' bytes=773
+  - video 1739963 (UQload) → 200 478B
+      » {"success":true,"url":"https:\/\/anizm.com.tr\/player\/1739963","source":"UQload","translator":"Nisan","redaktor":"","encoder":"Kingsama","uploader":{"name":"Rinrintan","url":"https:\/\/anizm.com.tr\/profil\/Rinrintan","avatar":"\/storage\/pavatars\/tumblr_d76f10ec6fc4cac367b65d004246fe9a_f9e320eb_5
+      player=https://anizm.com.tr/player/1739963 source=UQload origin=None
+      /player → 302 location='https://uqload.io/embed-k1wrlkfx05sm.html' bytes=777
+  - video 1739932 (Vidmoly) → 200 422B
+      » {"success":true,"url":"https:\/\/anizm.com.tr\/player\/1739932","source":"Vidmoly","translator":"Nisan","redaktor":"","encoder":"Kingsama","uploader":{"name":"Seicode","url":"https:\/\/anizm.com.tr\/profil\/Seicode","avatar":"\/storage\/pavatars\/47583362-1736516084.webp","group":"Fansub","uploads":
+      player=https://anizm.com.tr/player/1739932 source=Vidmoly origin=None
+      /player → 302 location='https://vidmoly.biz/embed-l878k7lqgnkx.html' bytes=785
+  - video 1739965 (Vidmoly) → 200 479B
+      » {"success":true,"url":"https:\/\/anizm.com.tr\/player\/1739965","source":"Vidmoly","translator":"Nisan","redaktor":"","encoder":"Kingsama","uploader":{"name":"Rinrintan","url":"https:\/\/anizm.com.tr\/profil\/Rinrintan","avatar":"\/storage\/pavatars\/tumblr_d76f10ec6fc4cac367b65d004246fe9a_f9e320eb_
+      player=https://anizm.com.tr/player/1739965 source=Vidmoly origin=None
+      /player → 302 location='https://vidmoly.biz/embed-04pnj175izud.html' bytes=785
+  - video 1739931 (HDVid) → 200 420B
+      » {"success":true,"url":"https:\/\/anizm.com.tr\/player\/1739931","source":"HDVid","translator":"Nisan","redaktor":"","encoder":"Kingsama","uploader":{"name":"Seicode","url":"https:\/\/anizm.com.tr\/profil\/Seicode","avatar":"\/storage\/pavatars\/47583362-1736516084.webp","group":"Fansub","uploads":46
+      player=https://anizm.com.tr/player/1739931 source=HDVid origin=None
+      /player → 302 location='https://hdvid.tv/embed-euza9664vhie-950x480.html' bytes=805
+  - video 1739933 (Voe) → 200 418B
+      » {"success":true,"url":"https:\/\/anizm.com.tr\/player\/1739933","source":"Voe","translator":"Nisan","redaktor":"","encoder":"Kingsama","uploader":{"name":"Seicode","url":"https:\/\/anizm.com.tr\/profil\/Seicode","avatar":"\/storage\/pavatars\/47583362-1736516084.webp","group":"Fansub","uploads":4624
+      player=https://anizm.com.tr/player/1739933 source=Voe origin=None
+      /player → 302 location='https://voe.sx/e/wnikmc7dj5qv' bytes=729
+  - video 1739969 (Voe) → 200 475B
+      » {"success":true,"url":"https:\/\/anizm.com.tr\/player\/1739969","source":"Voe","translator":"Nisan","redaktor":"","encoder":"Kingsama","uploader":{"name":"Rinrintan","url":"https:\/\/anizm.com.tr\/profil\/Rinrintan","avatar":"\/storage\/pavatars\/tumblr_d76f10ec6fc4cac367b65d004246fe9a_f9e320eb_540.
+      player=https://anizm.com.tr/player/1739969 source=Voe origin=None
+      /player → 302 location='https://voe.sx/e/v0ylw8x0rc39' bytes=729
 
-## 6) anizmplayer getVideo
+## 6) Sağlayıcı sayfaları (son hedefler)
+- [Aincrad (Reklamsız)] https://anizmplayer.com/video/5bf8509788862cf237bc3a048e090698 → 200 22050B başlık='Anizm Player' final=https://anizmplayer.com/video/5bf8509788862cf237bc3a048e090698
+    script: /gMetrics/
+    script: //code.jquery.com/jquery-1.12.4.min.js
+    script: https://anizmplayer.com/player/assets/scripts.php?v=9
+    script: https://anizmplayer.com/player/assets/remodal/remodal.min.js
+    script: https://static.cloudflareinsights.com/beacon.min.js/vce701823e78c4301a35b7e07294d87301792088814092
+- [Sistenn] https://sistenn.uns.bio/#epccep → 200 2734B başlık='Player' final=https://sistenn.uns.bio/#epccep
+    script: /assets/index-BIGTwUIh.js
+    script: https://static.cloudflareinsights.com/beacon.min.js/vce701823e78c4301a35b7e07294d87301792088814092
+- [Sistenn1] https://anizm.rpmvid.com/#8e1lx → 200 1753B başlık='Loading...' final=https://anizm.rpmvid.com/#8e1lx
+    script: /assets/index-B82x0F06.js
+    script: https://static.cloudflareinsights.com/beacon.min.js/vce701823e78c4301a35b7e07294d87301792088814092
+    script: https://www.googletagmanager.com/gtag/js?id=G-QD0EQ1F2VZ
+    script: https://mc.yandex.ru/metrika/tag.js
+    script: /download-page-link.js
+- [Sistenn2] https://anizm.strp2p.com/#nkwqg → 200 1658B başlık='Loading...' final=https://anizm.strp2p.com/#nkwqg
+    script: /assets/index-U2p-0kC9.js
+    script: https://static.cloudflareinsights.com/beacon.min.js/vce701823e78c4301a35b7e07294d87301792088814092
+    script: https://www.googletagmanager.com/gtag/js?id=G-HQCWVZNGV7
+    script: https://mc.yandex.ru/metrika/tag.js
+- [Mail.ru] https://my.mail.ru/xmail.ru/seicodesubs/video/embed/_myvideo/29 → 200 152514B başlık='[Seicode] Shingeki no Kyojin Movie - The Last Attack (1080p) :: video.mail.ru' final=https://my.mail.ru/xmail.ru/seicodesubs/video/embed/_myvideo/29
+    script: //my4.imgsmail.ru/mail/ru/images/js/myjs/mm/out/min/bundles/all_revac66ec605f.js
+    ipucu 'file:': …;sendReport(reportData);}}function getReportData(event) {return {url: window.location.href,message: event.message || '',file: event.filename || '',line: event.lineno || 0,platform: getPlatform(),user: userId,call_stack: (event && event.error && event.error.stack) || '',user_agent: navigator.userAgent || '',referer: document.referrer || ''
+- [GDrive] https://drive.google.com/file/d/1le8EVsw5RJ0EwHQHSyxbIZJanXLMakZO/preview → 401 9085B başlık='-' final=https://drive.google.com/file/d/1le8EVsw5RJ0EwHQHSyxbIZJanXLMakZO/preview
+- [GDrive] https://drive.google.com/file/d/1-dJzqs7mRdOc7rZWAhDSPLlDdHuoYQkQ/preview → 200 131836B başlık='[Seicode] Shingeki no Kyojin Movie - The Last Attack (1080p) Uploaded by: Rinrintan.mp4 - ' final=https://drive.google.com/file/d/1-dJzqs7mRdOc7rZWAhDSPLlDdHuoYQkQ/preview
+    script: https://www.gstatic.com/_/apps-fileview/_/js/k=apps-fileview.v.tr.zR1EmA85pdg.O/am=AAAAwA/d=1/rs=AO0039v59dBscyUpQE-yq7jFFtO-FV4-RA/m=v,wb?wli=v.0OcM9q5zZvE.ink
+- [Abyss] https://player.abyssplayer.com/aRzhgcnST → 200 11226B başlık='[Seicode] Shingeki no Kyojin Movie - The Last Attack (1080p).mp4' final=https://player.abyssplayer.com/aRzhgcnST
+    script: https://iamcdn.net/player/jwplayer.min.js
+    script: https://iamcdn.net/player/jwpsrv.js
+    script: https://iamcdn.net/player/jwplayer.core.controls.html5.js
+    script: https://iamcdn.net/player/stretch-plugin-settings.min.js
+    script: https://iamcdn.net/player-v2/danmu/app.js
+    script: https://www.googletagmanager.com/gtag/js?id=G-RB29PDDFNK
+- [Abyss] https://player.abyssplayer.com/oaa7fvZZ2 → 200 10984B başlık='[Seicode] Shingeki no Kyojin Movie - The Last Attack (1080p) Uploaded by: Rinrintan.mp4' final=https://player.abyssplayer.com/oaa7fvZZ2
+    script: https://iamcdn.net/player/jwplayer.min.js
+    script: https://iamcdn.net/player/jwpsrv.js
+    script: https://iamcdn.net/player/jwplayer.core.controls.html5.js
+    script: https://iamcdn.net/player/stretch-plugin-settings.min.js
+    script: https://iamcdn.net/player-v2/danmu/app.js
+    script: https://www.googletagmanager.com/gtag/js?id=G-RB29PDDFNK
+- [UQload] https://uqload.io/embed-k1wrlkfx05sm.html → 200 29975B başlık='-' final=https://uqload.vc/embed-k1wrlkfx05sm.html?utm_source=mirror_io&
+    script: /js/jquery.min.js
+    script: /js/xupload.js
+    script: /js/jquery.cookie.js
+    script: /player/jw8/vast.js
+    script: https://pla.uqload.vc/js/pa-goXS7XjHByR3ra1IS9oLZ.js
+    script: /ad/pop.adsbox.js
+- [Vidmoly] https://vidmoly.biz/embed-l878k7lqgnkx.html → 200 39674B başlık='02aNIQBAb8a6yKeyGch18wuLJ3fPI7CYIT3i4JT46MWzuynZS3vBejLXDCPE' final=https://vidmoly.biz/embed-l878k7lqgnkx.html
+    medya: https://prx-1590-for.vmnow.online/hls2/05/01825/l878k7lqgnkx_,n,l,.urlset/master.m3u8?t=1GuNxtHLQIO8RoETk25qjns2PK1i3DbykPHAaXij0Bw=&s=1793609804&e=43200&v=&srv=rck12&i=0.4&sp=0&asn=8075
+    script: https://cdn.staticmoly.me/static/jquery.min.js
+    script: https://cdn.staticmoly.me/static/jquery.cookie.js
+    script: https://cdn.jsdelivr.net/gh/InteractiveAdvertisingBureau/AdBlockDetection/adblockDetector.js
+    script: //pagead2.googlesyndication.com/pagead/js/adsbygoogle.js
+    script: https://ssl.p.jwpcdn.com/player/v/8.36.4/jwplayer.js
+    script: https://static.cloudflareinsights.com/beacon.min.js/vce701823e78c4301a35b7e07294d87301792088814092
+    ipucu 'file:': …false;     var isFullscreen = false;       var player = jwplayer("vplayer");     var baseTracks = [         {           file: '/api/v1/slides?length=8660&url=https%3A%2F%2Fi1684.imgvm.com%2Fi%2F05%2F01825%2Fl878k7lqgnkx_p.jpg',           kind: 'thumbnails'         }     ];     var playerInstance = player.setup({       sources: [{ file: 'h
+    ipucu 'sources:': …1825%2Fl878k7lqgnkx_p.jpg',           kind: 'thumbnails'         }     ];     var playerInstance = player.setup({       sources: [{ file: 'https://prx-1590-for.vmnow.online/hls2/05/01825/l878k7lqgnkx_,n,l,.urlset/master.m3u8?t=1GuNxtHLQIO8RoETk25qjns2PK1i3DbykPHAaXij0Bw=&s=1793609804&e=43200&v=&srv=rck12&i=0.4&sp=0&asn=8075' }],       ima
+    ipucu '.m3u8': …player.setup({       sources: [{ file: 'https://prx-1590-for.vmnow.online/hls2/05/01825/l878k7lqgnkx_,n,l,.urlset/master.m3u8?t=1GuNxtHLQIO8RoETk25qjns2PK1i3DbykPHAaXij0Bw=&s=1793609804&e=43200&v=&srv=rck12&i=0.4&sp=0&asn=8075' }],       image: "https://i1684.imgvm.com/i/05/01825/l878k7lqgnkx.jpg",       bitrate: "2160000",       label: "
+- [Vidmoly] https://vidmoly.biz/embed-04pnj175izud.html → 404 1663B başlık='-' final=https://vidmoly.biz/embed-04pnj175izud.html
+    script: //finisheddaysflamboyant.com/a1/ff/c6/a1ffc6001c8cc5574ad230ba9b375b34.js
+    script: //finisheddaysflamboyant.com/7f/20/a7/7f20a7d2853e668186848c321f8f199f.js
+    script: https://code.jquery.com/jquery-latest.min.js
+    script: https://cdn.staticmoly.me/static/jquery.min.js
+    script: https://static.cloudflareinsights.com/beacon.min.js/vce701823e78c4301a35b7e07294d87301792088814092
+- [HDVid] https://hdvid.tv/embed-euza9664vhie-950x480.html → 522 7200B başlık='hdvid.tv | 522: Connection timed out' final=https://hdvid.tv/embed-euza9664vhie-950x480.html
+- [Voe] https://voe.sx/e/wnikmc7dj5qv → 200 755B başlık='Redirecting...' final=https://voe.sx/e/wnikmc7dj5qv
 
 ## 7) kavanozun son hâli
-- anizm.com.tr|XSRF-TOKEN=eyJpdiI6IldjM1NhQUZka3FFeW1Ya0VKZytwUVE9 (exp=1794214437), anizm.com.tr|anizm_session=eyJpdiI6Ik5TOXZYNkpoUkt4TXNBNG9QOGcxa1E9 (exp=1794214437), wargamings.net|PHPSESSID=nb0qurudrvst959u7ga5dgabt1 (exp=None)
-- toplam günlük satırı: 812
+- anizm.com.tr|XSRF-TOKEN=eyJpdiI6IlQ5eDdJZmJxZnZRMStIa3VFS05Ycnc9 (exp=1794214595), anizm.com.tr|anizm_session=eyJpdiI6InlkVFpoelRpNkZUSkhUSmNlWkRCVFE9 (exp=1794214595), wargamings.net|PHPSESSID=fnfs2eju3sfheggk6cogqn47q6 (exp=None), anizmplayer.com|fireplayer_player=9438a095ecc138ad23c964e22043f786 (exp=None), .google.com|NID=CuoBCAESnAEBM9AglxXzfxENHEzulZTQZCVdGg1p (exp=1809421001), .voe.sx|__ddg8_=06kIpLQxXnPm9YoL (exp=1793611025), .voe.sx|__ddg10_=1793609825 (exp=1793611025), .voe.sx|__ddg9_=128.24.163.67 (exp=1793611025), .voe.sx|__ddg1_=wnCgrjHlNna6zCZT0Dgz (exp=1825145825), voe.sx|XSRF-TOKEN=eyJpdiI6ImI4amVTUE84OXJGYk5yM2ZIa3FPWWc9 (exp=1793615225), voe.sx|voe_session=eyJpdiI6InVCV1BWdEptNlFDT0hFclVTc1REQnc9 (exp=1793615225)
+- toplam günlük satırı: 408
