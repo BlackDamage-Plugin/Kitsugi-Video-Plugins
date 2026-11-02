@@ -1,0 +1,38 @@
+name: Anizm Kategori Probu
+
+# Kategori satırlarının neden aynı listeyi gösterdiğini ölçer.
+# Sonucu `research/anizm-probe/kategori.log` olarak dala yazar (artifact
+# indirilemeyen ortamlarda da okunabilsin diye).
+
+on:
+  push:
+    paths:
+      - "tools/anizm_category_probe.py"
+      - ".github/workflows/Anizm-Kategori-Probu.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Kategori probu
+        continue-on-error: true
+        run: python3 tools/anizm_category_probe.py | tee /tmp/kategori.log
+
+      - name: Sonucu dala yaz
+        if: always()
+        run: |
+          git config user.email "actions@github.com"
+          git config user.name "GitHub Actions"
+          git add research/anizm-probe/kategori.log || true
+          git commit -m "probe: anizm kategori olcumu" || true
+          git push || true
