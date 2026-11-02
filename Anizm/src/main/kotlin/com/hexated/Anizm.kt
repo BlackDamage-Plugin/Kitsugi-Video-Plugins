@@ -40,6 +40,15 @@ import java.net.URLEncoder
  *  2. **v2**: `a[translator]` → `{data: html}` → `a[video|videoPlayerButtons]` → `{player: iframe}`
  *  3. **sayfa**: doğrudan `iframe[src]`, `a[video]`, `<video>` ve JS içindeki m3u8/mp4
  *
+ * ## +18 / +16 yaş uyarısı
+ * Bölüm ve detay sayfalarındaki `<dialog data-rating="18">` **yalnızca istemci
+ * tarafında** çalışır (`v3-content-warning.js` v1.0.5: `sessionStorage`
+ * `anizm.v3.content-warning.<animeId>`). Sunucu onay beklemez: bölüm sayfası ve
+ * `/bolum/{ep}/cevirmen/{cid}` ucu onay verilmeden de HTTP 200 döner.
+ * Eklenti WebView kullanmadığı ve yalnızca HTTP ile çalıştığı için uyarı
+ * **hiç görünmez**; ayrıştırma sırasında diyalog düğümü atlanır
+ * ([AnizmApi.parseTranslators]).
+ *
  * ## Uygulama (Kitsugi) uyumu
  *  - Arama, uygulamanın gönderdiği İngilizce/Türkçe başlıkları [AnizmMatch] ile
  *    çoklu varyanta çevirir ve sonuçları benzerliğe göre sıralar (site Türkçe/romanize
@@ -121,6 +130,34 @@ class Anizm : MainAPI(), AnizmHttp {
         }
     }
 
+    /**
+     * Token **her** HTML yanıtında tazelenir. Eski sürüm yalnızca ilk kez
+     * (`csrfToken == null`) okuyordu; oturum döndüğünde token bayatlıyor ve
+     * `/bolum/{ep}/cevirmen/{cid}` çağrısı 419 dönüyordu → "kaynak yok".
+     */
+    private fun rememberCsrf(html: String) {
+        csrfRegex.find(html)?.groupValues?.getOrNull(1)?.takeIf { it.isNotBlank() }?.let {
+            csrfToken = it
+        }
+    }
+
+    /** Sayfayı tazeleyip token'ı yeniden okur (419 kurtarma). */
+    private suspend fun refreshCsrf(referer: String) {
+        csrfToken = null
+        try {
+            val page = app.get(
+                mainUrl + "/",
+                headers = headers(mainUrl + "/", xhr = false),
+                timeout = 8
+            )
+            if (page.isSuccessful) rememberCsrf(page.text)
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            Log.d(LOG_TAG, "CSRF tazeleme hatası: ${e.message}")
+        }
+    }
+
     /** GET — hata/timeout durumunda null döner (akışı boğmaz). */
     private suspend fun getText(
         url: String,
@@ -129,15 +166,20 @@ class Anizm : MainAPI(), AnizmHttp {
         timeout: Long = 12L
     ): String? {
         return try {
-            val response = app.get(url, headers = headers(referer, xhr), timeout = timeout)
+            var response = app.get(url, headers = headers(referer, xhr), timeout = timeout)
+            // Laravel oturumu dönerse token bayatlar (419). Sayfa bir kez yenilenip
+            // taze token ile istek tekrarlanır — yoksa kaynak listesi sessizce boş kalır.
+            if (response.code == 419 && xhr) {
+                Log.w(LOG_TAG, "CSRF bayat (419), token tazeleniyor: ${url.take(80)}")
+                refreshCsrf(referer)
+                response = app.get(url, headers = headers(referer, xhr), timeout = timeout)
+            }
             if (!response.isSuccessful) {
                 Log.w(LOG_TAG, "GET ${response.code}: ${url.take(120)}")
                 null
             } else {
                 val text = response.text
-                if (csrfToken == null) {
-                    csrfRegex.find(text)?.groupValues?.getOrNull(1)?.let { csrfToken = it }
-                }
+                rememberCsrf(text)
                 text
             }
         } catch (e: CancellationException) {
@@ -199,14 +241,27 @@ class Anizm : MainAPI(), AnizmHttp {
             lower.contains("403 forbidden")
     }
 
+    /**
+     * Sayfa gerçekten site mi (park/duvar sayfası değil mi)?
+     *
+     * v3 işaretlemesi `article.v3-catalog-card` / `a.v3-catalog-poster` /
+     * `section.v3-*` kullanıyor; eski seçiciler yalnızca v2 kuşağında vardı ve
+     * sağlıklı bir v3 sayfasında **hiç eşleşmiyordu** (bu yüzden prob canlı
+     * domaini "ölü" sanıp gereksiz yere tüm adayları deniyordu).
+     */
     private fun pageHasContent(html: String?): Boolean {
         if (html.isNullOrBlank()) return false
         return try {
             val doc = Jsoup.parse(html)
-            doc.select(
+            val v3 = doc.select(
+                "article.v3-catalog-card, article.v3-series-card, article.v3-episode-card, " +
+                    "a.v3-catalog-poster, [data-v3-slider], .v3-catalog-grid, .v3-page-shell"
+            ).size
+            val legacy = doc.select(
                 "a[href*='-bolum'], div.posterBlock, div.anime-card, a.slideAnimeLink, " +
                     "div.cat-card, div#episodesMiddle, div.ui.card"
-            ).size >= 3
+            ).size
+            v3 >= 3 || legacy >= 3 || html.contains("v3-catalog") || html.contains("v3-series")
         } catch (_: Exception) {
             false
         }
@@ -243,7 +298,7 @@ class Anizm : MainAPI(), AnizmHttp {
 
     private suspend fun probe(base: String): Boolean {
         val html = try {
-            app.get(base + "/", headers = headers(base + "/"), timeout = 8).text
+            app.get(base + "/", headers = headers(base + "/"), timeout = 6).text
         } catch (e: CancellationException) {
             throw e
         } catch (e: Exception) {
@@ -664,9 +719,26 @@ class Anizm : MainAPI(), AnizmHttp {
 
     override suspend fun load(url: String): LoadResponse? {
         ensureBase()
-        val pageUrl = remapBase(url).let { if (AnizmSite.isEpisodeUrl(it)) AnizmSite.toSeriesUrl(it) ?: it else it }
-        val html = getText(pageUrl, mainUrl + "/") ?: throw ErrorLoadingException("Anizm sayfası yüklenemedi")
-        val doc = Jsoup.parse(html, pageUrl)
+        var pageUrl = remapBase(url).let { if (AnizmSite.isEpisodeUrl(it)) AnizmSite.toSeriesUrl(it) ?: it else it }
+        var html = getText(pageUrl, mainUrl + "/") ?: throw ErrorLoadingException("Anizm sayfası yüklenemedi")
+        var doc = Jsoup.parse(html, pageUrl)
+
+        // Doğrudan BÖLÜM sayfasına gelinmiş olabilir (derin bağlantı, film/OVA
+        // bölümü, arama sonucu). O sayfadan "seri" kurmak yanlış detay üretir;
+        // kanonik adres varsa seri sayfasına dönülür. Ek istek yalnızca bu
+        // durumda yapılır — normal akışta maliyet yok.
+        if (doc.selectFirst("[data-v3-translator], #v3-player-screen, section.v3-player") != null) {
+            val canonical = doc.selectFirst("link[rel=canonical]")?.attr("href")?.trim()
+                ?.takeIf { it.startsWith("http") }
+                ?: doc.selectFirst("meta[property=og:url]")?.attr("content")?.trim()
+                    ?.takeIf { it.startsWith("http") }
+            if (canonical != null && canonical.trimEnd('/') != pageUrl.trimEnd('/')) {
+                Log.d(LOG_TAG, "bölüm sayfasından seri sayfasına: $canonical")
+                pageUrl = canonical
+                html = getText(pageUrl, mainUrl + "/") ?: html
+                doc = Jsoup.parse(html, pageUrl)
+            }
+        }
         val detail = AnizmSite.parseDetail(doc, pageUrl, pageUrl)
 
         // Sayfa düzeyinde hiç bölüm yoksa "tek parça" (film/OVA) olarak sunulur.
@@ -759,14 +831,34 @@ class Anizm : MainAPI(), AnizmHttp {
         // Domain ölü olabilir (site sık adres değiştiriyor) — tek seferlik,
         // TTL önbellekli prob. Akış isteği ölü domain'e gitmez.
         ensureBase()
-        val pageUrl = remapBase(data)
-        val count = try {
-            AnizmStreams(name, { mainUrl }, this).load(pageUrl, subtitleCallback, callback)
+        var pageUrl = remapBase(data)
+        val streams = AnizmStreams(name, { mainUrl }, this)
+        var count = try {
+            streams.load(pageUrl, subtitleCallback, callback)
         } catch (e: CancellationException) {
             throw e
         } catch (e: Throwable) {
             Log.e(LOG_TAG, "loadLinks hatası: ${e.javaClass.simpleName}: ${e.message}")
             0
+        }
+        // Bölüm sayfası hiç alınamadıysa (domain duvarı/blok) canlı ayna aranır ve
+        // istek bir kez daha denenir — kullanıcıya "kaynak yok" demeden önce.
+        if (count == 0 && streams.pageFetchFailed) {
+            ensureBase(force = true)
+            val retryUrl = remapBase(data)
+            if (retryUrl != pageUrl) {
+                pageUrl = retryUrl
+                Log.i(LOG_TAG, "bölüm sayfası yeniden deneniyor: $pageUrl")
+                count = try {
+                    AnizmStreams(name, { mainUrl }, this)
+                        .load(pageUrl, subtitleCallback, callback)
+                } catch (e: CancellationException) {
+                    throw e
+                } catch (e: Throwable) {
+                    Log.e(LOG_TAG, "loadLinks (tekrar) hatası: ${e.message}")
+                    0
+                }
+            }
         }
         if (count > 0) {
             Log.d(LOG_TAG, "loadLinks: $count akış yayınlandı")

@@ -53,6 +53,19 @@ internal data class AnizmDetail(
 internal object AnizmSite {
 
     /** Anime slug'ı OLMAYAN yollar. */
+    /**
+     * Bölüm taramasında elenen **gezinme** yolları. `BLOCKED_PATHS`'in aksine
+     * `bolum`/`player` burada YOK: `/bolum/9182` biçimli bölüm sayfaları geçerli
+     * bölüm bağlantısıdır.
+     */
+    private val EPISODE_BLOCKED_PATHS = setOf(
+        "kategoriler", "temalar", "profil", "arama", "girisyap", "uyeol", "listeler",
+        "fansub", "fansublar", "takvim", "sozluk", "manga", "magaza", "premium",
+        "random", "sasirt-beni", "tavsiye-robotu", "haber", "blog", "destek", "sss",
+        "duyurular", "kurallar", "gizlilik", "kullanim-sartlari", "cerez",
+        "hakkimizda", "iletisim", "search", "ara", "storage", "upload", "assets", "api"
+    )
+
     private val BLOCKED_PATHS = setOf(
         "kategoriler", "temalar", "profil", "arama", "giris-yap", "kayit-ol", "girisyap", "uyeol",
         "listeler", "bolum", "player", "raporver", "storage", "upload", "assets", "js", "css",
@@ -84,6 +97,18 @@ internal object AnizmSite {
     /** Çift/birleşik bölüm eki: `one-piece-215-216-bolum-izle`. */
     private val DOUBLE_EPISODE_PATH = Regex(
         "^(.*?)-(\\d{1,4})-(\\d{1,4})-?bolum(?:[-.][a-z0-9-]*)?$",
+        RegexOption.IGNORE_CASE
+    )
+
+    /**
+     * **Numarasız** bölüm eki: `…-bolum`, `…-bolum-izle`.
+     * Film/OVA bölümlerinin slug'ında sıra numarası olmuyor
+     * (ör. `…-the-last-attack-shingeki-…---the-last-attack-bolum-izle`);
+     * eski sürüm bunları bölüm saymıyor, sayfadaki tüm bağlantıları bölüm
+     * listesine dolduruyordu.
+     */
+    private val NAMELESS_EPISODE_SUFFIX = Regex(
+        "-bolum(?:[-.][a-z0-9-]*)?$",
         RegexOption.IGNORE_CASE
     )
 
@@ -169,6 +194,7 @@ internal object AnizmSite {
             .lowercase()
         if (path.isEmpty()) return null
         val stripped = EPISODE_PATH.replace(path, "$1").trim('/')
+            .replace(NAMELESS_EPISODE_SUFFIX, "")
         val normalised = stripped.removeSuffix("-izle").trim('-')
         return normalised.ifBlank { null }
     }
@@ -189,7 +215,15 @@ internal object AnizmSite {
         val isRange = label != null && RANGE_EPISODE.containsMatchIn(label)
         val m = (if (isRange) DOUBLE_EPISODE_PATH.find(path) else null)
             ?: EPISODE_PATH.find(path)
-            ?: return null
+            ?: run {
+                // Numarasız bölüm (film/OVA): eki at, geri kalan seri yoludur.
+                if (!NAMELESS_EPISODE_SUFFIX.containsMatchIn(path)) return null
+                val stripped = path.replace(NAMELESS_EPISODE_SUFFIX, "")
+                if (stripped.isBlank() || stripped == path) return null
+                val prefix = url.substringBefore("://") + "://" +
+                    url.substringAfter("://").substringBefore("/")
+                return "$prefix/$stripped"
+            }
         val prefix = url.substringBefore("://") + "://" + url.substringAfter("://").substringBefore("/")
         // "-izle" ile biten detay adresleri (…/tsuki-ga-kirei-izle) korunur.
         val seriesPath = m.groupValues[1]
@@ -570,14 +604,24 @@ internal object AnizmSite {
     fun parseEpisodes(doc: Document, base: String, pageUrl: String): List<AnizmEpisode> {
         val targetSeries = seriesPathOf(pageUrl)
         val strict = LinkedHashMap<String, AnizmEpisode>()
+        /** Seri yolu tutmasa da **bölüm eki** taşıyan bağlantılar (film sayfaları). */
+        val episodeLike = LinkedHashMap<String, AnizmEpisode>()
         val loose = LinkedHashMap<String, AnizmEpisode>()
         // Numara etiketten/URL'den okunamazsa sıra numarası verilir (yalnızca düzenli
         // bölümler sayılır; ön gösterim/çift bölüm sayacı kaydırmaz).
         var counter = 0
 
+        val pageKey = pageUrl.trimEnd('/').substringBefore('?').substringBefore('#')
+
         fun consider(anchor: Element, forceNumber: Int? = null) {
             val url = absolute(base, anchor.attr("href")) ?: return
             if (!isSiteUrl(url)) return
+            // Sayfanın KENDİSİNE giden bağlantı (breadcrumb / kanonik adres) bölüm değildir.
+            if (url.trimEnd('/').substringBefore('?').substringBefore('#') == pageKey) return
+            // Menü/gezinme bağlantıları (ana sayfa, /arama, /girisyap…) bölüm değildir.
+            val firstSegment = url.substringAfter("://").substringAfter("/", "")
+                .substringBefore('/').substringBefore('?').lowercase()
+            if (firstSegment.isEmpty() || firstSegment in EPISODE_BLOCKED_PATHS) return
             if (strict.containsKey(url) || loose.containsKey(url)) return
 
             // v3 bölüm kartı: `<a data-episode-title="1. Bölüm">…<strong>…</strong>`.
@@ -622,8 +666,12 @@ internal object AnizmSite {
                 poster = imageUrl(anchor.selectFirst("img"), base)
             )
             loose[url] = episode
+            if (containsEpisodeSuffix(url)) episodeLike[url] = episode
+            // `series == null` (ana sayfa gibi yolu olmayan adresler) ESKİDEN
+            // strict'e ekleniyordu → film sayfasında ana sayfa bağlantısı
+            // "1. bölüm" olarak listeye giriyordu.
             val series = seriesPathOf(url)
-            if (targetSeries == null || series == null || series == targetSeries) strict[url] = episode
+            if (targetSeries == null || series == targetSeries) strict[url] = episode
         }
 
         // 1) v3: tüm bölümler tek ızgarada (12'lik gruplar istemci tarafında).
@@ -645,26 +693,44 @@ internal object AnizmSite {
                 consider(anchor)
             }
         }
-        // 4) Sayfa URL'sinden türetilen dar tarama, sonra genel tarama.
-        if (strict.isEmpty()) {
-            val root = pageUrl.trimEnd('/').substringBefore('?')
+        // 4) Seri yoluna göre dar tarama (host'tan bağımsız).
+        //    Eski sürüm `"$root-"` ön ekini karşılaştırıyordu: sayfa
+        //    anizm.net'ten, bağlantılar anizm.com.tr'den geldiğinde hiçbir şey
+        //    eşleşmiyor ve dizi sayfasındaki TÜM bağlantılar (ilgili animeler
+        //    dahil) bölüm sanılıyordu.
+        if (strict.isEmpty() && targetSeries != null) {
             for (anchor in doc.select("a[href]")) {
-                if (absolute(base, anchor.attr("href"))?.startsWith("$root-") == true) consider(anchor)
+                val url = absolute(base, anchor.attr("href")) ?: continue
+                if (seriesPathOf(url) == targetSeries) consider(anchor)
             }
         }
         if (strict.isEmpty()) {
             for (anchor in doc.select("a[href]")) consider(anchor)
         }
 
-        val chosen = if (strict.isNotEmpty()) strict.values else loose.values
+        // Seçim sırası: seri yolu eşleşenler → bölüm eki taşıyanlar → son çare hepsi.
+        // Film/OVA sayfalarında bölüm slug'ı seri slug'ından FARKLI oluyor
+        // (ör. `…-the-last-attack-shingeki-…---the-last-attack-bolum-izle`);
+        // eski sürüm bu durumda sayfadaki TÜM bağlantıları bölüm sayıyordu.
+        // Bölüm eki taşıyanlar her zaman önce gelir: seri yolu eşleşmesi
+        // breadcrumb/kanonik bağlantı yüzünden yanlış olumlu verebiliyor.
+        val realEpisodes = strict.filterKeys { containsEpisodeSuffix(it) }
+        val chosen = when {
+            realEpisodes.isNotEmpty() -> realEpisodes.values
+            strict.isNotEmpty() -> strict.values
+            episodeLike.isNotEmpty() -> episodeLike.values
+            else -> loose.values
+        }
         return chosen
             .distinctBy { it.url }
             .sortedWith(compareBy({ it.number ?: Int.MAX_VALUE }, { it.url }))
     }
 
     /** Bağlantı yolunda bölüm eki var mı? (`-12-bolum-izle`, `-41bolum-izle`) */
-    private fun containsEpisodeSuffix(href: String): Boolean =
-        EPISODE_PATH.containsMatchIn(href.substringBefore('?').trimEnd('/').substringAfterLast('/'))
+    private fun containsEpisodeSuffix(href: String): Boolean {
+        val last = href.substringBefore('?').trimEnd('/').substringAfterLast('/')
+        return EPISODE_PATH.containsMatchIn(last) || NAMELESS_EPISODE_SUFFIX.containsMatchIn(last)
+    }
 
     /** "215-216. Bölüm" / "1-2. Bölüm" gibi birleşik bölüm etiketi. */
     private val RANGE_EPISODE = Regex(
