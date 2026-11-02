@@ -386,11 +386,12 @@ jobs:
           path: |
             DiziBox/build/DiziBox.cs3
             HDFilmIzle/build/HDFilmIzle.cs3
+            TrAnimeIzle/build/TrAnimeIzle.cs3
           if-no-files-found: warn
           retention-days: 14
 
       - name: SPA prob dökümünü dala it
-        if: always()
+        if: always() && github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'player-source-probe')
         continue-on-error: true
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -19,6 +19,28 @@ class TrAnimeIzleSiteTest {
 
     private val base = "https://www.tranimeizle.io"
 
+    @Test
+    fun defaultFansubIsReadFromActualInitializeShape() {
+        val html = """<script>animeWatch.initialize(37, 566, 302, "TR Altyaz&#x131;l&#x131;", "https://www.tranimeizle.io/");</script>"""
+        val doc = Jsoup.parse(html, base)
+        assertEquals(566, TrAnimeIzleSite.episodeIdFrom(html, doc))
+        assertEquals(listOf(302), TrAnimeIzleSite.fansubsFrom(doc).map { it.id })
+    }
+
+    @Test
+    fun hiddenHoneypotIsNotAnEpisodeFallback() {
+        val html = """<a href="/icerik-denetim-q4x9-1-bolum-izle" rel="nofollow" tabindex="-1" aria-hidden="true">.</a>"""
+        assertTrue(TrAnimeIzleSite.parseEpisodes(Jsoup.parse(html, base), base, "$base/anime/test-izle").isEmpty())
+    }
+
+    @Test
+    fun directVideoElementsResolveRelativeSources() {
+        val html = """<video src="/media/video.mp4?token=123"><source src="../hls/master.m3u8?x=1&amp;y=2"></video>"""
+        val urls = TrAnimeIzleSite.directMediaFrom(html, "$base/watch/episode")
+        assertTrue(urls.contains("$base/media/video.mp4?token=123"))
+        assertTrue(urls.contains("$base/hls/master.m3u8?x=1&y=2"))
+    }
+
     // ------------------------------------------------------------------
     // Kartlar
     // ------------------------------------------------------------------

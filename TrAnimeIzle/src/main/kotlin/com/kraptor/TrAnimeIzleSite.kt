@@ -400,6 +400,8 @@ internal object TrAnimeIzleSite {
         if (found.isEmpty()) {
             // Tema değişmiş olabilir: bölüm URL desenine göre genel tarama.
             for (anchor in doc.select("a[href]")) {
+                // Hidden nofollow links on detail pages are not episodes.
+                if (anchor.closest("[aria-hidden=true], [hidden]") != null) continue
                 val url = absolute(base, anchor.attr("href")) ?: continue
                 if (TrAnimeIzleMatch.episodeFromUrl(url) == null) continue
                 if (hostOf(url).isEmpty()) continue
@@ -431,15 +433,22 @@ internal object TrAnimeIzleSite {
     }
 
     /** Bölüm sayfasındaki fansub seçicileri. */
-    fun fansubsFrom(doc: Document): List<TrFansub> =
-        doc.select("li.fansubSelector, div.fansubSelector, a.fansubSelector")
+    fun fansubsFrom(doc: Document): List<TrFansub> {
+        val choices = doc.select("li.fansubSelector, div.fansubSelector, a.fansubSelector")
             .ifEmpty { doc.select("[data-fid]") }
             .mapNotNull { el ->
                 val id = el.attr("data-fid").toIntOrNull() ?: return@mapNotNull null
                 val label = el.attr("data-fad").ifBlank { el.text().trim() }.ifBlank { "Fansub $id" }
                 TrFansub(id, label)
-            }
-            .distinctBy { it.id }
+            }.toMutableList()
+        // The page also declares the default fansub in animeWatch.initialize.
+        // Keep it even if there is no selector (or other selectors are present).
+        val init = Regex("""animeWatch\s*\.\s*initialize\s*\(\s*\d+\s*,\s*\d+\s*,\s*(\d+)""")
+            .find(doc.html())
+        val id = init?.groupValues?.getOrNull(1)?.toIntOrNull()
+        if (id != null && id > 0 && choices.none { it.id == id }) choices.add(TrFansub(id, "Fansub $id"))
+        return choices.distinctBy { it.id }
+    }
 
     /** `fansubSources` cevabındaki kaynak butonları (JSON sarmalı da açılır). */
     fun sourcesFrom(body: String): List<TrSource> {
@@ -504,6 +513,11 @@ internal object TrAnimeIzleSite {
     fun directMediaFrom(html: String, base: String): List<String> {
         val unescaped = html.replace("\\/", "/").replace("\\u0026", "&").replace("&amp;", "&")
         val out = LinkedHashSet<String>()
+        val doc = org.jsoup.Jsoup.parse(unescaped, base)
+        doc.select("video[src], source[src]").forEach { element ->
+            val url = absolute(base, element.attr("src"))
+            if (url != null && isDirectMedia(url) && !isAdUrl(url)) out.add(url)
+        }
         val patterns = listOf(
             Regex("""["'](https?://[^"'\s]+?\.m3u8[^"'\s]*)["']""", RegexOption.IGNORE_CASE),
             Regex("""["'](https?://[^"'\s]+?\.mpd[^"'\s]*)["']""", RegexOption.IGNORE_CASE),
@@ -668,7 +682,7 @@ internal object TrAnimeIzleSite {
      * tanınan host adresleri. `downloadru2` ve `embed2` sarmalları burada
      * çözülür; böylece akış katmanı tek bir liste üzerinden çalışır.
      */
-    fun playerTargets(html: String, base: String, limit: Int = 12): List<String> {
+    fun playerTargets(html: String, base: String, limit: Int = 64): List<String> {
         if (html.isBlank()) return emptyList()
         val out = LinkedHashSet<String>()
         for (frame in iframesFrom(html, base)) {

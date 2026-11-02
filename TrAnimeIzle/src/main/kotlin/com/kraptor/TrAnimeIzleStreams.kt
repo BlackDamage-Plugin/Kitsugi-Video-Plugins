@@ -129,12 +129,16 @@ internal class TrAnimeIzleStreams(
         }.distinctBy { it.id }
 
         // 2) API hiç kaynak vermediyse sayfadaki hazır butonlar (tema yedeği).
-        val allSources = if (sources.isEmpty()) {
-            // Yedek yol: sayfadaki hazır butonlar. Bir tema değişiminde
-            // `[data-id]` taraması alakasız öğeler de bulabilir → sınırla.
-            pageLevelSources(doc, html, episodeId).take(12)
+        val pageButtons = doc.select("li.sourceBtn[data-id], a.sourceBtn[data-id], div.sourceBtn[data-id]")
+            .mapNotNull { el ->
+                val id = el.attr("data-id").trim()
+                if (id.isBlank() || id.any { it.isWhitespace() }) null
+                else Src(id, el.selectFirst("p.title")?.text() ?: el.text(), "Sayfa")
+            }
+        val allSources = if (sources.isEmpty() && pageButtons.isEmpty()) {
+            pageLevelSources(doc, html, episodeId)
         } else {
-            sources
+            (sources + pageButtons).distinctBy { it.id }
         }
         Log.d(TAG, "kaynak butonu: ${allSources.size}")
 
@@ -236,10 +240,6 @@ internal class TrAnimeIzleStreams(
 
     /** Sayfada sunucu tarafında render edilmiş kaynak butonları. */
     private fun pageLevelSources(doc: org.jsoup.nodes.Document, html: String, episodeId: Int): List<Src> {
-        val direct = TrAnimeIzleSite.sourcesFrom(html)
-        if (direct.isNotEmpty()) {
-            return direct.map { Src(it.id, it.label, "Sayfa") }
-        }
         val fromDoc = doc.select("li.sourceBtn, a.sourceBtn, div.sourceBtn")
             .mapNotNull { el ->
                 val id = el.attr("data-id").trim()
@@ -255,11 +255,11 @@ internal class TrAnimeIzleStreams(
         if (hosts.isNotEmpty()) return hosts
 
         // Son yedek: sayfadaki data-eid/data-id çiftleri (episodeId eşleşmeli).
-        return doc.select("[data-id]").mapNotNull { el ->
+        return doc.select("[data-id][data-eid]").mapNotNull { el ->
             val id = el.attr("data-id").trim()
             if (id.isEmpty() || id.any { it.isWhitespace() }) return@mapNotNull null
             val eid = el.attr("data-eid").toIntOrNull()
-            if (episodeId > 0 && eid != null && eid != episodeId) return@mapNotNull null
+            if (episodeId > 0 && eid != episodeId) return@mapNotNull null
             Src(id, el.text().trim(), "Sayfa")
         }.distinctBy { it.id }
     }
@@ -293,16 +293,13 @@ internal class TrAnimeIzleStreams(
 
         if (targets.isEmpty()) return false
 
-        // v34: bu ÇAĞRIYA ait yayın sayısı ölçülür. Eskiden küresel `emittedCount`
-        // kontrol ediliyordu; ilk kaynak bir şey yayınladıktan sonra her kaynak
-        // "başarılı" sayılıyor ve `preVideoAd` yedeği HİÇ çalışmıyordu → o
-        // kaynaklar sessizce eksik kalıyordu.
-        val before = emittedCount
-        var any = false
-        runBounded(targets.take(6), concurrency = 4, perItemMs = SOURCE_BUDGET_MS) { target ->
-            if (resolveTarget(target, pageUrl, label, subtitleCallback, callback, depth = 0)) any = true
+        // Each source must decide its own fallback independently. A concurrent
+        // source publishing a link must not suppress this source's preVideoAd.
+        val any = java.util.concurrent.atomic.AtomicBoolean(false)
+        runBounded(targets, concurrency = 4, perItemMs = SOURCE_BUDGET_MS) { target ->
+            if (resolveTarget(target, pageUrl, label, subtitleCallback, callback, depth = 0)) any.set(true)
         }
-        return any || emittedCount > before
+        return any.get()
     }
 
     // ------------------------------------------------------------------
@@ -385,11 +382,11 @@ internal class TrAnimeIzleStreams(
         val media = TrAnimeIzleSite.directMediaFrom(page, url)
         var found = false
         // StreamCash benzeri oynatıcılar: base64 yapılandırma (`window.__PCr`).
-        for (stream in inlineConfigMedia(page).take(3)) {
+        for (stream in inlineConfigMedia(page).take(32)) {
             emitMedia(stream, label, url, callback, trusted = true)
             found = true
         }
-        for (stream in media.take(4)) {
+        for (stream in media.take(32)) {
             emitMedia(stream, label, url, callback)
             found = true
         }
@@ -401,11 +398,11 @@ internal class TrAnimeIzleStreams(
             .map { decode(it) }
             .filter { it != url }
             .distinct()
-        for (inner in nested.take(2)) {
+        for (inner in nested.take(8)) {
             if (resolveTarget(inner, url, label, subtitleCallback, callback, depth + 1)) found = true
         }
         // JS ile gömülen host adresleri (iframe'e dönüşmemiş olabilir).
-        for (host in embedUrlsFrom(page).filter { it != url }.take(3)) {
+        for (host in embedUrlsFrom(page).filter { it != url }.take(8)) {
             if (resolveTarget(host, url, label, subtitleCallback, callback, depth + 1)) found = true
         }
         return found
@@ -833,7 +830,7 @@ internal class TrAnimeIzleStreams(
             val json = http.postJson("$origin/api/videos/$slug/resolve", body, url) ?: continue
             val media = mediaFromJsonText(json)
             if (media.isEmpty()) continue
-            for (item in media.take(2)) emitMedia(item, label, url, callback)
+            for (item in media.take(32)) emitMedia(item, label, url, callback)
             return true
         }
         return false
@@ -984,7 +981,7 @@ internal class TrAnimeIzleStreams(
     }
 
     private fun collectMedia(node: Any?, out: MutableSet<String>, depth: Int) {
-        if (depth > 6 || out.size >= 4) return
+        if (depth > 6 || out.size >= 32) return
         when (node) {
             is org.json.JSONObject -> {
                 for (key in node.keys()) {
@@ -1057,7 +1054,11 @@ internal class TrAnimeIzleStreams(
             clean,
             label,
             referer,
-            if (isHls) ExtractorLinkType.M3U8 else ExtractorLinkType.VIDEO,
+            when {
+                isHls -> ExtractorLinkType.M3U8
+                clean.substringBefore('?').substringBefore('#').endsWith(".mpd", ignoreCase = true) -> ExtractorLinkType.DASH
+                else -> ExtractorLinkType.VIDEO
+            },
             null,
             null,
             callback,
@@ -1082,7 +1083,7 @@ internal class TrAnimeIzleStreams(
         trusted: Boolean = false
     ) {
         val clean = normalize(url)
-        if (clean.isEmpty() || !emitted.add(clean)) return
+        if (clean.isEmpty()) return
         // EMİSYON KURALI: sayfa/embed adresi ASLA yayınlanmaz. Yayınlanırsa
         // uygulama onu kendi derin tarayıcısına (EmbedMediaScanner) veriyor ve
         // tarayıcı yolu patladığında kartta KTS-CSP-9110 görünüyor (v31'de yaşandı).
@@ -1090,6 +1091,7 @@ internal class TrAnimeIzleStreams(
             Log.d(TAG, "medya olmayan adres yayınlanmadı (9110 koruması): ${clean.take(110)}")
             return
         }
+        if (!emitted.add(clean)) return
         val ref = referer.ifBlank { base() + "/" }
         val headers = streamHeaders(ref, clean) + (extraHeaders ?: emptyMap())
         val link = newExtractorLink(
@@ -1267,10 +1269,10 @@ internal class TrAnimeIzleStreams(
 
         /** Tüm kaynak araması için üst sınır — kullanıcı bu süreden fazla beklemez. */
         /** Tek bir kaynak butonunun (sourcePlayer → iframe → akış) üst sınırı. */
-        private const val PER_ITEM_MS = 20_000L
+        private const val PER_ITEM_MS = 75_000L
 
         /** Tek bir kaynak butonunun çözüm bütçesi. */
-        private const val SOURCE_BUDGET_MS = 14_000L
+        private const val SOURCE_BUDGET_MS = 25_000L
 
         /** Sitede görülen video host'ları (oynatıcı gövdelerinde aranır). */
         private val EMBED_HOSTS = listOf(
