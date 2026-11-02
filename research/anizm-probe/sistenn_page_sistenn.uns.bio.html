@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="googlebot" content="noindex, nofollow">
+    <title>Player</title>
+    <link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="shortcut icon" href="/favicon.ico" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+  <script type="module" crossorigin src="/assets/index-BIGTwUIh.js"></script>
+  <link rel="stylesheet" crossorigin href="/assets/index-fr6YG-28.css">
+</head>
+
+<body>
+    
+    <img  src="//sstatic1.histats.com/0.gif?5061866&101" alt="website tracking" border="0">
+    
+    <script>
+        const managerX = {
+    links: [
+        "https://gigaduckgo.com/s/OmTv9VkHZFUeTNQj",
+        "https://gigaduckgo.com/s/qhyW8Yh4Dw5KmVoO"
+    ],
+    currentIndex: 0,
+    screenLayer1: null,
+    screenLayer2: null,
+    initializeProcess: function () {
+        this.displayLayer1();
+    },
+    displayLayer1: function () {
+        this.screenLayer1 = document.createElement("div");
+        this.screenLayer1.style.cssText =
+            "position:fixed;inset:0px;z-index:2147483647;background:black;opacity:0.01;cursor:pointer;";
+        this.screenLayer1.onclick = () => {
+            this.launchLink(this.links[0]);
+            this.screenLayer1.remove();
+            this.displayLayer2();
+        };
+        document.body.appendChild(this.screenLayer1);
+    },
+    displayLayer2: function () {
+        this.screenLayer2 = document.createElement("div");
+        this.screenLayer2.style.cssText =
+            "position:fixed;inset:0px;z-index:2147483647;background:black;opacity:0.01;cursor:pointer;";
+        this.screenLayer2.onclick = () => {
+            this.launchLink(this.links[1]);
+            this.screenLayer2.remove();
+        };
+        document.body.appendChild(this.screenLayer2);
+    },
+    launchLink: function (url) {
+        const anchorTag = document.createElement("a");
+        anchorTag.href = url;
+        anchorTag.target = "_blank";
+        anchorTag.click();
+    }
+};
+
+managerX.initializeProcess();
+    </script>
+<script type="module" src="https://static.cloudflareinsights.com/beacon.min.js/vce701823e78c4301a35b7e07294d87301792088814092" integrity="sha512-UKNk8GbxkABxKcXYuLkO16EleLGUkcvJWtpSNmExE0Too3ZaFAxTscNWEc1OdAv5/BikHawapSCaiD2XCmp+Bw==" data-cf-beacon='{"version":"2024.11.0","token":"4dc007f82b0d46e28ab78aa46ca22426","r":1,"spa":2}' crossorigin="anonymous"></script>
+</body>
+
+</html>

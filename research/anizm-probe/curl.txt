@@ -1,4 +1,4 @@
-## curl erişimi (2026-11-02T09:01:34Z)
+## curl erişimi (2026-11-02T09:04:49Z)
 https://anizm.net/                             403 5303B
 https://anizm.com.tr/                          200 145509B
 https://www.puffytr.com/                       403 5352B
