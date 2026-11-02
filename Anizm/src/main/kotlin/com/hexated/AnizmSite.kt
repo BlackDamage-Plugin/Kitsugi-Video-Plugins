@@ -53,6 +53,19 @@ internal data class AnizmDetail(
 internal object AnizmSite {
 
     /** Anime slug'ı OLMAYAN yollar. */
+    /**
+     * Bölüm taramasında elenen **gezinme** yolları. `BLOCKED_PATHS`'in aksine
+     * `bolum`/`player` burada YOK: `/bolum/9182` biçimli bölüm sayfaları geçerli
+     * bölüm bağlantısıdır.
+     */
+    private val EPISODE_BLOCKED_PATHS = setOf(
+        "kategoriler", "temalar", "profil", "arama", "girisyap", "uyeol", "listeler",
+        "fansub", "fansublar", "takvim", "sozluk", "manga", "magaza", "premium",
+        "random", "sasirt-beni", "tavsiye-robotu", "haber", "blog", "destek", "sss",
+        "duyurular", "kurallar", "gizlilik", "kullanim-sartlari", "cerez",
+        "hakkimizda", "iletisim", "search", "ara", "storage", "upload", "assets", "api"
+    )
+
     private val BLOCKED_PATHS = setOf(
         "kategoriler", "temalar", "profil", "arama", "giris-yap", "kayit-ol", "girisyap", "uyeol",
         "listeler", "bolum", "player", "raporver", "storage", "upload", "assets", "js", "css",
@@ -608,7 +621,7 @@ internal object AnizmSite {
             // Menü/gezinme bağlantıları (ana sayfa, /arama, /girisyap…) bölüm değildir.
             val firstSegment = url.substringAfter("://").substringAfter("/", "")
                 .substringBefore('/').substringBefore('?').lowercase()
-            if (firstSegment.isEmpty() || firstSegment in BLOCKED_PATHS) return
+            if (firstSegment.isEmpty() || firstSegment in EPISODE_BLOCKED_PATHS) return
             if (strict.containsKey(url) || loose.containsKey(url)) return
 
             // v3 bölüm kartı: `<a data-episode-title="1. Bölüm">…<strong>…</strong>`.
