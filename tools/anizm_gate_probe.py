@@ -193,6 +193,21 @@ def _curl_req(url, referer, body, headers, follow, exc) -> Res:
     return Res(url, status, text, hdrs, url, "curl")
 
 
+
+OUT_DIR = "research/anizm-probe"
+
+
+def save(name: str, text: str) -> None:
+    import os
+    os.makedirs(OUT_DIR, exist_ok=True)
+    try:
+        with open(os.path.join(OUT_DIR, name), "w", encoding="utf-8") as fh:
+            fh.write(text or "")
+        log(f"    (kaydedildi: {OUT_DIR}/{name} {len(text or '')}B)")
+    except Exception as exc:  # noqa: BLE001
+        log(f"    ! kaydedilemedi {name}: {exc}")
+
+
 def jar_state() -> str:
     items = [f"{c.domain}|{c.name}={c.value[:40]} (exp={c.expires})" for c in JAR]
     return ", ".join(items) if items else "(boş)"
@@ -261,6 +276,7 @@ def main() -> int:
     log("\n## 2) Bölüm sayfası (onay öncesi)")
     ep = req(ep_url, referer=base + "/")
     page = ep.text
+    save("episode.html", page)
     log(f"- {ep.status} {len(page)}B başlık={title_of(page)!r} final={ep.final}")
     for c in ep.set_cookies():
         log(f"    set-cookie: {c[:160]}")
@@ -299,6 +315,27 @@ def main() -> int:
     for tag in re.findall(r"<[a-z]+[^>]*(?:data-sources|data-v3-translator)[^>]*>", page, re.I)[:6]:
         log(f"    {tag[:400]}")
 
+    # ── 2.5) arama / detay HTML'i (çözümleyici doğrulaması için) ───────────
+    log("\n## 2.5) Arama ve detay HTML'i")
+    search = req(f"{base}/arama?q=one+piece", referer=base + "/")
+    save("search.html", search.text)
+    log(f"- /arama?q=one+piece → {search.status} {len(search.text)}B")
+    for sel in ("v3-catalog-card", "v3-series-card", "v3-episode-card", "poster", "<article"):
+        log(f"    {sel!r}: {count(search.text, sel)}")
+    api = req(f"{base}/searchAnime?query=one%20piece&page=1&type=detailed&limit=10", referer=base + "/",
+              xhr=True, extra={"Accept": "application/json, text/plain, */*"})
+    save("searchAnime.json", api.text)
+    log(f"- /searchAnime → {api.status} {len(api.text)}B ilk={(api.text or '')[:160]!r}")
+
+    detail = req(f"{base}/shingeki-no-kyojin-movie-kanketsu-hen-the-last-attack", referer=base + "/")
+    save("detail.html", detail.text)
+    log(f"- detay → {detail.status} {len(detail.text)}B")
+    for sel in ("v3-anime", "v3-episode", "data-episode", "bolum-izle", "episodeLine",
+                "v3-detail", "v3-hero", "data-anime-id"):
+        log(f"    {sel!r}: {count(detail.text, sel)}")
+    eps = re.findall(r"""href=["']([^"']*-bolum[^"']*)["']""", detail.text, re.I)
+    log(f"    bölüm bağlantısı: {len(eps)} → {list(dict.fromkeys(eps))[:5]}")
+
     # ── 3) script dosyaları ve yaş kapısı mantığı ──────────────────────────
     log("\n## 3) Script dosyaları")
     scripts = scripts_of(page, base)
@@ -310,6 +347,8 @@ def main() -> int:
     for s in scripts[:24]:
         r = req(s, referer=ep_url)
         body = r.text or ""
+        if re.search(r"content-warning|v3-episode", s, re.I):
+            save("js__" + re.sub(r"[^A-Za-z0-9.]+", "_", s.rsplit("/", 1)[-1])[:60], body)
         log(f"\n- {s.rsplit('/', 1)[-1]} → {r.status} {len(body)}B")
         if re.search(r"content-warning", s, re.I):
             log(f"    --- TAM DOSYA ({len(body)}B) ---")
