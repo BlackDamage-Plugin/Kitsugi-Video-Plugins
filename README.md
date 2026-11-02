@@ -13,12 +13,16 @@ Depo **yalnızca aşağıdaki 8 kaynağı** yayınlar. Bunların dışındaki t�
 | Anime | **Anizium** | 25 |
 | Anime | **Anizm** | 5 |
 | Anime | **AnimeciX** | 24 |
-| Anime | **TrAnimeIzle** | 41 |
+| Anime | **TrAnimeIzle** | 44 (kaynak kodu; yayınlanması derlemeye bağlı) |
 | Film / Dizi | **FilmMakinesi** | 72 |
 | Film / Dizi | **HDFilmCehennemi** | 63 |
 | Dizi | **DiziBox** | 27 |
 | Film / Dizi | **HDFilmİzle** | 11 |
 
+> **TrAnimeIzle v44 (kaynak kodu):** CAPTCHA ve kaynak zinciri için düzeltmeler içerir.
+> Bu sürümün cihazlara ulaşması için derlenip yayınlanması gerekir; canlı oynatma
+> henüz doğrulanmamıştır.
+>
 > **Anizm (v5)** ve **TrAnimeIzle (v41)** video kaynak zinciri bu sürümde tamamen yenilendi:
 > kaynaklar artık **paralel** çözülüyor (30+ saniyelik beklemeler bitti), sitenin kendi
 > oynatıcı uçları birebir kullanılıyor ve **HLS master listeleri kalite varyantlarına**

@@ -6,16 +6,19 @@ import com.lagradost.cloudstream3.LoadResponse.Companion.addActors
 import com.lagradost.cloudstream3.LoadResponse.Companion.addTrailer
 import com.lagradost.cloudstream3.utils.*
 import com.lagradost.nicehttp.JsonAsString
+import com.lagradost.nicehttp.Session
+import okhttp3.Cookie
+import okhttp3.CookieJar
+import okhttp3.HttpUrl
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import kotlinx.coroutines.withContext
 import org.json.JSONObject
+import org.json.JSONArray
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
@@ -724,39 +727,49 @@ class TrAnimeIzle : MainAPI(), TrStreamHttp {
     // `NoSuchMethodError` üretiyordu. Oturum çerezlerini NiceHttp'in kendi
     // `app` istemcisi (cookie jar) yönetiyor; bizim ek bir şey yapmamız gerekmiyor.
 
+    // A single HTTP session must serve the page, captcha images and XHRs.
+    // NiceHttp's default Requests client does not necessarily retain cookies;
+    // its stock Session jar also ignores cookie domains. Respect domain/path/expiry.
+    private val siteCookies = object : CookieJar {
+        private val entries = mutableListOf<Cookie>()
+
+        @Synchronized
+        override fun saveFromResponse(url: HttpUrl, cookies: List<Cookie>) {
+            for (cookie in cookies) {
+                entries.removeAll { it.name == cookie.name && it.domain == cookie.domain && it.path == cookie.path }
+                if (cookie.expiresAt > System.currentTimeMillis()) entries.add(cookie)
+            }
+        }
+
+        @Synchronized
+        override fun loadForRequest(url: HttpUrl): List<Cookie> {
+            entries.removeAll { it.expiresAt <= System.currentTimeMillis() }
+            return entries.filter { it.matches(url) }
+        }
+    }
+    private val siteHttp by lazy {
+        Session(app.baseClient).apply {
+            baseClient = baseClient.newBuilder().cookieJar(siteCookies).build()
+        }
+    }
+
     /** Captcha çözümü sıraya alınır: 10 paralel kaynak isteği aynı anda
      *  çözmeye kalkarsa siteye 10 ayrı doğrulama isteği gider (hem yavaş
      *  hem de WAF'ı kızdırır). */
     private val captchaSolveLock = Mutex()
 
-    @Volatile
-    private var captchaSolvedAt: Long = 0L
+    // A challenge is evidence that the previous clearance is no longer sufficient.
+    // Do not suppress a new challenge with a time-based cache.
+    private suspend fun ensureCaptchaSolved(challengeUrl: String? = null): Boolean =
+        captchaSolveLock.withLock { solveCaptchaAt(challengeUrl) }
 
-    /**
-     * v39: sitenin ikon-captcha kapısını **HTTP ile** (WebView'siz) çözer.
-     * Aynı oturumda TTL boyunca bir kez çözülür; eşzamanlı çağrılar kilitlenir.
-     */
-    private suspend fun ensureCaptchaSolved(): Boolean {
-        if (System.currentTimeMillis() - captchaSolvedAt < CAPTCHA_TTL_MS) return true
-        return captchaSolveLock.withLock {
-            if (System.currentTimeMillis() - captchaSolvedAt < CAPTCHA_TTL_MS) return@withLock true
-            val solved = solveCaptcha()
-            if (solved) captchaSolvedAt = System.currentTimeMillis()
-            solved
-        }
-    }
-
-    /**
-     * v39: ikon-captcha kapısına düşen isteği **HTTP ile** (WebView'siz) çözer
-     * ve aynı isteği BİR kez tekrarlar. Çözülemezse çağıran katman kendi
-     * yedeğine (oturum yenileme / diğer yol) devam eder.
-     */
     private suspend fun captchaRetry(body: String?, url: String? = null): Boolean =
-        (isCaptchaUrl(url) || isCaptchaPage(body)) && ensureCaptchaSolved()
+        (isCaptchaUrl(url) || isCaptchaPage(body)) &&
+            ensureCaptchaSolved(url?.takeIf { isCaptchaUrl(it) })
 
     override suspend fun get(url: String, referer: String?): String? =
         guarded("GET ${url.take(110)}") {
-            var resp = app.get(
+            var resp = siteHttp.get(
                 url,
                 headers = browserHeaders(lastCookie, referer ?: mainUrl + "/"),
                 timeout = 12
@@ -766,39 +779,39 @@ class TrAnimeIzle : MainAPI(), TrStreamHttp {
             var text = resp.text
             if (captchaRetry(text, resp.url.toString())) {
                 Log.d(LOG_TAG, "captcha çözüldü → GET tekrar: ${url.take(90)}")
-                resp = app.get(
+                resp = siteHttp.get(
                     url,
                     headers = browserHeaders(lastCookie, referer ?: mainUrl + "/"),
                     timeout = 12
                 )
                 text = resp.text
             }
-            if (!resp.isSuccessful) null else text
+            if (!resp.isSuccessful || isCaptchaUrl(resp.url.toString()) || isCaptchaPage(text)) null else text
         }
 
     override suspend fun getXhr(url: String, referer: String?): String? =
         guarded("XHR ${url.take(110)}") {
-            var resp = app.get(
+            var resp = siteHttp.get(
                 url,
                 headers = browserHeaders(lastCookie, referer ?: mainUrl + "/", isXhr = true),
                 timeout = 12
             )
             var text = resp.text
             if (captchaRetry(text, resp.url.toString())) {
-                resp = app.get(
+                resp = siteHttp.get(
                     url,
                     headers = browserHeaders(lastCookie, referer ?: mainUrl + "/", isXhr = true),
                     timeout = 12
                 )
                 text = resp.text
             }
-            if (!resp.isSuccessful) null else text
+            if (!resp.isSuccessful || isCaptchaUrl(resp.url.toString()) || isCaptchaPage(text)) null else text
         }
 
     override suspend fun getWith(url: String, extra: Map<String, String>): String? =
         guarded("GET(w) ${url.take(110)}") {
             val base = url.substringBefore("/api/").ifEmpty { mainUrl }
-            val resp = app.get(
+            val resp = siteHttp.get(
                 url,
                 headers = browserHeaders(lastCookie, "$base/") + extra,
                 timeout = 12
@@ -810,7 +823,7 @@ class TrAnimeIzle : MainAPI(), TrStreamHttp {
         guarded("POST-JSON ${url.take(110)}") {
             // site.js (axios) birebir JSON gövdesi gönderir; form gövde kaynak
             // listesini boş döndürüyordu (v23'te kanıtlandı).
-            var resp = app.post(
+            var resp = siteHttp.post(
                 url,
                 headers = browserHeaders(lastCookie, referer ?: mainUrl + "/", isXhr = true),
                 json = JsonAsString(json),
@@ -819,7 +832,7 @@ class TrAnimeIzle : MainAPI(), TrStreamHttp {
             var text = resp.text
             if (captchaRetry(text, resp.url.toString())) {
                 Log.d(LOG_TAG, "captcha çözüldü → POST-JSON tekrar: ${url.take(90)}")
-                resp = app.post(
+                resp = siteHttp.post(
                     url,
                     headers = browserHeaders(lastCookie, referer ?: mainUrl + "/", isXhr = true),
                     json = JsonAsString(json),
@@ -827,12 +840,12 @@ class TrAnimeIzle : MainAPI(), TrStreamHttp {
                 )
                 text = resp.text
             }
-            if (!resp.isSuccessful) null else text
+            if (!resp.isSuccessful || isCaptchaUrl(resp.url.toString()) || isCaptchaPage(text)) null else text
         }
 
     override suspend fun postEmpty(url: String, referer: String?): String? =
         guarded("POST ${url.take(110)}") {
-            var resp = app.post(
+            var resp = siteHttp.post(
                 url,
                 headers = browserHeaders(lastCookie, referer ?: mainUrl + "/", isXhr = true),
                 timeout = 15
@@ -840,14 +853,14 @@ class TrAnimeIzle : MainAPI(), TrStreamHttp {
             var text = resp.text
             if (captchaRetry(text, resp.url.toString())) {
                 Log.d(LOG_TAG, "captcha çözüldü → POST tekrar: ${url.take(90)}")
-                resp = app.post(
+                resp = siteHttp.post(
                     url,
                     headers = browserHeaders(lastCookie, referer ?: mainUrl + "/", isXhr = true),
                     timeout = 15
                 )
                 text = resp.text
             }
-            if (!resp.isSuccessful) null else text
+            if (!resp.isSuccessful || isCaptchaUrl(resp.url.toString()) || isCaptchaPage(text)) null else text
         }
 
     override suspend fun postForm(
@@ -855,7 +868,7 @@ class TrAnimeIzle : MainAPI(), TrStreamHttp {
         form: Map<String, String>,
         referer: String?
     ): String? = guarded("POST-FORM ${url.take(110)}") {
-        var resp = app.post(
+        var resp = siteHttp.post(
             url,
             headers = browserHeaders(lastCookie, referer ?: mainUrl + "/", isXhr = true),
             data = form,
@@ -863,7 +876,7 @@ class TrAnimeIzle : MainAPI(), TrStreamHttp {
         )
         var text = resp.text
         if (captchaRetry(text, resp.url.toString())) {
-            resp = app.post(
+            resp = siteHttp.post(
                 url,
                 headers = browserHeaders(lastCookie, referer ?: mainUrl + "/", isXhr = true),
                 data = form,
@@ -871,37 +884,24 @@ class TrAnimeIzle : MainAPI(), TrStreamHttp {
             )
             text = resp.text
         }
-        if (!resp.isSuccessful) null else text
+        if (!resp.isSuccessful || isCaptchaUrl(resp.url.toString()) || isCaptchaPage(text)) null else text
     }
 
-    /**
-     * Ham bayt indirme (captcha PNG'leri için).
-     *
-     * v42: `NiceResponse.body` KALDIRILDI — bu alan NiceHttp'de sürüme duyarlıdır
-     * (uygulama 0.4.4 gömüyor, depo 0.4.13 ile derliyor) ve eksik olduğunda
-     * `NoSuchMethodError` → KTS-CSP-9110 üretiyordu. Artık **saf Java**
-     * `HttpURLConnection` kullanılıyor: hiçbir kütüphane sürümüne bağlı değil.
-     */
+    /** Binary responses must use the same cookie jar as captcha POSTs. */
     override suspend fun bytes(url: String, referer: String?): ByteArray? =
         guarded("BYTES ${url.take(110)}") {
-            withContext(Dispatchers.IO) { javaBytes(url, referer) }
+            val response = siteHttp.get(
+                url,
+                headers = browserHeaders(lastCookie, referer ?: mainUrl + "/"),
+                timeout = 12
+            )
+            if (!response.isSuccessful) {
+                response.body.close()
+                null
+            } else {
+                response.body.use { it.bytes() }
+            }
         }
-
-    /** `HttpURLConnection` ile ham bayt (kütüphane sürümünden bağımsız). */
-    private fun javaBytes(url: String, referer: String?): ByteArray? = try {
-        val connection = (java.net.URL(url).openConnection() as java.net.HttpURLConnection).apply {
-            connectTimeout = 12_000
-            readTimeout = 12_000
-            instanceFollowRedirects = true
-            setRequestProperty("User-Agent", BotKontrolKt.UA_FIREFOX)
-            setRequestProperty("Referer", referer ?: (mainUrl + "/"))
-            if (lastCookie.isNotBlank()) setRequestProperty("Cookie", lastCookie)
-        }
-        connection.inputStream.use { it.readBytes() }
-    } catch (e: Exception) {
-        Log.d(LOG_TAG, "javaBytes hatası (${url.take(80)}): ${e.message}")
-        null
-    }
 
     /**
      * `/api/Captcha` doğrulaması: sunucu bir grup görsel kimliği verir; aralarından
@@ -909,40 +909,49 @@ class TrAnimeIzle : MainAPI(), TrStreamHttp {
      * (`ShittyCaptchaInterceptor`) kullanıyor: her görselin MD5'i alınır, hash'i
      * en seyrek görünen görsel "farklı" olandır.
      */
-    override suspend fun solveCaptcha(): Boolean {
+    override suspend fun solveCaptcha(): Boolean = ensureCaptchaSolved()
+
+    private suspend fun solveCaptchaAt(challengeUrl: String?): Boolean {
         val solved = guarded("CAPTCHA") {
             val site = mainUrl.trimEnd('/')
-            val xhr = browserHeaders(lastCookie, "$site/", isXhr = true)
-            val listBody = app.post(
+            val xhr = browserHeaders(lastCookie, challengeUrl ?: "$site/", isXhr = true)
+            val listBody = siteHttp.post(
                 "$site/api/Captcha/",
                 headers = xhr,
                 data = mapOf("cID" to "0", "rT" to "1", "tM" to "light"),
                 timeout = 12
             ).text
 
-            val ids = Regex("""["']([^"'\s]{4,})["']""").findAll(listBody)
-                .map { it.groupValues[1] }
-                .toList()
-            if (ids.isEmpty()) return@guarded false
+            val ids = try {
+                val array = JSONArray(listBody)
+                (0 until array.length()).map { array.getString(it) }.filter { it.isNotBlank() }
+            } catch (_: Exception) {
+                return@guarded false
+            }
+            if (ids.size < 3) return@guarded false
 
             val hashes = ids.mapNotNull { id ->
                 val data = bytes("$site/api/Captcha/?cid=0&hash=$id", "$site/") ?: return@mapNotNull null
                 if (data.size < 64) return@mapNotNull null
                 id to md5Hex(data)
             }
-            if (hashes.isEmpty()) return@guarded false
-
-            val rarest = hashes.groupingBy { it.second }.eachCount()
-                .minByOrNull { it.value }?.key ?: return@guarded false
+            // A missing image or an ambiguous tie cannot identify the odd one out.
+            if (hashes.size != ids.size) return@guarded false
+            val counts = hashes.groupingBy { it.second }.eachCount()
+            val rarest = counts.entries.singleOrNull { it.value == 1 }?.key
+                ?: return@guarded false
             val chosen = hashes.firstOrNull { it.second == rarest }?.first ?: return@guarded false
 
-            app.post(
+            val answer = siteHttp.post(
                 "$site/api/Captcha/",
                 headers = xhr,
                 data = mapOf("cID" to "0", "rT" to "2", "pC" to chosen),
                 timeout = 12
             )
-            Log.d(LOG_TAG, "captcha çözüldü (${hashes.size} görsel)")
+            if (!answer.isSuccessful) return@guarded false
+            // The challenge page redirects via JavaScript after success. A second
+            // GET of that page is not a confirmation; retry the original request.
+            Log.d(LOG_TAG, "captcha yanıtı gönderildi (${hashes.size} görsel)")
             true
         }
         return solved == true
@@ -1001,7 +1010,7 @@ class TrAnimeIzle : MainAPI(), TrStreamHttp {
      */
     private suspend fun probeDomainAlive(base: String): Boolean {
         return try {
-            val resp = app.get(base, headers = browserHeaders(cachedSession(), base + "/"), timeout = 8)
+            val resp = siteHttp.get(base, headers = browserHeaders(cachedSession(), base + "/"), timeout = 8)
             val text = resp.text ?: ""
             // v28 (canlı ölçüm 25.10.2026): site veri merkezi IP'lerine Cloudflare
             // **Error 1005** (ASN engeli) dönüyor. Bu, domainin ÖLDÜĞÜ anlamına
@@ -1100,7 +1109,7 @@ class TrAnimeIzle : MainAPI(), TrStreamHttp {
         var cookie = lastCookie.ifBlank { cachedSession() }
         var probe = try {
             // v26: 10 sn zaman aşımı — ölü domain probu zinciri boğmasın.
-            app.get(mainUrl, headers = browserHeaders(cookie, mainUrl + "/"), timeout = 10)
+            siteHttp.get(mainUrl, headers = browserHeaders(cookie, mainUrl + "/"), timeout = 10)
         } catch (e: Exception) {
             Log.e(LOG_TAG, "Ana sayfa prob hatası: ${e.message}")
             null
@@ -1109,7 +1118,7 @@ class TrAnimeIzle : MainAPI(), TrStreamHttp {
             // Ağ gecikmesi olmasın diye: prob hatasında bir kez daha dene.
             delay(1_500)
             probe = try {
-                app.get(mainUrl, headers = browserHeaders(cookie, mainUrl + "/"), timeout = 10)
+                siteHttp.get(mainUrl, headers = browserHeaders(cookie, mainUrl + "/"), timeout = 10)
             } catch (e: Exception) {
                 Log.e(LOG_TAG, "Ana sayfa prob 2. deneme hatası: ${e.message}")
                 null
@@ -1131,7 +1140,7 @@ class TrAnimeIzle : MainAPI(), TrStreamHttp {
         // sayfayı yeniden çekmek (site anonim oturumda da içerik veriyor).
         lastCookie = ""
         val fresh = try {
-            val retry = app.get(
+            val retry = siteHttp.get(
                 mainUrl,
                 headers = browserHeaders("", mainUrl + "/"),
                 timeout = 12
@@ -1241,7 +1250,7 @@ class TrAnimeIzle : MainAPI(), TrStreamHttp {
         var resp = try {
             // v27: zaman aşımı yoksa ölü host zinciri BOĞAR (v24 "bir anda
             // hata" bulgusu) — sayfa çekimleri 15 sn ile sınırlı.
-            app.get(url, headers = browserHeaders(cookie, referer), timeout = 15)
+            siteHttp.get(url, headers = browserHeaders(cookie, referer), timeout = 15)
         } catch (e: CancellationException) {
             throw e
         } catch (e: Exception) {
@@ -1257,7 +1266,7 @@ class TrAnimeIzle : MainAPI(), TrStreamHttp {
                 referer = remapDomain(referer)
                 cookie = cachedSession()
                 try {
-                    app.get(url, headers = browserHeaders(cookie, referer), timeout = 15)
+                    siteHttp.get(url, headers = browserHeaders(cookie, referer), timeout = 15)
                 } catch (e2: CancellationException) {
                     throw e2
                 } catch (e2: Exception) {
@@ -1271,10 +1280,10 @@ class TrAnimeIzle : MainAPI(), TrStreamHttp {
         // v39: sitenin ikon-captcha kapısı artık WebView diyaloğu AÇMADAN,
         // HTTP ile (5 görselin MD5'i → en farklı olan) çözülür ve sayfa BİR kez
         // tekrar istenir. Çözülemezse aşağıdaki bot/oturum yoluna düşer.
-        if (isCaptchaPage(resp.text) && ensureCaptchaSolved()) {
+        if (captchaRetry(resp.text, resp.url.toString())) {
             Log.d(LOG_TAG, "captcha çözüldü → sayfa tekrar: $url")
             resp = try {
-                app.get(url, headers = browserHeaders(lastCookie, referer), timeout = 15)
+                siteHttp.get(url, headers = browserHeaders(lastCookie, referer), timeout = 15)
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
@@ -1294,7 +1303,7 @@ class TrAnimeIzle : MainAPI(), TrStreamHttp {
                 referer = remapDomain(referer)
                 cookie = cachedSession()
                 resp = try {
-                    app.get(url, headers = browserHeaders(cookie, referer), timeout = 15)
+                    siteHttp.get(url, headers = browserHeaders(cookie, referer), timeout = 15)
                 } catch (e: CancellationException) {
                     throw e
                 } catch (e: Exception) {
@@ -1308,7 +1317,7 @@ class TrAnimeIzle : MainAPI(), TrStreamHttp {
                 // v27: eski sürümde bu GET zamansızdı ve hata loglanmadan
                 // yukarı çıkıyordu → kullanıcı "sebepsiz çökme" görüyordu.
                 resp = try {
-                    app.get(url, headers = browserHeaders(cookie, referer), timeout = 15)
+                    siteHttp.get(url, headers = browserHeaders(cookie, referer), timeout = 15)
                 } catch (e: CancellationException) {
                     throw e
                 } catch (e: Exception) {
@@ -1340,7 +1349,7 @@ class TrAnimeIzle : MainAPI(), TrStreamHttp {
         if (webViewFallback && ok && !isBotBody(text) && (text?.length ?: 0) < 3000) {
             Log.w(LOG_TAG, "GET boş içerik getirdi → tek tekrar: $url")
             val retry = guarded("GET-tekrar ${url.take(90)}") {
-                app.get(url, headers = browserHeaders(lastCookie, referer ?: mainUrl + "/"), timeout = 12)
+                siteHttp.get(url, headers = browserHeaders(lastCookie, referer ?: mainUrl + "/"), timeout = 12)
             }
             if (retry != null && retry.isSuccessful) {
                 val retryText = retry.text ?: ""
@@ -1349,6 +1358,9 @@ class TrAnimeIzle : MainAPI(), TrStreamHttp {
                     return retryText
                 }
             }
+        }
+        if (isCaptchaUrl(resp.url.toString()) || isCaptchaPage(text)) {
+            throw ErrorLoadingException("Site bot doğrulaması istedi; doğrulama tamamlanamadı.")
         }
         if (text.isNullOrBlank()) {
             throw ErrorLoadingException("Siteye ulaşılamadı.")
@@ -1390,7 +1402,7 @@ class TrAnimeIzle : MainAPI(), TrStreamHttp {
         if (!banasayfa.isNullOrEmpty()) {
             // v27: zaman asimi — banasayfa takilirse butun akis beklerdi.
             val banHtml = try {
-                app.get(banasayfa, headers = browserHeaders(lastCookie), timeout = 10).text
+                siteHttp.get(banasayfa, headers = browserHeaders(lastCookie), timeout = 10).text
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
@@ -1485,7 +1497,7 @@ class TrAnimeIzle : MainAPI(), TrStreamHttp {
                 firstEpisodeUrl ?: ""
             ) {
                 this.posterUrl = meta?.cover?.ifBlank { null } ?: poster
-                if (description != null) this.plot = meta?.description
+                this.plot = meta?.description?.ifBlank { null } ?: description
                 this.year = meta?.year ?: year
                 this.tags = tags.distinct()
                 this.score = meta?.score?.let { Score.from(it, 0) } ?: Score.from10(rating)
@@ -1509,7 +1521,7 @@ class TrAnimeIzle : MainAPI(), TrStreamHttp {
                 !isCompleted
             ) {
                 this.posterUrl = meta?.cover?.ifBlank { null } ?: poster
-                if (description != null) this.plot = meta?.description
+                this.plot = meta?.description?.ifBlank { null } ?: description
                 this.year = meta?.year ?: year
                 this.episodes = mutableMapOf(DubStatus.Subbed to episodes)
                 this.tags = tags.distinct()
@@ -1751,9 +1763,6 @@ class TrAnimeIzle : MainAPI(), TrStreamHttp {
         )
 
         private const val DOMAIN_CHECK_TTL_MS = 10 * 60 * 1000L
-
-        /** Çözülen captcha oturumu ne kadar geçerli sayılır (ms). */
-        private const val CAPTCHA_TTL_MS = 10 * 60 * 1000L
 
         /**
          * Domain çözümleme.
