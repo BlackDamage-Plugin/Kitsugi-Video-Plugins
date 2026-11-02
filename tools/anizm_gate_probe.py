@@ -311,6 +311,11 @@ def main() -> int:
         r = req(s, referer=ep_url)
         body = r.text or ""
         log(f"\n- {s.rsplit('/', 1)[-1]} → {r.status} {len(body)}B")
+        if re.search(r"content-warning|v3-episode|v3\.js|player", s, re.I):
+            log(f"    --- TAM DOSYA ({len(body)}B) ---")
+            for chunk in body.splitlines():
+                log(f"      » {chunk[:400]}")
+            log("    --- /TAM DOSYA ---")
         hits = [ln.strip() for ln in body.splitlines() if kw.search(ln)]
         if hits:
             log(f"    yaş/çerez satırı: {len(hits)}")
@@ -339,65 +344,22 @@ def main() -> int:
     log(f"- kapı öncesi (kaynak işareti, kapı işareti): {before}")
 
     # ── 4) kapıyı aşma denemeleri ──────────────────────────────────────────
-    log("\n## 4) Kapıyı aşma denemeleri")
-
-    attempts: list[tuple[str, str, dict | None, dict | None]] = []
-    for u in sorted(endpoints):
-        low = u.lower()
-        if re.search(r"yas|age|onay|consent|18|cookie", low):
-            full = urllib.parse.urljoin(base + "/", u)
-            attempts.append((f"GET {u}", full, None, {"X-CSRF-TOKEN": csrf} if csrf else None))
-            attempts.append((f"POST {u}", full, {}, {"X-CSRF-TOKEN": csrf} if csrf else None))
-    # bilinen adaylar
-    for path in ("/18-yas-onay", "/yas-onayi", "/yas-onay", "/age-verify", "/age-verification",
-                 "/onay", "/18", "/18plus", "/nsfw-onay"):
-        full = base + path
-        attempts.append((f"GET {path}", full, None, None))
-
-    seen_urls: set[str] = set()
-    for label, url, data, extra in attempts[:40]:
-        if url in seen_urls and data is None:
-            continue
-        seen_urls.add(url)
-        body = None
-        if data is not None:
-            body = urllib.parse.urlencode({"onay": "1", "accept": "1", "kabul": "1", "age": "1", "18": "1"})
-        r = req(url, referer=ep_url, data=body, xhr=data is not None, follow=False,
-                extra=extra or {})
-        log(f"- {label} → {r.status} loc={r.header('Location')[:110]!r} set-cookie={[c[:110] for c in r.set_cookies()][:3]}")
-        log(f"    kavanoz: {jar_state()}")
-
-        after_page = req(ep_url, referer=base + "/")
-        after = gate_open(after_page.text)
-        log(f"    sonrası (kaynak, kapı): {after}  boyut={len(after_page.text)}")
-        if after[0] > before[0] or (after[0] > 0 and after[1] == 0):
-            page = after_page.text
-            log(f"    ✓ kapı açıldı: {label}")
-            break
-
-    if gate_open(page)[0] == 0:
-        log("- kapı HTML tarafında açılmadı; çerez adları elle denenecek")
-        for name, value in (("age_verified", "1"), ("ageVerified", "1"), ("18plus", "1"),
-                            ("nsfw", "1"), ("yas_onay", "1"), ("age_consent", "1")):
-            JAR.set_cookie(http.cookiejar.Cookie(
-                0, name, value, None, False, urllib.parse.urlparse(base).hostname, False, False,
-                "/", True, False, None, False, None, None, {}))
-            r = req(ep_url, referer=base + "/")
-            got = gate_open(r.text)
-            log(f"    çerez {name}={value} → (kaynak, kapı)={got} boyut={len(r.text)}")
-            if got[0] > 0:
-                page = r.text
-                log(f"    ✓ işe yarayan çerez: {name}={value}")
-                break
+    # 2026-11-02 ölçümû: kapı TAMAMEN istemci tarafında (sessionStorage/localStorage,
+    # v3-content-warning.js). Sunucuda çerez yok; bu yüzden HTTP ile "kabul" yok.
+    # Aşağıdaki denemeler yalnızca sunucu tarafı bir kapı varsa yakalar.
+    log("\n## 4) Kapıyı aşma denemeleri (sunucu tarafı kapı var mı?)")
+    for path in ("/18-yas-onay", "/yas-onay", "/18"):
+        r = req(base + path, referer=ep_url, follow=False)
+        log(f"- GET {path} → {r.status} loc={r.header('Location')[:80]!r}")
 
     # ── 5) kaynak zinciri ──────────────────────────────────────────────────
     log("\n## 5) Kaynak zinciri")
     translators = []
-    for m in re.finditer(r"""data-translatorclick=["']([^"']+)["']""", page, re.I):
-        translators.append(m.group(1))
-    if not translators:
-        for m in re.finditer(r"""translator=["']([^"']+)["']""", page, re.I):
-            translators.append(m.group(1))
+    for pat in (r"""data-sources=["']([^"']+)["']""",
+                r"""data-translatorclick=["']([^"']+)["']""",
+                r"""translator=["']([^"']+)["']"""):
+        for m in re.finditer(pat, page, re.I):
+            translators.append(html_mod.unescape(m.group(1)))
     translators = list(dict.fromkeys(translators))
     log(f"- çevirmen yolu: {len(translators)} → {[t[:120] for t in translators[:5]]}")
 
@@ -407,7 +369,7 @@ def main() -> int:
         for tag, kw2 in (("plain", {}), ("xhr", {"X-Requested-With": "XMLHttpRequest"}),
                          ("xhrcsrf", {"X-Requested-With": "XMLHttpRequest", "X-CSRF-TOKEN": csrf})):
             r = req(turl, referer=ep_url, extra=kw2)
-            snippet = (r.text or "").strip()[:200]
+            snippet = (r.text or "").strip()[:1200]
             log(f"  - çevirmen[{i}]/{tag} → {r.status} {len(r.text)}B {snippet!r}")
             if r.ok and r.text:
                 payload = r.text
@@ -434,7 +396,9 @@ def main() -> int:
         vurl = urllib.parse.urljoin(base + "/", v)
         r = req(vurl, referer=ep_url, xhr=True, extra={"Accept": "application/json, text/plain, */*"})
         body = (r.text or "").strip()
-        log(f"  - video[{i}] {v} → {r.status} {len(body)}B {body[:220]!r}")
+        log(f"  - video[{i}] {v} → {r.status} {len(body)}B")
+        for line in body.splitlines()[:30]:
+            log(f"      » {line[:400]}")
         try:
             j = json.loads(body)
         except Exception:  # noqa: BLE001
