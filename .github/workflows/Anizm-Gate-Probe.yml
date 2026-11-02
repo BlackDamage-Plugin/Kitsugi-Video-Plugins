@@ -1,0 +1,44 @@
+# Anizm +18 kapısı / kaynak zinciri canlı probu.
+#
+# Sandbox anizm.net'e doğrudan çıkamıyor (ağ politikası); GitHub runner'ı
+# çıkabildiği için ölçüm burada yapılır. Çıktı iş günlüğüne yazılır ve
+# `gh run view --log` ile okunur. Hiçbir şey yayınlanmaz, hiçbir dala yazılmaz.
+name: Anizm Gate Probe
+
+on:
+  push:
+    branches:
+      - arena/b539cd4c-kitsugi-plugins
+    paths:
+      - "tools/anizm_gate_probe.py"
+      - ".github/workflows/Anizm-Gate-Probe.yml"
+  workflow_dispatch:
+    inputs:
+      url:
+        description: "Bölüm yolu (boşsa varsayılan +18 filmi)"
+        required: false
+        default: ""
+
+permissions:
+  contents: read
+
+jobs:
+  Probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4.2.2
+
+      - name: Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Anizm +18 kapısı probu
+        continue-on-error: true
+        run: |
+          set -o pipefail
+          ARGS=""
+          if [ -n "${{ github.event.inputs.url }}" ]; then ARGS="--url ${{ github.event.inputs.url }}"; fi
+          python3 -u tools/anizm_gate_probe.py $ARGS 2>&1 | tee /tmp/anizm-probe.log
+          echo "### Anizm probu bitti ($(wc -l < /tmp/anizm-probe.log) satır)" >> "$GITHUB_STEP_SUMMARY"
