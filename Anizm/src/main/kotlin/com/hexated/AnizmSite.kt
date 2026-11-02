@@ -87,6 +87,18 @@ internal object AnizmSite {
         RegexOption.IGNORE_CASE
     )
 
+    /**
+     * **Numarasız** bölüm eki: `…-bolum`, `…-bolum-izle`.
+     * Film/OVA bölümlerinin slug'ında sıra numarası olmuyor
+     * (ör. `…-the-last-attack-shingeki-…---the-last-attack-bolum-izle`);
+     * eski sürüm bunları bölüm saymıyor, sayfadaki tüm bağlantıları bölüm
+     * listesine dolduruyordu.
+     */
+    private val NAMELESS_EPISODE_SUFFIX = Regex(
+        "-bolum(?:[-.][a-z0-9-]*)?$",
+        RegexOption.IGNORE_CASE
+    )
+
     /** v3 sayısal bölüm yolu: `/bolum/73483`. */
     private val BOLUM_ID_PATH = Regex("/bolum/(\\d+)")
 
@@ -169,6 +181,7 @@ internal object AnizmSite {
             .lowercase()
         if (path.isEmpty()) return null
         val stripped = EPISODE_PATH.replace(path, "$1").trim('/')
+            .replace(NAMELESS_EPISODE_SUFFIX, "")
         val normalised = stripped.removeSuffix("-izle").trim('-')
         return normalised.ifBlank { null }
     }
@@ -189,7 +202,15 @@ internal object AnizmSite {
         val isRange = label != null && RANGE_EPISODE.containsMatchIn(label)
         val m = (if (isRange) DOUBLE_EPISODE_PATH.find(path) else null)
             ?: EPISODE_PATH.find(path)
-            ?: return null
+            ?: run {
+                // Numarasız bölüm (film/OVA): eki at, geri kalan seri yoludur.
+                if (!NAMELESS_EPISODE_SUFFIX.containsMatchIn(path)) return null
+                val stripped = path.replace(NAMELESS_EPISODE_SUFFIX, "")
+                if (stripped.isBlank() || stripped == path) return null
+                val prefix = url.substringBefore("://") + "://" +
+                    url.substringAfter("://").substringBefore("/")
+                return "$prefix/$stripped"
+            }
         val prefix = url.substringBefore("://") + "://" + url.substringAfter("://").substringBefore("/")
         // "-izle" ile biten detay adresleri (…/tsuki-ga-kirei-izle) korunur.
         val seriesPath = m.groupValues[1]
@@ -678,8 +699,10 @@ internal object AnizmSite {
     }
 
     /** Bağlantı yolunda bölüm eki var mı? (`-12-bolum-izle`, `-41bolum-izle`) */
-    private fun containsEpisodeSuffix(href: String): Boolean =
-        EPISODE_PATH.containsMatchIn(href.substringBefore('?').trimEnd('/').substringAfterLast('/'))
+    private fun containsEpisodeSuffix(href: String): Boolean {
+        val last = href.substringBefore('?').trimEnd('/').substringAfterLast('/')
+        return EPISODE_PATH.containsMatchIn(last) || NAMELESS_EPISODE_SUFFIX.containsMatchIn(last)
+    }
 
     /** "215-216. Bölüm" / "1-2. Bölüm" gibi birleşik bölüm etiketi. */
     private val RANGE_EPISODE = Regex(
