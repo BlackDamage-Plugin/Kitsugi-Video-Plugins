@@ -4,16 +4,16 @@
 ## 1) Alan adı erişimi (çerez kavanozu ile)
 - https://anizm.net/ → 403 5687B başlık='Just a moment...' cf=True via=urllib
 - https://anizm.com.tr/ → 200 147432B başlık='Anime İzle | Türkçe Altyazılı Anime Bölümleri - Anizm' cf=False via=urllib
-    set-cookie: XSRF-TOKEN=eyJpdiI6IkFiaWtoRTBkdGQxS2hjZ3VSVW1FM3c9PSIsInZhbHVlIjoiR1AxQU4zT3Nkd3RvVEY2VXdHemVHYnljcERnKzQ3c1ZveGxhRVNpNjFBWUxBZnJKb2ZaRmxTR0xGSVA4TzNVclo4dWFab
-- https://www.puffytr.com/ → 525 11015B başlık='puffytr.com | 525: SSL handshake failed' cf=False via=urllib
+    set-cookie: XSRF-TOKEN=eyJpdiI6IjVFZzhRUkRrTFJralRKcjBpd2JiVXc9PSIsInZhbHVlIjoib3J0Y3dxZTE1T1lJUXV1TFRNek41NmlCNCtWd210WFpqSlFodHVWVWxWdTBHTG1zUWgzUlFnWW9nVUYzRk9VcHUrV25mU
+- https://www.puffytr.com/ → 525 11010B başlık='puffytr.com | 525: SSL handshake failed' cf=False via=urllib
 - seçilen taban: https://anizm.com.tr
-- kavanoz: anizm.com.tr|XSRF-TOKEN=eyJpdiI6IkFiaWtoRTBkdGQxS2hjZ3VSVW1FM3c9 (exp=1794214351), anizm.com.tr|anizm_session=eyJpdiI6Im9Pa2JXWFpFSkc2ZFRGZUFoYlVDbkE9 (exp=1794214351)
+- kavanoz: anizm.com.tr|XSRF-TOKEN=eyJpdiI6IjVFZzhRUkRrTFJralRKcjBpd2JiVXc9 (exp=1794214430), anizm.com.tr|anizm_session=eyJpdiI6ImsveDVsclZQNTlRN2tJU29RRUJoYkE9 (exp=1794214430)
 - bölüm adresi: https://anizm.com.tr/shingeki-no-kyojin-movie-kanketsu-hen-the-last-attack-shingeki-no-kyojin-movie-kanketsu-hen---the-last-attack-bolum-izle
 
 ## 2) Bölüm sayfası (onay öncesi)
 - 200 109263B başlık='Shingeki no Kyojin Movie: Kanketsu-hen - The Last Attack Shingeki no K...' final=https://anizm.com.tr/shingeki-no-kyojin-movie-kanketsu-hen-the-last-attack-shingeki-no-kyojin-movie-kanketsu-hen---the-last-attack-bolum-izle
-    set-cookie: XSRF-TOKEN=eyJpdiI6Ilk5b3d3U1ppZFMzaHBzQm5Rdm9JNnc9PSIsInZhbHVlIjoiWjZSZHYwUlRGcklKdGJ4ZzdmTGZtUDRXanhrSU9UNXR5QjQ5TU9jN1BiWlZQejRXVnZZc213TmF1UzdwSlRmSUpjQ3NkQ
-- kavanoz: anizm.com.tr|XSRF-TOKEN=eyJpdiI6Ilk5b3d3U1ppZFMzaHBzQm5Rdm9JNnc9 (exp=1794214351), anizm.com.tr|anizm_session=eyJpdiI6IlJjME9KUHJYWVZyNlZ6RzNWOHBYV2c9 (exp=1794214351)
+    set-cookie: XSRF-TOKEN=eyJpdiI6IldKcTYyZ3JaSXhhVmFxd3I4eDg4bWc9PSIsInZhbHVlIjoiQStIbjBPMXUzZ0c0TE1MNURQQ3p2d2tPdXBwdkY4WHlMd2lzamxId3VZZ055UjRrUDJXaUJuNFU0bUNMamt6NCt2SXFDW
+- kavanoz: anizm.com.tr|XSRF-TOKEN=eyJpdiI6IldKcTYyZ3JaSXhhVmFxd3I4eDg4bWc9 (exp=1794214431), anizm.com.tr|anizm_session=eyJpdiI6IkgyYWN0VWZYb2dnTnZveEtOcnZqTUE9 (exp=1794214431)
 - HTML işaretleri:
     'data-translatorclick': 0
     'data-playerclick': 0
@@ -101,9 +101,9 @@ s://anizm.com.tr/magaza"><i data-lucide="sparkles" aria-hidden="true"></i><span>
 
 - avi.js?date=20261102&v=0 → 200 6494B
 
-- v833ccba57c9e4_68.js?query=0&id=57&class=video-card&v=1 → 200 19521B
+- v833ccba57c9e4_68.js?query=0&id=57&class=video-card&v=1 → 200 19501B
     yaş/çerez satırı: 1
-      | var __pd="sH3rThVji0WktmbYfUnsAW9MfImq49VqNuzNWXQ3VFRjGmcQ-uO8hHPvTZ5WA_KhHbTbp_-37uKDoSTzb9Pr-oUkqno4hzWM91X0UfEGxtWXXIb9MtLsmDrYP64iIGJnu9CIzjQR4qnlTIOzwgZLD1L-n5b9pyskxJuNSkLBwJvmiRrKfyqWbvuo__3EBlNi_fk-KXuzuH4f6i1Z_anp7GNbqVzTjStBBJp8sExKhXGIhQIFayzsz9eEqgTowvayxEXqoT49PuoK4A0_GVLAppNrT-XBO9Np5u
+      | var __pd="wSi6lFdiHZBUmjIaK_-fwqHnVpTvbadR_XSAEZkWaH3uyPMXCcBlHcnwgrg5P5A0PFOS83-NALqrO5-avAyu9q4GEOJigTk3iW39uB5KO36QLSKxb13MC3nKmTBgnjwdA7VWSsUwKb_nvT18E-wWYvvqLOe_YZB6wvYtkXkRSJSQBTETkVx7fXDLcp-BMF8UhvRTZ1-4FnaFWLC9GLw83tIwHaCJ5agHNZGi_oq1UuoYLY36Lcx6xyTyo5xZaT8vzCVSSWDeXPw41vneXlHNJIhsgVSNdshJiC
 
 - anizm-counter.js?v=1.0.0 → 200 809B
 
@@ -144,8 +144,310 @@ s://anizm.com.tr/magaza"><i data-lucide="sparkles" aria-hidden="true"></i><span>
       | lucide.createIcons({icons});\``);if(typeof document>"u")throw new Error("`createIcons()` only works in a browser environment.");const p=document.querySelectorAll(`[${d}]`);if(Array.from(p).forEach(M=>E0(M,{nameAttr:d,icons:t,attrs:c})),d==="data-lucide"){const M=document.querySelectorAll("[icon-name
 
 - v3.js?v=3.1.6 → 200 6509B
+    --- TAM DOSYA (6509B) ---
+      » (() => {
+      »     const slider = document.querySelector('[data-v3-slider]');
+      »     const slides = slider ? [...slider.querySelectorAll('[data-v3-slide]')] : [];
+      »     const dots = slider ? [...slider.querySelectorAll('[data-v3-slide-to]')] : [];
+      »     let activeSlide = Math.max(0, slides.findIndex(slide => slide.classList.contains('is-active')));
+      »     let rotationTimer;
+      » 
+      »     const showSlide = index => {
+      »         if (!slides.length) return;
+      »         activeSlide = (index + slides.length) % slides.length;
+      »         slides.forEach((slide, slideIndex) => {
+      »             const active = slideIndex === activeSlide;
+      »             slide.classList.toggle('is-active', active);
+      »             slide.setAttribute('aria-hidden', String(!active));
+      »         });
+      »         dots.forEach((dot, dotIndex) => dot.setAttribute('aria-pressed', String(dotIndex === activeSlide)));
+      »     };
+      » 
+      »     const stopRotation = () => window.clearInterval(rotationTimer);
+      »     const startRotation = () => {
+      »         stopRotation();
+      »         if (slides.length < 2 || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      »         rotationTimer = window.setInterval(() => showSlide(activeSlide + 1), 8000);
+      »     };
+      » 
+      »     if (slider && slides.length > 1) {
+      »         slider.querySelectorAll('[data-v3-slide-step]').forEach(button => {
+      »             button.addEventListener('click', () => {
+      »                 showSlide(activeSlide + Number(button.dataset.v3SlideStep));
+      »                 startRotation();
+      »             });
+      »         });
+      »         dots.forEach((dot, index) => dot.addEventListener('click', () => {
+      »             showSlide(index);
+      »             startRotation();
+      »         }));
+      »         slider.addEventListener('mouseenter', stopRotation);
+      »         slider.addEventListener('mouseleave', startRotation);
+      »         slider.addEventListener('focusin', stopRotation);
+      »         slider.addEventListener('focusout', startRotation);
+      »         document.addEventListener('visibilitychange', () => document.hidden ? stopRotation() : startRotation());
+      » 
+      »         let pointerStart = null;
+      »         slider.addEventListener('pointerdown', event => { pointerStart = event.clientX; });
+      »         slider.addEventListener('pointerup', event => {
+      »             if (pointerStart !== null && Math.abs(event.clientX - pointerStart) >= 55) {
+      »                 showSlide(activeSlide + (event.clientX < pointerStart ? 1 : -1));
+      »                 startRotation();
+      »             }
+      »             pointerStart = null;
+      »         });
+      »         slider.addEventListener('pointercancel', () => { pointerStart = null; });
+      »         startRotation();
+      »     }
+      » 
+      »     document.querySelectorAll('[data-v3-scroll]').forEach(button => {
+      »         button.addEventListener('click', () => {
+      »             const rail = document.getElementById(button.dataset.v3Target);
+      »             if (!rail) return;
+      »             const direction = button.dataset.v3Scroll === 'left' ? -1 : 1;
+      »             rail.scrollBy({ left: direction * Math.max(rail.clientWidth * 0.82, 240), behavior: 'smooth' });
+      »         });
+      »     });
+      » 
+      »     document.querySelectorAll('.v3-wide-rail, .v3-poster-rail').forEach(rail => {
+      »         let drag = null;
+      »         let suppressClick = false;
+      » 
+      »         const prefersReducedMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      » 
+      »         const animateDragTarget = () => {
+      »             if (!drag || drag.frameId) return;
+      »             const step = () => {
+      »                 if (!drag) return;
+      »                 const remaining = drag.targetScrollLeft - rail.scrollLeft;
+      »                 if (Math.abs(remaining) < 0.5) {
+      »                     rail.scrollLeft = drag.targetScrollLeft;
+      »                     drag.frameId = 0;
+      »                     return;
+      »                 }
+      »                 rail.scrollLeft += remaining * 0.22;
+      »                 drag.frameId = window.requestAnimationFrame(step);
+      »             };
+      »             drag.frameId = window.requestAnimationFrame(step);
+      »         };
+      » 
+      »         rail.addEventListener('dragstart', event => event.preventDefault());
+      »         rail.addEventListener('click', event => {
+      »             if (!suppressClick) return;
+      »             event.preventDefault();
+      »             event.stopPropagation();
+      »             suppressClick = false;
+      »         }, true);
+      » 
+      »         rail.addEventListener('pointerdown', event => {
+      »             if (event.pointerType === 'touch' || event.button !== 0) return;
+      »             drag = { pointerId: event.pointerId, startX: event.clientX, scrollLeft: rail.scrollLeft, targetScrollLeft: rail.scrollLeft, frameId: 0, moved: false };
+      »         });
+      » 
+      »         rail.addEventListener('pointermove', event => {
+      »             if (!drag || drag.pointerId !== event.pointerId) return;
+      »             const distance = event.clientX - drag.startX;
+      »             if (!drag.moved && Math.abs(distance) < 6) return;
+      »             if (!drag.moved) {
+      »                 drag.moved = true;
+      »                 rail.classList.add('is-dragging');
+      »                 rail.setPointerCapture(event.pointerId);
+      »             }
+      »             drag.targetScrollLeft = Math.max(0, Math.min(rail.scrollWidth - rail.clientWidth, drag.scrollLeft - distance));
+      »             if (prefersReducedMotion()) {
+      »                 rail.scrollLeft = drag.targetScrollLeft;
+      »             } else {
+      »                 animateDragTarget();
+      »             }
+      »             event.preventDefault();
+      »         });
+      » 
+      »         rail.addEventListener('pointerup', event => {
+      »             if (!drag || drag.pointerId !== event.pointerId) return;
+      »             if (drag.moved) {
+      »                 suppressClick = true;
+      »                 window.setTimeout(() => { suppressClick = false; }, 0);
+      »                 if (drag.frameId) window.cancelAnimationFrame(drag.frameId);
+      »             }
+      »             rail.classList.remove('is-dragging');
+      »             drag = null;
+      »         });
+      » 
+      »         rail.addEventListener('pointercancel', () => {
+      »             if (drag?.frameId) window.cancelAnimationFrame(drag.frameId);
+      »             rail.classList.remove('is-dragging');
+      »             drag = null;
+      »             suppressClick = false;
+      »         });
+      »     });
+      » 
+      »     const menus = [...document.querySelectorAll('[data-v3-menu]')];
+      »     document.addEventListener('click', event => {
+      »         menus.forEach(menu => {
+      »             if (menu.open && !menu.contains(event.target)) menu.open = false;
+      »         });
+      »     });
+      »     document.addEventListener('keydown', event => {
+      »         if (event.key !== 'Escape') return;
+      »         menus.forEach(menu => {
+      »             if (!menu.open) return;
+      »             menu.open = false;
+      »             menu.querySelector('summary')?.focus();
+      »         });
+      »     });
+      » 
+      »     if (window.lucide) window.lucide.createIcons();
+      » })();
+    --- /TAM DOSYA ---
 
 - v3-content-warning.js?v=1.0.5 → 200 6268B
+    --- TAM DOSYA (6268B) ---
+      » (() => {
+      »     const dialog = document.querySelector('[data-v3-content-warning]');
+      »     if (!dialog) {
+      »         window.v3ContentWarningAccepted = true;
+      »         return;
+      »     }
+      » 
+      »     const rating = Number(dialog.dataset.rating);
+      »     const animeId = Number(dialog.dataset.animeId);
+      »     const accountManaged = dialog.dataset.accountManaged === '1';
+      »     const sessionStorageKey = `anizm.v3.content-warning.${animeId}`;
+      »     const rememberedStorageKey = 'anizm.v3.content-warning.remembered-rating';
+      »     const readSessionRating = () => {
+      »         try {
+      »             return Number(window.sessionStorage.getItem(sessionStorageKey)) || 0;
+      »         } catch (_) {
+      »             return 0;
+      »         }
+      »     };
+      »     const readRememberedRating = () => {
+      »         try {
+      »             return Number(window.localStorage.getItem(rememberedStorageKey)) || 0;
+      »         } catch (_) {
+      »             return 0;
+      »         }
+      »     };
+      »     const accepted = Math.max(readSessionRating(), accountManaged ? 0 : readRememberedRating()) >= rating;
+      »     window.v3ContentWarningAccepted = accepted;
+      » 
+      »     const unlock = () => {
+      »         window.v3ContentWarningAccepted = true;
+      »         document.body.classList.remove('v3-content-warning-open');
+      »         if (dialog.open) dialog.close();
+      »         document.dispatchEvent(new CustomEvent('v3:content-warning-accepted'));
+      »     };
+      » 
+      »     document.addEventListener('DOMContentLoaded', () => {
+      »         if (!accepted) {
+      »             document.body.classList.add('v3-content-warning-open');
+      »             try {
+      »                 dialog.showModal();
+      »             } catch (_) {
+      »                 dialog.setAttribute('open', '');
+      »             }
+      »         }
+      » 
+      »         dialog.addEventListener('cancel', event => event.preventDefault());
+      »         const preferenceDialog = document.querySelector('[data-v3-content-warning-preference]');
+      »         const preferenceDescription = preferenceDialog?.querySelector('#v3-content-warning-preference-description');
+      »         let requestedMode = 'only_18';
+      »         const openPreferenceDialog = mode => {
+      »             requestedMode = mode;
+      »             if (preferenceDescription) {
+      »                 preferenceDescription.textContent = mode === 'none'
+      »                     ? '18 yaşında veya daha büyük olduğumu onaylıyorum. Tercihim hesabıma kaydedilecek; +16 ve +18 içerik uyarılarının hiçbiri gösterilmeyecek. Bu anime uyarısı da bu oturumda tekrar gösterilmeyecek.'
+      »                     : '18 yaşında veya daha büyük olduğumu onaylıyorum. Tercihim hesabıma kaydedilecek; +16 uyarıları gizlenecek, +18 içerik uyarıları gösterilmeye devam edecek. Bu anime uyarısı bu oturumda tekrar gösterilmeyecek.';
+      »             }
+      »             try {
+      »                 preferenceDialog?.showModal();
+      »             } catch (_) {
+      »                 preferenceDialog?.setAttribute('open', '');
+      »             }
+      »         };
+      »         const accept = remember => {
+      »             try {
+      »                 window.sessionStorage.setItem(sessionStorageKey, String(Math.max(readSessionRating(), rating)));
+      »             } catch (_) {
+      »                 // The current page can continue even when browser storage is unavailable.
+      »             }
+      » 
+      »             if (remember) {
+      »                 try {
+      »                     window.localStorage.setItem(rememberedStorageKey, String(Math.max(readRememberedRating(), rating)));
+      »                 } catch (_) {
+      »                     // The current page can continue even when browser storage is unavailable.
+      »                 }
+      »             }
+      » 
+      »             unlock();
+      »         };
+      » 
+      »         dialog.querySelector('[data-v3-content-warning-accept]')?.addEventListener('click', () => accept(false));
+      »         dialog.querySelectorAll('[data-v3-content-warning-remember]').forEach(button => {
+      »             button.addEventListener('click', () => {
+      »                 const mode = button.dataset.v3ContentWarningRemember;
+      »                 if (!accountManaged || mode === 'browser') {
+      »                     accept(true);
+      »                     return;
+      »                 }
+      » 
+      »                 openPreferenceDialog(mode || 'only_18');
+      »             });
+      »         });
+      » 
+      »         if (preferenceDialog) {
+      »             const confirmation = preferenceDialog.querySelector('[data-v3-content-warning-preference-confirm]');
+      »             const cancel = preferenceDialog.querySelector('[data-v3-content-warning-preference-cancel]');
+      »             const error = preferenceDialog.querySelector('[data-v3-content-warning-save-error]');
+      » 
+      »             cancel?.addEventListener('click', () => preferenceDialog.close());
+      »             confirmation?.addEventListener('click', async () => {
+      »                 const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content;
+      »                 if (!csrfToken) {
+      »                     if (error) {
+      »                         error.textContent = 'Güvenlik anahtarı okunamadı. Sayfayı yenileyip tekrar dene.';
+      »                         error.hidden = false;
+      »                     }
+      »                     return;
+      »                 }
+      » 
+      »                 confirmation.disabled = true;
+      »                 if (error) error.hidden = true;
+      »                 try {
+      »                     const body = new FormData();
+      »                     body.set('age_warning_mode', requestedMode);
+      »                     body.set('age_warning_confirmation', '1');
+      »                     const response = await fetch(preferenceDialog.dataset.saveUrl, {
+      »                         method: 'POST',
+      »                         credentials: 'same-origin',
+      »                         headers: {
+      »                             Accept: 'application/json',
+      »                             'X-CSRF-TOKEN': csrfToken,
+      »                             'X-Requested-With': 'XMLHttpRequest',
+      »                         },
+      »                         body,
+      »                     });
+      »                     const result = await response.json();
+      »                     if (!response.ok || result.mode !== requestedMode) throw new Error();
+      » 
+      »                     preferenceDialog.close();
+      »                     accept(false);
+      »                 } catch (_) {
+      »                     if (error) {
+      »                         error.textContent = 'Tercih kaydedilemedi. Bağlantını kontrol edip tekrar dene.';
+      »                         error.hidden = false;
+      »                     }
+      »                 } finally {
+      »                     confirmation.disabled = false;
+      »                 }
+      »             });
+      »         }
+      » 
+      »         if (accepted) unlock();
+      »     });
+      » })();
+    --- /TAM DOSYA ---
     yaş/çerez satırı: 7
       | const sessionStorageKey = `anizm.v3.content-warning.${animeId}`;
       | return Number(window.sessionStorage.getItem(sessionStorageKey)) || 0;
@@ -164,6 +466,392 @@ s://anizm.com.tr/magaza"><i data-lucide="sparkles" aria-hidden="true"></i><span>
       | d = '<div id="joinedDiscord">' + i.joinedText + '<svg name="Checkmark" width="18" height="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg" id="discordSVG"><g fill="none" fill-rule="evenodd" id="gDiscord"><polyline stroke="currentColor" stroke-width="2" points="3.5 9.5 7 13 15 5" id="discor
 
 - v3-episode.js?v=1.3.7 → 200 17938B
+    --- TAM DOSYA (17938B) ---
+      » document.addEventListener('DOMContentLoaded', () => {
+      »     const watch = document.getElementById('v3-watch');
+      »     if (!watch) return;
+      » 
+      »     const screen = document.getElementById('v3-player-screen');
+      »     const videoOptions = document.getElementById('v3-source-options');
+      »     const translatorButtons = [...document.querySelectorAll('[data-v3-translator]')];
+      »     const credits = document.getElementById('v3-credits');
+      »     const roomPanel = document.getElementById('v3-watch-together');
+      »     const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
+      »     const initialPlayerLoadDelay = 1000;
+      »     const loggedIn = watch.dataset.auth === '1';
+      »     const initialRoom = roomPanel?.dataset.initialRoom || '';
+      »     let translatorRequest = 0;
+      »     let playerRequest = 0;
+      »     let progressScheduled = false;
+      »     let playerInitializationStarted = false;
+      »     let playerUnlocked = !document.querySelector('[data-v3-content-warning]') || window.v3ContentWarningAccepted === true;
+      »     let pendingRoomSource = null;
+      »     let defaultSourceRequested = false;
+      » 
+      »     const notify = message => window.v3Toast ? window.v3Toast(message) : alert(message);
+      » 
+      »     async function request(url, options = {}) {
+      »         const response = await fetch(url, {
+      »             credentials: 'same-origin',
+      »             ...options,
+      »             headers: { Accept: 'application/json', 'X-Requested-With': 'XMLHttpRequest', 'X-CSRF-TOKEN': csrfToken, ...options.headers }
+      »         });
+      »         const data = await response.json();
+      »         if (!response.ok || !data.success) throw new Error(data.message || 'İşlem tamamlanamadı.');
+      »         return data;
+      »     }
+      » 
+      »     function setPlayerMessage(message) {
+      »         const state = document.createElement('p');
+      »         state.className = 'v3-player-state';
+      »         state.textContent = message;
+      »         screen.replaceChildren(state);
+      »     }
+      » 
+      »     function resetReport() {
+      »         const report = document.getElementById('v3-report');
+      »         report.setAttribute('aria-disabled', 'true');
+      »         report.setAttribute('tabindex', '-1');
+      »     }
+      » 
+      »     function sameOriginUrl(value) {
+      »         if (!value) return null;
+      »         try {
+      »             const url = new URL(value, location.origin);
+      »             return url.origin === location.origin && ['http:', 'https:'].includes(url.protocol) ? url.href : null;
+      »         } catch (_) {
+      »             return null;
+      »         }
+      »     }
+      » 
+      »     function markCreditsLoading() {
+      »         if (!credits) return;
+      »         credits.setAttribute('aria-busy', 'true');
+      »         const status = document.getElementById('v3-credits-status');
+      »         if (status) status.textContent = 'Yeni kaynak yükleniyor…';
+      »     }
+      » 
+      »     function finishCreditsUpdate(message = 'Önceki kaynak bilgisi gösteriliyor') {
+      »         if (!credits) return;
+      »         credits.removeAttribute('aria-busy');
+      »         const status = document.getElementById('v3-credits-status');
+      »         if (status) status.textContent = message;
+      »     }
+      » 
+      »     function updateCredits(data) {
+      »         if (!credits) return;
+      » 
+      »         const translator = document.getElementById('v3-credits-translator');
+      »         if (translator) translator.textContent = data.translator || 'Belirtilmemiş';
+      » 
+      »         const redaktorItem = document.getElementById('v3-credits-redaktor-item');
+      »         if (redaktorItem) redaktorItem.hidden = !data.redaktor;
+      »         const redaktor = document.getElementById('v3-credits-redaktor');
+      »         if (redaktor) redaktor.textContent = data.redaktor || '';
+      » 
+      »         const encoder = document.getElementById('v3-credits-encoder');
+      »         if (encoder) {
+      »             encoder.hidden = !data.encoder;
+      »             const encoderName = encoder.querySelector('strong');
+      »             if (encoderName) encoderName.textContent = data.encoder || '';
+      »         }
+      » 
+      »         const uploaderCard = document.getElementById('v3-credit-uploader-card');
+      »         const uploaderLink = document.getElementById('v3-credit-uploader');
+      »         const uploaderFollowButton = document.getElementById('v3-credit-uploader-follow');
+      »         const uploaderMissing = document.getElementById('v3-credit-uploader-missing');
+      »         const uploader = data.uploader;
+      »         const profileUrl = sameOriginUrl(uploader?.url);
+      »         const avatarUrl = sameOriginUrl(uploader?.avatar);
+      »         if (uploaderCard) uploaderCard.hidden = !uploader || !profileUrl;
+      »         if (uploaderMissing) uploaderMissing.hidden = Boolean(uploader && profileUrl);
+      » 
+      »         if (uploader && profileUrl) {
+      »             if (uploaderLink) uploaderLink.href = profileUrl;
+      »             const avatar = document.getElementById('v3-credit-uploader-avatar');
+      »             if (avatar) {
+      »                 avatar.hidden = !avatarUrl;
+      »                 if (avatarUrl) avatar.src = avatarUrl;
+      »             }
+      »             const uploaderName = document.getElementById('v3-credit-uploader-name');
+      »             const uploaderGroup = document.getElementById('v3-credit-uploader-group');
+      »             const uploaderCount = document.getElementById('v3-credit-uploader-count');
+      »             if (uploaderName) uploaderName.textContent = uploader.name || 'Anizm kullanıcısı';
+      »             if (uploaderGroup) uploaderGroup.textContent = uploader.group || 'Bilinmiyor';
+      »             if (uploaderCount) uploaderCount.textContent = `${Number(uploader.uploads) || 0} video yükledi`;
+      »             if (uploaderFollowButton) {
+      »                 const isFollowing = uploader.isFollowing === true;
+      »                 uploaderFollowButton.hidden = uploader.canFollow !== true;
+      »                 uploaderFollowButton.dataset.following = isFollowing ? '1' : '0';
+      »                 uploaderFollowButton.dataset.followUrl = uploader.followUrl || '';
+      »                 uploaderFollowButton.dataset.unfollowUrl = uploader.unfollowUrl || '';
+      »                 uploaderFollowButton.setAttribute('aria-pressed', String(isFollowing));
+      »                 uploaderFollowButton.textContent = isFollowing ? 'Takipten çık' : 'Takip et';
+      »                 uploaderFollowButton.disabled = false;
+      »             }
+      »         } else if (uploaderFollowButton) {
+      »             uploaderFollowButton.hidden = true;
+      »         }
+      » 
+      »         credits.hidden = false;
+      »         finishCreditsUpdate();
+      »     }
+      » 
+      »     document.addEventListener('click', async event => {
+      »         const button = event.target.closest('[data-v3-uploader-follow]');
+      »         if (!button || button.disabled) return;
+      » 
+      »         const isFollowing = button.dataset.following === '1';
+      »         const endpoint = isFollowing ? button.dataset.unfollowUrl : button.dataset.followUrl;
+      »         if (!endpoint) return;
+      » 
+      »         button.disabled = true;
+      »         try {
+      »             const response = await fetch(endpoint, {
+      »                 method: 'POST',
+      »                 credentials: 'same-origin',
+      »                 headers: {
+      »                     Accept: 'application/json',
+      »                     'X-Requested-With': 'XMLHttpRequest',
+      »                     'X-CSRF-TOKEN': csrfToken
+      »                 }
+      »             });
+      »             const data = await response.json().catch(() => ({}));
+      »             if (!response.ok) throw new Error(data.message || 'Takip işlemi tamamlanamadı.');
+      » 
+      »             const nowFollowing = !isFollowing;
+      »             button.dataset.following = nowFollowing ? '1' : '0';
+      »             button.setAttribute('aria-pressed', String(nowFollowing));
+      »             button.textContent = nowFollowing ? 'Takipten çık' : 'Takip et';
+      »             if (data.message) notify(data.message);
+      »         } catch (error) {
+      »             notify(error.message || 'Takip işlemi tamamlanamadı.');
+      »         } finally {
+      »             button.disabled = false;
+      »         }
+      »     });
+      » 
+      »     async function selectVideo(button) {
+      »         if (!playerUnlocked) return;
+      »         const videoId = Number(button.dataset.video);
+      »         if (window.v3WatchTogether && !window.v3WatchTogether.canSelectVideo(videoId)) {
+      »             notify('Oda sürerken video kaynağı değiştirilemez. Önce odadan ayrılın.');
+      »             return;
+      »         }
+      » 
+      »         const requestId = ++playerRequest;
+      »         document.dispatchEvent(new CustomEvent('v3:player-loading', { detail: { videoId } }));
+      »         videoOptions.querySelectorAll('button').forEach(option => {
+      »             option.setAttribute('aria-pressed', String(option === button));
+      »         });
+      »         resetReport();
+      »         markCreditsLoading();
+      »         setPlayerMessage('Oynatıcı yükleniyor...');
+      » 
+      »         try {
+      »             const data = await request(button.dataset.url);
+      »             if (requestId !== playerRequest) return;
+      » 
+      »             const playerUrl = new URL(data.url);
+      »             if (playerUrl.protocol !== 'https:' || playerUrl.host !== location.host) throw new Error('Oynatıcı adresi geçersiz.');
+      » 
+      »             const frame = document.createElement('iframe');
+      »             frame.title = 'Anime video oynatıcı';
+      »             frame.src = playerUrl.href;
+      »             // /player/{id} redirects to external providers; delegate PiP to the final origin too.
+      »             frame.setAttribute('allow', 'autoplay; fullscreen *; picture-in-picture *');
+      »             screen.replaceChildren(frame);
+      »             document.dispatchEvent(new CustomEvent('v3:player-loaded', {
+      »                 detail: {
+      »                     frame,
+      »                     videoId,
+      »                     watchTogether: data.watchTogether === true,
+      »                     playerOrigin: data.playerOrigin || null,
+      »                 }
+      »             }));
+      »             document.getElementById('v3-now-playing').textContent = data.source;
+      » 
+      »             const report = document.getElementById('v3-report');
+      »             report.href = report.href.replace(/\/video\/\d+$/, '/video/' + button.dataset.video);
+      »             report.removeAttribute('aria-disabled');
+      »             report.removeAttribute('tabindex');
+      » 
+      »             updateCredits(data);
+      » 
+      »             if (loggedIn && watch.dataset.autoProgress === '1' && !progressScheduled) {
+      »                 progressScheduled = true;
+      »                 setTimeout(() => request(watch.dataset.progress, { method: 'POST' }).catch(() => {}), 120000);
+      »             }
+      »         } catch (error) {
+      »             if (requestId !== playerRequest) return;
+      »             finishCreditsUpdate();
+      »             setPlayerMessage(error.message);
+      »             if (window.v3WatchTogether?.isActive()) {
+      »                 document.dispatchEvent(new CustomEvent('v3:watch-together-source-error', { detail: { message: error.message } }));
+      »             }
+      »         }
+      »     }
+      » 
+      »     async function selectTranslator(button, preferredVideoId = null) {
+      »         if (!playerUnlocked) return;
+      »         playerInitializationStarted = true;
+      »         const requestId = ++translatorRequest;
+      »         ++playerRequest;
+      »         translatorButtons.forEach(option => option.setAttribute('aria-pressed', String(option === button)));
+      »         videoOptions.replaceChildren();
+      »         resetReport();
+      »         markCreditsLoading();
+      »         setPlayerMessage('Kaynaklar yükleniyor...');
+      » 
+      »         try {
+      »             const data = await request(button.dataset.sources);
+      »             if (requestId !== translatorRequest) return;
+      »             if (!data.videos.length) {
+      »                 finishCreditsUpdate();
+      »                 setPlayerMessage('Bu çeviri için hazır kaynak bulunamadı.');
+      »                 return;
+      »             }
+      »             data.videos.forEach(video => {
+      »                 const option = document.createElement('button');
+      »                 option.type = 'button';
+      »                 option.textContent = video.name;
+      »                 option.dataset.video = video.id;
+      »                 option.dataset.url = button.dataset.sources.replace(/\/cevirmen\/\d+$/, '/video/' + video.id);
+      »                 option.dataset.watchTogether = video.watchTogether ? '1' : '0';
+      »                 option.setAttribute('aria-pressed', 'false');
+      »                 option.disabled = Boolean(window.v3WatchTogether?.isActive());
+      »                 option.addEventListener('click', () => selectVideo(option));
+      »                 videoOptions.append(option);
+      »             });
+      »             const preferredOption = preferredVideoId === null
+      »                 ? null
+      »                 : [...videoOptions.querySelectorAll('button')].find(option => Number(option.dataset.video) === Number(preferredVideoId));
+      »             if (preferredVideoId !== null && !preferredOption) {
+      »                 throw new Error('Oda için seçilen BetaPlayer kaynağı bu bölümde artık kullanılamıyor.');
+      »             }
+      »             selectVideo(preferredOption || videoOptions.firstElementChild);
+      »         } catch (error) {
+      »             if (requestId !== translatorRequest) return;
+      »             finishCreditsUpdate();
+      »             setPlayerMessage(error.message);
+      »             if (preferredVideoId !== null) {
+      »                 document.dispatchEvent(new CustomEvent('v3:watch-together-source-error', { detail: { message: error.message } }));
+      »             }
+      »         }
+      »     }
+      » 
+      »     translatorButtons.forEach(button => button.addEventListener('click', () => {
+      »         if (window.v3WatchTogether?.isActive()) {
+      »             notify('Oda sürerken çeviri kaynağı değiştirilemez. Önce odadan ayrılın.');
+      »             return;
+      »         }
+      »         selectTranslator(button);
+      »     }));
+      »     document.addEventListener('v3:watch-together-select-source', event => {
+      »         if (!playerUnlocked) {
+      »             pendingRoomSource = event.detail;
+      »             return;
+      »         }
+      »         const button = translatorButtons.find(option => Number(option.dataset.translatorId) === Number(event.detail.translatorId));
+      »         if (!button) {
+      »             document.dispatchEvent(new CustomEvent('v3:watch-together-source-error', {
+      »                 detail: { message: 'Oda kaynağının çevirisi bu bölümde bulunamadı.' }
+      »             }));
+      »             return;
+      »         }
+      »         selectTranslator(button, Number(event.detail.videoId));
+      »     });
+      »     document.addEventListener('v3:watch-together-restore-default-source', () => {
+      »         if (!playerUnlocked) {
+      »             pendingRoomSource = null;
+      »             defaultSourceRequested = true;
+      »             return;
+      »         }
+      »         if (translatorButtons.length) selectTranslator(translatorButtons[0]);
+      »         else setPlayerMessage('Bu bölüm için yayınlanmış video bulunamadı.');
+      »     });
+      »     const initializePlayer = () => {
+      »         if (playerInitializationStarted) return;
+      »         playerInitializationStarted = true;
+      » 
+      »         if (pendingRoomSource) {
+      »             const source = pendingRoomSource;
+      »             pendingRoomSource = null;
+      »             document.dispatchEvent(new CustomEvent('v3:watch-together-select-source', { detail: source }));
+      »         } else if (translatorButtons.length && (!initialRoom || defaultSourceRequested)) {
+      »             selectTranslator(translatorButtons[0]);
+      »         } else if (!initialRoom) {
+      »             setPlayerMessage('Bu bölüm için hazır video bulunamadı.');
+      »         } else {
+      »             setPlayerMessage('Watch Together odasına bağlanılıyor...');
+      »         }
+      »     };
+      » 
+      »     if (playerUnlocked) {
+      »         window.setTimeout(initializePlayer, initialPlayerLoadDelay);
+      »     }
+      »     else {
+      »         setPlayerMessage(`Video kaynaklarını yüklemek için +${document.querySelector('[data-v3-content-warning]')?.dataset.rating} uyarısını kabul edin.`);
+      »         document.addEventListener('v3:content-warning-accepted', () => {
+      »             playerUnlocked = true;
+      »             initializePlayer();
+      »         }, { once: true });
+      »     }
+      » 
+      »     document.getElementById('v3-fullscreen').addEventListener('click', () => {
+      »         if (document.fullscreenElement) document.exitFullscreen();
+      »         else screen.requestFullscreen?.();
+      »     });
+      » 
+      »     const watchedButton = document.getElementById('v3-watched');
+      »     watchedButton.addEventListener('click', async () => {
+      »         if (!loggedIn) { location.href = watch.dataset.login; return; }
+      »         watchedButton.disabled = true;
+      »         const wasWatched = watchedButton.dataset.watched === '1';
+      »         try {
+      »             await request(watchedButton.dataset.url, { method: 'POST', body: new URLSearchParams({ watched: wasWatched ? '0' : '1' }) });
+      »             watchedButton.dataset.watched = wasWatched ? '0' : '1';
+      »             watchedButton.setAttribute('aria-pressed', String(!wasWatched));
+      »             watchedButton.querySelector('span').textContent = wasWatched ? 'İzledim' : 'İzlendi';
+      »             notify(wasWatched ? 'İzlendi işareti kaldırıldı.' : 'İzlendi olarak kaydedildi.');
+      »         } catch (error) { notify(error.message); }
+      »         finally { watchedButton.disabled = false; }
+      »     });
+      » 
+      »     const followButton = document.getElementById('v3-follow');
+      »     followButton.addEventListener('click', async () => {
+      »         if (!loggedIn) { location.href = watch.dataset.login; return; }
+      »         followButton.disabled = true;
+      »         try {
+      »             const data = await request(followButton.dataset.url, { method: 'POST' });
+      »             followButton.dataset.following = data.is_following ? '1' : '0';
+      »             followButton.setAttribute('aria-pressed', String(data.is_following));
+      »             followButton.querySelector('span').textContent = data.is_following ? 'Bildirim açık' : 'Takip et';
+      »             notify(data.is_following ? 'Bölüm bildirimleri açıldı.' : 'Bölüm bildirimleri kapatıldı.');
+      »         } catch (error) { notify(error.message); }
+      »         finally { followButton.disabled = false; }
+      »     });
+      » 
+      »     document.getElementById('v3-episode-filter').addEventListener('input', event => {
+      »         const search = event.target.value.trim().toLocaleLowerCase('tr-TR');
+      »         let visible = 0;
+      »         document.querySelectorAll('[data-v3-episode-item]').forEach(item => {
+      »             item.hidden = !item.textContent.toLocaleLowerCase('tr-TR').includes(search);
+      »             if (!item.hidden) visible++;
+      »         });
+      »         document.getElementById('v3-no-episodes').hidden = visible !== 0;
+      »     });
+      » 
+      »     const comments = document.getElementById('v3-comments-root');
+      »     const keepCommentLinksInV3 = () => {
+      »         comments.querySelectorAll('a[href^="/profil/"], a[href="/magaza"], a[href="/girisyap"]').forEach(link => {
+      »             link.setAttribute('href', '/v3' + link.getAttribute('href'));
+      »         });
+      »     };
+      »     keepCommentLinksInV3();
+      »     new MutationObserver(keepCommentLinksInV3).observe(comments, { childList: true, subtree: true });
+      » });
+    --- /TAM DOSYA ---
 
 - v3-watch-together.js?v=1.0.6 → 200 24146B
     yaş/çerez satırı: 3
@@ -177,44 +865,23 @@ s://anizm.com.tr/magaza"><i data-lucide="sparkles" aria-hidden="true"></i><span>
 
 - JS'ten çıkan aday uçlar:
     /video/
-- csrf-token: VAR (vo4rXmv0veBu…)
+- csrf-token: VAR (FrBTcy2Lc2fw…)
 - kapı öncesi (kaynak işareti, kapı işareti): (1, 1)
 
-## 4) Kapıyı aşma denemeleri
-- GET /18-yas-onay → 404 loc='' set-cookie=['XSRF-TOKEN=eyJpdiI6InZZeW4zS2c5UkdvMmEwRmxNVFFVOFE9PSIsInZhbHVlIjoiZndmSEs3b3ZtRjJFdjc0ZVYvS1JwY2lvZE1aQjcxOHZ']
-    kavanoz: anizm.com.tr|XSRF-TOKEN=eyJpdiI6InZZeW4zS2c5UkdvMmEwRmxNVFFVOFE9 (exp=1794214355), anizm.com.tr|anizm_session=eyJpdiI6Imp3ZTlFQzRMLzV1TGxnVkd3QjlkMnc9 (exp=1794214355), wargamings.net|PHPSESSID=jtqtqvl52ca4v63ji14i0kcpg0 (exp=None)
-    sonrası (kaynak, kapı): (1, 1)  boyut=109263
-- GET /yas-onayi → 404 loc='' set-cookie=['XSRF-TOKEN=eyJpdiI6IlEwWVg5OVhWckhUZTFiVzM3RmFBNWc9PSIsInZhbHVlIjoiREJkZTE4Q09zTlRFQnBKZUtLckR2T0EwWmp2T3pBbHl']
-    kavanoz: anizm.com.tr|XSRF-TOKEN=eyJpdiI6IlEwWVg5OVhWckhUZTFiVzM3RmFBNWc9 (exp=1794214357), anizm.com.tr|anizm_session=eyJpdiI6IjZkTDlYUk5BUVVOVE5QV1BaOWpxdVE9 (exp=1794214357), wargamings.net|PHPSESSID=jtqtqvl52ca4v63ji14i0kcpg0 (exp=None)
-    sonrası (kaynak, kapı): (1, 1)  boyut=109263
-- GET /yas-onay → 404 loc='' set-cookie=['XSRF-TOKEN=eyJpdiI6IlZncEk2R3dUK2tJNEdNb0k3bEpOdXc9PSIsInZhbHVlIjoiRklydUM1VjBETmN5QzdJOGdOdDQ5Qy9TcnhNS21meHd']
-    kavanoz: anizm.com.tr|XSRF-TOKEN=eyJpdiI6IlZncEk2R3dUK2tJNEdNb0k3bEpOdXc9 (exp=1794214359), anizm.com.tr|anizm_session=eyJpdiI6Im1BbnpYWGthZU9FSVBqYVc0S1NtR1E9 (exp=1794214359), wargamings.net|PHPSESSID=jtqtqvl52ca4v63ji14i0kcpg0 (exp=None)
-    sonrası (kaynak, kapı): (1, 1)  boyut=109263
-- GET /age-verify → 404 loc='' set-cookie=['XSRF-TOKEN=eyJpdiI6IjJFN2NXcVlPUG9wUHA1amlBWUFmZVE9PSIsInZhbHVlIjoiYkpSUzd5dFAzKzJaMmVMZm9rZGdVeFNCblhzYm1iUVB']
-    kavanoz: anizm.com.tr|XSRF-TOKEN=eyJpdiI6IjJFN2NXcVlPUG9wUHA1amlBWUFmZVE9 (exp=1794214361), anizm.com.tr|anizm_session=eyJpdiI6InlEVnNyeTB3UHA5aE80NVFkMXZIM0E9 (exp=1794214361), wargamings.net|PHPSESSID=jtqtqvl52ca4v63ji14i0kcpg0 (exp=None)
-    sonrası (kaynak, kapı): (1, 1)  boyut=109263
-- GET /age-verification → 404 loc='' set-cookie=['XSRF-TOKEN=eyJpdiI6ImVwVW02MmdNaEw3SEwxT1JEMEhYMGc9PSIsInZhbHVlIjoiTDJGUm1DYTZFdTJLZGJubmg3bVhMbTdBRmZOR2ZLbnV']
-    kavanoz: anizm.com.tr|XSRF-TOKEN=eyJpdiI6ImVwVW02MmdNaEw3SEwxT1JEMEhYMGc9 (exp=1794214362), anizm.com.tr|anizm_session=eyJpdiI6IlNLTGN6NU40QXNUSEJINmR0NlFPRHc9 (exp=1794214362), wargamings.net|PHPSESSID=jtqtqvl52ca4v63ji14i0kcpg0 (exp=None)
-    sonrası (kaynak, kapı): (1, 1)  boyut=109263
-- GET /onay → 404 loc='' set-cookie=['XSRF-TOKEN=eyJpdiI6IjE4YkpJMjRMSnRSTlBDc3VJbWx5QkE9PSIsInZhbHVlIjoiWjEvTGZUQzY3ZzdKK3Vub25nVzY4L2RHTVF5MmtKNnV']
-    kavanoz: anizm.com.tr|XSRF-TOKEN=eyJpdiI6IjE4YkpJMjRMSnRSTlBDc3VJbWx5QkE9 (exp=1794214364), anizm.com.tr|anizm_session=eyJpdiI6Ik1hRGxrWTFFUjRJekVHNjdicExsSEE9 (exp=1794214364), wargamings.net|PHPSESSID=jtqtqvl52ca4v63ji14i0kcpg0 (exp=None)
-    sonrası (kaynak, kapı): (1, 1)  boyut=109263
-- GET /18 → 404 loc='' set-cookie=['XSRF-TOKEN=eyJpdiI6IjJHNDRXbU44eU5YSmZNUVhKMURGSnc9PSIsInZhbHVlIjoiTDgvWjIxcllUSDhPbjNWU2xPdlpYN3kvQ3ZJVHRLZmp']
-    kavanoz: anizm.com.tr|XSRF-TOKEN=eyJpdiI6IjJHNDRXbU44eU5YSmZNUVhKMURGSnc9 (exp=1794214365), anizm.com.tr|anizm_session=eyJpdiI6ImVpMTFVeWVyZGc2RDk4ZXN3eGpLc0E9 (exp=1794214365), wargamings.net|PHPSESSID=jtqtqvl52ca4v63ji14i0kcpg0 (exp=None)
-    sonrası (kaynak, kapı): (1, 1)  boyut=109263
-- GET /18plus → 404 loc='' set-cookie=['XSRF-TOKEN=eyJpdiI6IlEvQjVYU0Y4UXU5MERkeWtNYTlVVUE9PSIsInZhbHVlIjoicW1ibFpKeUl4bnBsbzVqRXYzY0F0Ymt2ZUt6QVFmK1V']
-    kavanoz: anizm.com.tr|XSRF-TOKEN=eyJpdiI6IlEvQjVYU0Y4UXU5MERkeWtNYTlVVUE9 (exp=1794214367), anizm.com.tr|anizm_session=eyJpdiI6ImN0WVBmMmt5SkkwOFhuYXczek41eWc9 (exp=1794214367), wargamings.net|PHPSESSID=jtqtqvl52ca4v63ji14i0kcpg0 (exp=None)
-    sonrası (kaynak, kapı): (1, 1)  boyut=109263
-- GET /nsfw-onay → 404 loc='' set-cookie=['XSRF-TOKEN=eyJpdiI6Ijk2WjFtMEg1bXFSQTdBaURXWU55VXc9PSIsInZhbHVlIjoiQlBaOVpYT2twM3RiTlVTcWtpZllFRjZlV081VWFGbU1']
-    kavanoz: anizm.com.tr|XSRF-TOKEN=eyJpdiI6Ijk2WjFtMEg1bXFSQTdBaURXWU55VXc9 (exp=1794214368), anizm.com.tr|anizm_session=eyJpdiI6IjhmYm43VDVBU2JJRE1tSElKNUpBSFE9 (exp=1794214368), wargamings.net|PHPSESSID=jtqtqvl52ca4v63ji14i0kcpg0 (exp=None)
-    sonrası (kaynak, kapı): (1, 1)  boyut=109263
+## 4) Kapıyı aşma denemeleri (sunucu tarafı kapı var mı?)
+- GET /18-yas-onay → 404 loc=''
+- GET /yas-onay → 404 loc=''
+- GET /18 → 404 loc=''
 
 ## 5) Kaynak zinciri
-- çevirmen yolu: 0 → []
+- çevirmen yolu: 1 → ['https://anizm.com.tr/bolum/78177/cevirmen/101517']
+  - çevirmen[0]/plain → 200 839B '{"success":true,"videos":[{"id":1739970,"name":"Aincrad (Reklams\\u0131z)","watchTogether":false},{"id":1739962,"name":"Sistenn","watchTogether":false},{"id":1739966,"name":"Sistenn1","watchTogether":false},{"id":1739967,"name":"Sistenn2","watchTogether":false},{"id":1739930,"name":"Mail.ru","watchTogether":false},{"id":1739928,"name":"GDrive","watchTogether":false},{"id":1739960,"name":"GDrive","watchTogether":false},{"id":1739959,"name":"Abyss","watchTogether":false},{"id":1739968,"name":"Abyss","watchTogether":false},{"id":1739963,"name":"UQload","watchTogether":false},{"id":1739932,"name":"Vidmoly","watchTogether":false},{"id":1739965,"name":"Vidmoly","watchTogether":false},{"id":1739931,"name":"HDVid","watchTogether":false},{"id":1739933,"name":"Voe","watchTogether":false},{"id":1739969,"name":"Voe","watchTogether":false}]}'
+  - çevirmen[0]/xhr → 200 839B '{"success":true,"videos":[{"id":1739970,"name":"Aincrad (Reklams\\u0131z)","watchTogether":false},{"id":1739962,"name":"Sistenn","watchTogether":false},{"id":1739966,"name":"Sistenn1","watchTogether":false},{"id":1739967,"name":"Sistenn2","watchTogether":false},{"id":1739930,"name":"Mail.ru","watchTogether":false},{"id":1739928,"name":"GDrive","watchTogether":false},{"id":1739960,"name":"GDrive","watchTogether":false},{"id":1739959,"name":"Abyss","watchTogether":false},{"id":1739968,"name":"Abyss","watchTogether":false},{"id":1739963,"name":"UQload","watchTogether":false},{"id":1739932,"name":"Vidmoly","watchTogether":false},{"id":1739965,"name":"Vidmoly","watchTogether":false},{"id":1739931,"name":"HDVid","watchTogether":false},{"id":1739933,"name":"Voe","watchTogether":false},{"id":1739969,"name":"Voe","watchTogether":false}]}'
+  - çevirmen[0]/xhrcsrf → 200 839B '{"success":true,"videos":[{"id":1739970,"name":"Aincrad (Reklams\\u0131z)","watchTogether":false},{"id":1739962,"name":"Sistenn","watchTogether":false},{"id":1739966,"name":"Sistenn1","watchTogether":false},{"id":1739967,"name":"Sistenn2","watchTogether":false},{"id":1739930,"name":"Mail.ru","watchTogether":false},{"id":1739928,"name":"GDrive","watchTogether":false},{"id":1739960,"name":"GDrive","watchTogether":false},{"id":1739959,"name":"Abyss","watchTogether":false},{"id":1739968,"name":"Abyss","watchTogether":false},{"id":1739963,"name":"UQload","watchTogether":false},{"id":1739932,"name":"Vidmoly","watchTogether":false},{"id":1739965,"name":"Vidmoly","watchTogether":false},{"id":1739931,"name":"HDVid","watchTogether":false},{"id":1739933,"name":"Voe","watchTogether":false},{"id":1739969,"name":"Voe","watchTogether":false}]}'
 - video yolu: 0 → []
 
 ## 6) anizmplayer getVideo
 
 ## 7) kavanozun son hâli
-- anizm.com.tr|XSRF-TOKEN=eyJpdiI6InpKQit6cnBzSlg5RVVuT3huT1oxN1E9 (exp=1794214369), anizm.com.tr|anizm_session=eyJpdiI6InZ2d2cyVk41Rld5K0dZcklNS1doemc9 (exp=1794214369), wargamings.net|PHPSESSID=jtqtqvl52ca4v63ji14i0kcpg0 (exp=None)
-- toplam günlük satırı: 145
+- anizm.com.tr|XSRF-TOKEN=eyJpdiI6IldjM1NhQUZka3FFeW1Ya0VKZytwUVE9 (exp=1794214437), anizm.com.tr|anizm_session=eyJpdiI6Ik5TOXZYNkpoUkt4TXNBNG9QOGcxa1E9 (exp=1794214437), wargamings.net|PHPSESSID=nb0qurudrvst959u7ga5dgabt1 (exp=None)
+- toplam günlük satırı: 812
