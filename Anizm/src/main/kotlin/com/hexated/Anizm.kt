@@ -75,25 +75,25 @@ class Anizm : MainAPI(), AnizmHttp {
     private val mainPageBase: String = mainUrl
 
     override val mainPage = mainPageOf(
-        // v3 (fixture: yeniler_sayfa_1/2.html): sayfalama `?sayfa=N`, kartlar
-        // `article.v3-*`. Eski `/anime-izle?sayfa=` yolu getMainPage'in
-        // yedeğinde korunuyor.
+        // Ana sayfanın GERÇEK bölümleri (02.11.2026 ölçümü:
+        // `section#populer` 19, `section#son-bolumler` 18, `section#yeni-seriler` 20 kart).
+        // `#…` parçalı adresler "bölüm" olarak okunur — sayfalama yoktur.
+        "$mainUrl/#populer" to "Popüler",
+        "$mainUrl/#son-bolumler" to "Son Bölümler",
         "$mainUrl/yeniler?sayfa={page}" to "Son Eklenenler",
-        "$mainUrl/kategoriler/2?sayfa=" to "Aksiyon",
-        "$mainUrl/kategoriler/1?sayfa=" to "Macera",
-        "$mainUrl/kategoriler/3?sayfa=" to "Komedi",
-        "$mainUrl/kategoriler/4?sayfa=" to "Dram",
-        "$mainUrl/kategoriler/13?sayfa=" to "Fantastik",
-        "$mainUrl/kategoriler/34?sayfa=" to "Shounen",
-        "$mainUrl/kategoriler/8?sayfa=" to "Bilim Kurgu",
-        "$mainUrl/kategoriler/28?sayfa=" to "Romantizm",
-        "$mainUrl/kategoriler/11?sayfa=" to "Doğaüstü Güçler",
-        "$mainUrl/kategoriler/21?sayfa=" to "Mecha",
-        "$mainUrl/kategoriler/30?sayfa=" to "Spor",
-        "$mainUrl/kategoriler/22?sayfa=" to "Film",
-        "$mainUrl/temalar/3?sayfa=" to "Isekai",
-        "$mainUrl/temalar/24?sayfa=" to "Okul",
-        "$mainUrl/temalar/27?sayfa=" to "Oyun"
+        "$mainUrl/#yeni-seriler" to "Yeni Seriler",
+        // Türler: site kategorileri ALFABETİK sıralıyor (`.hack//…`, `#Zombie`,
+        // `16bit…` ile başlıyordu). Kartlarda puan var → satırlar puana göre
+        // dizilir, "en iyiler" görünür.
+        "$mainUrl/kategoriler/2?sayfa={page}" to "Aksiyon",
+        "$mainUrl/kategoriler/1?sayfa={page}" to "Macera",
+        "$mainUrl/kategoriler/3?sayfa={page}" to "Komedi",
+        "$mainUrl/kategoriler/4?sayfa={page}" to "Dram",
+        "$mainUrl/kategoriler/13?sayfa={page}" to "Fantastik",
+        "$mainUrl/kategoriler/8?sayfa={page}" to "Bilim Kurgu",
+        "$mainUrl/kategoriler/28?sayfa={page}" to "Romantizm",
+        "$mainUrl/kategoriler/34?sayfa={page}" to "Shounen",
+        "$mainUrl/temalar/3?sayfa={page}" to "Isekai",
     )
 
     /**
@@ -685,6 +685,21 @@ class Anizm : MainAPI(), AnizmHttp {
             // `{page}` şablonu desteklenir: kimi bölümler sayfayı yol sonuna ekler
             // ("/anime-izle?sayfa=2"), kimileri sorgu içinde taşır.
             val template = remapBase(request.data)
+
+            // 1) Ana sayfa bölümü (`/#populer`, `/#son-bolumler`, `/#yeni-seriler`).
+            val sectionId = SECTION_PATTERN.find(template)?.groupValues?.getOrNull(1)
+            if (sectionId != null) {
+                val homeUrl = template.substringBefore('#')
+                val html = cachedHome(homeUrl)
+                if (html.isNullOrBlank()) return newHomePageResponse(request.name, emptyList(), false)
+                val doc = Jsoup.parse(html, homeUrl)
+                val section = doc.selectFirst("section#$sectionId") ?: doc
+                val cards = AnizmSite.parseCards(section, homeUrl)
+                Log.d(LOG_TAG, "mainPage('${request.name}') bölüm #$sectionId → ${cards.size} kart")
+                return newHomePageResponse(request.name, cards.map { it.toSearchResponse() }, false)
+            }
+
+            // 2) Liste sayfası (`/yeniler`, `/kategoriler/N`, `/temalar/N` …).
             val url = if (template.contains("{page}")) template.replace("{page}", page.toString())
             else template + page
             val html = getText(url, mainUrl + "/")
@@ -702,6 +717,12 @@ class Anizm : MainAPI(), AnizmHttp {
                     Log.w(LOG_TAG, "mainPage('${request.name}') boş → son eklenenler: ${cards.size}")
                 }
             }
+            // Tür satırları: site alfabetik veriyor; puanı olan kartlar puana göre
+            // dizilir (`.hack//…`, `#Zombie`, `16bit…` gibi "alfabetik çöp" başta
+            // görünmesin). Puansız kartlar sona gider, kendi sıralarını korur.
+            if (GENRE_ROW.containsMatchIn(request.data) && cards.count { (it.score ?: 0.0) > 0.0 } >= 3) {
+                cards = cards.sortedByDescending { it.score ?: 0.0 }
+            }
             Log.d(LOG_TAG, "mainPage('${request.name}') → ${cards.size} kart")
             val hasNext = cards.isNotEmpty() && page < MAX_MAIN_PAGE
             newHomePageResponse(request.name, cards.map { it.toSearchResponse() }, hasNext)
@@ -711,6 +732,23 @@ class Anizm : MainAPI(), AnizmHttp {
             Log.e(LOG_TAG, "getMainPage('${request.name}') hatası: ${e.javaClass.simpleName}: ${e.message}")
             newHomePageResponse(request.name, emptyList(), false)
         }
+    }
+
+    /**
+     * Ana sayfa HTML'i, bölüm satırları için kısa süreli önbelleklenir.
+     *
+     * `Popüler` / `Son Bölümler` / `Yeni Seriler` satırları aynı `/` sayfasından
+     * besleniyor; önbellek olmadan tek ana sayfa açılışında 3 istek gidiyordu.
+     */
+    @Volatile
+    private var homeCache: Pair<Long, String>? = null
+
+    private suspend fun cachedHome(url: String): String? {
+        val now = System.currentTimeMillis()
+        homeCache?.let { (at, html) -> if (now - at < HOME_CACHE_MS) return html }
+        val html = getText(url, mainUrl + "/") ?: return null
+        homeCache = now to html
+        return html
     }
 
     // ------------------------------------------------------------------
@@ -950,10 +988,19 @@ class Anizm : MainAPI(), AnizmHttp {
          * eksiksiz verdi; bu yüzden canlı ayna ile başlanır. `anizm.net` yine
          * adaydır — duvar kalkarsa `probe` oraya da geçebilir.
          */
+        /** `/#populer` gibi ana sayfa bölüm adresleri. */
+        private val SECTION_PATTERN = Regex("""#([a-z0-9-]+)$""")
+
+        /** Tür/kategori satırları (puan sıralaması uygulanır). */
+        private val GENRE_ROW = Regex("""/(?:kategoriler|temalar)/\d+""")
+
         private const val DEFAULT_BASE = "https://anizm.com.tr"
         private const val SEARCH_PAGE_SIZE = 24
         private const val MAX_MAIN_PAGE = 60
         private const val BASE_TTL_MS = 10 * 60 * 1000L
+
+        /** Ana sayfa bölüm satırları için önbellek ömrü. */
+        private const val HOME_CACHE_MS = 60_000L
         private const val CATALOGUE_TTL_MS = 6 * 60 * 60 * 1000L
 
         /**
