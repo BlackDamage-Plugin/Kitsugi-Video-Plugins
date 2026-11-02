@@ -365,7 +365,13 @@ internal object AnizmSite {
      * Sayfadaki katalog kartlarını döndürür. Sıra: bilinen kart yapıları → genel
      * bağlantı taraması. Aynı animenin tekrarı ayıklanır.
      */
-    fun parseCards(doc: Document, base: String, limit: Int = 60): List<AnizmCard> {
+    /**
+     * Kartları verilen düğümden okur.
+     *
+     * `Element` alır (jsoup'ta `Document` de bir `Element`'tir) — böylece ana
+     * sayfanın tek bir bölümü (`section#populer`) ayrıştırılabilir.
+     */
+    fun parseCards(root: Element, base: String, limit: Int = 60): List<AnizmCard> {
         val out = LinkedHashMap<String, AnizmCard>()
 
         fun put(card: AnizmCard?) {
@@ -381,7 +387,7 @@ internal object AnizmSite {
         // 0) v3 kartları (2026-10, fixture ile doğrulandı): başlık ve kapak
         //    <a>'nın İÇİNDE değil, kardeş öğelerde → kapsayıcıdan okunur.
         //    Bölüm kartları bölüm URL'sine bağlanır; seri URL'si türetilir.
-        for (el in doc.select(
+        for (el in root.select(
             "article.v3-catalog-card, article.v3-series-card, article.v3-episode-card, " +
                 "section.v3-hero article, [data-v3-slide], " +
                 "#son-bolumler article, #populer article, #yeni-seriler article, " +
@@ -390,16 +396,16 @@ internal object AnizmSite {
             put(cardFromContainer(el, base))
         }
         // 1) "Son eklenenler" listesi (div#episodesMiddle div.posterBlock > a)
-        for (a in doc.select("div#episodesMiddle div.posterBlock > a, div.posterBlock > a")) take(a)
+        for (a in root.select("div#episodesMiddle div.posterBlock > a, div.posterBlock > a")) take(a)
         // 2) Anasayfa carousel'i (a.slideAnimeLink)
-        for (a in doc.select("a.slideAnimeLink, div.popularAnimeCarousel a")) take(a)
+        for (a in root.select("a.slideAnimeLink, div.popularAnimeCarousel a")) take(a)
         // 3) Kategori/tema kartları
-        for (card in doc.select("div.anime-card, div.cat-card, div.ui.card, div.animeCard, article.anime")) {
+        for (card in root.select("div.anime-card, div.cat-card, div.ui.card, div.animeCard, article.anime")) {
             take(card.selectFirst("a.anime-title, a.image, a[href]"))
         }
         // 4) Genel: görsel taşıyan anime bağlantıları (tema değişimine dayanıklı yedek)
         if (out.size < 5) {
-            for (a in doc.select("a[href]")) {
+            for (a in root.select("a[href]")) {
                 if (out.size >= limit) break
                 if (a.selectFirst("img") == null && a.selectFirst("h1, h2, h3, h4, h5, h6") == null) continue
                 take(a)

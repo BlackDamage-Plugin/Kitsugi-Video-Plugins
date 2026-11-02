@@ -276,4 +276,61 @@ class AnizmApiTest {
         )
         assertEquals(33, episodes.size)
     }
+
+    // ------------------------------------------------------------------
+    // Ana sayfa bölümleri (gerçek HTML: section#populer / #son-bolumler / #yeni-seriler)
+    // ------------------------------------------------------------------
+
+    private fun homeDoc() = Jsoup.parse(fixture("home_anizm.html"), "https://anizm.com.tr")
+
+    /** `getMainPage` bölüm modu: `section#<id>` → kartlar (sayfalama yok). */
+    private fun sectionCards(id: String) =
+        AnizmSite.parseCards(homeDoc().selectFirst("section#$id")!!, "https://anizm.com.tr")
+
+    @Test
+    fun `populer bolumu gercek serileri verir`() {
+        val cards = sectionCards("populer")
+        assertTrue("popüler kart sayısı: ${cards.size}", cards.size >= 10)
+        val first = cards.first()
+        assertEquals("Cyberpunk: Edgerunners 2", first.name)
+        assertEquals("https://anizm.com.tr/cyberpunk-edgerunners-2", first.url)
+        assertNotNull("poster (data-v3-deferred-src)", first.poster)
+        assertTrue("poster yolu: ${first.poster}", first.poster!!.contains("/storage/pcovers/"))
+    }
+
+    @Test
+    fun `yeni seriler bolumu alfabetik cop ile baslamaz`() {
+        val cards = sectionCards("yeni-seriler")
+        assertTrue("kart sayısı: ${cards.size}", cards.size >= 10)
+        assertEquals("Hanarokushou ga Akeru Hi ni", cards.first().name)
+        assertTrue(
+            "ilk kart seri sayfası olmalı: ${cards.first().url}",
+            !cards.first().url.contains("-bolum")
+        )
+    }
+
+    @Test
+    fun `son bolumler bolumu bolum kartlarini seriye indirger`() {
+        val cards = sectionCards("son-bolumler")
+        assertTrue("kart sayısı: ${cards.size}", cards.size >= 10)
+        val titles = cards.map { it.name }
+        assertTrue("Dreamland listede: $titles", titles.any { it == "Dreamland" })
+        // Bölüm kartları bölüm adresine gider; seri adresi türetilemeyenler için
+        // `Anizm.load` kanonik adresten seri sayfasına döner (ayrı test).
+        assertTrue(
+            "en az bir bölüm bağlantısı: ${cards.map { it.url }}",
+            cards.any { it.url.contains("-bolum-izle") || it.url.endsWith("-izle") }
+        )
+    }
+
+    @Test
+    fun `bolumler birbirine sizmaz`() {
+        val populer = sectionCards("populer").map { it.url }.toSet()
+        val yeni = sectionCards("yeni-seriler").map { it.url }.toSet()
+        assertTrue("bölümler farklı olmalı", populer.isNotEmpty() && yeni.isNotEmpty())
+        assertFalse(
+            "popüler kartı yeni-seriler bölümünden sızmamalı",
+            populer.contains("https://anizm.com.tr/hanarokushou-ga-akeru-hi-ni")
+        )
+    }
 }
