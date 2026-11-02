@@ -3,7 +3,7 @@ version = 19
 cloudstream {
     authors     = listOf("hexated", "byayzen")
     language    = "tr"
-    description = "Anizm (anizm.com.tr / anizm.net) anime arşivi: isim eşleştirmeli arama, kategoriler, detay ve bölümler; tüm fansub/video kaynaklarıyla oynatıcı çözücü."
+    description = "Anizm (anizm.net / anizm.com.tr) anime arşivi: isim eşleştirmeli arama, kategoriler, detay ve bölümler; tüm fansub/video kaynaklarıyla oynatıcı çözücü. +18/+16 yaş uyarısı eklentide gösterilmez."
 
     /**
      * Status int as the following:

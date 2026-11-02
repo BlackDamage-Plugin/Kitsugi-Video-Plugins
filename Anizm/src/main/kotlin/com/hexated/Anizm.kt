@@ -40,6 +40,15 @@ import java.net.URLEncoder
  *  2. **v2**: `a[translator]` → `{data: html}` → `a[video|videoPlayerButtons]` → `{player: iframe}`
  *  3. **sayfa**: doğrudan `iframe[src]`, `a[video]`, `<video>` ve JS içindeki m3u8/mp4
  *
+ * ## +18 / +16 yaş uyarısı
+ * Bölüm ve detay sayfalarındaki `<dialog data-rating="18">` **yalnızca istemci
+ * tarafında** çalışır (`v3-content-warning.js` v1.0.5: `sessionStorage`
+ * `anizm.v3.content-warning.<animeId>`). Sunucu onay beklemez: bölüm sayfası ve
+ * `/bolum/{ep}/cevirmen/{cid}` ucu onay verilmeden de HTTP 200 döner.
+ * Eklenti WebView kullanmadığı ve yalnızca HTTP ile çalıştığı için uyarı
+ * **hiç görünmez**; ayrıştırma sırasında diyalog düğümü atlanır
+ * ([AnizmApi.parseTranslators]).
+ *
  * ## Uygulama (Kitsugi) uyumu
  *  - Arama, uygulamanın gönderdiği İngilizce/Türkçe başlıkları [AnizmMatch] ile
  *    çoklu varyanta çevirir ve sonuçları benzerliğe göre sıralar (site Türkçe/romanize
