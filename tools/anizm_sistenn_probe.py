@@ -89,13 +89,20 @@ def main() -> int:
                     snippet = js[max(0, m.start() - 320): m.start() + 380].replace("\n", " ")
                     log(f"    [{kw}] …{snippet}…")
 
-        # bulunan sözleşmeyle dene: birkaç parametre varyantı
-        variants = [
-            f"{origin}/api/v1/video?id={code}&w=1920&h=1080&r={urllib.parse.urlparse('https://anizm.com.tr').netloc}",
-            f"{origin}/api/v1/video?id={code}&w=1920&h=1080",
-            f"{origin}/api/v1/video?id={code}",
-            f"{origin}/api/v1/video/{code}",
+        # bulunan sözleşmeyle dene: `r` alanı = GÖMÜLEN sayfanın referrer'ı.
+        ep = ("https://anizm.com.tr/shingeki-no-kyojin-movie-kanketsu-hen-the-last-attack-"
+              "shingeki-no-kyojin-movie-kanketsu-hen---the-last-attack-bolum-izle")
+        refs = [
+            ("ep_comtr", urllib.parse.quote(ep, safe="")),
+            ("origin_comtr", urllib.parse.quote("https://anizm.com.tr/", safe="")),
+            ("origin_net", urllib.parse.quote("https://anizm.net/", safe="")),
+            ("bare_comtr", "anizm.com.tr"),
+            ("bare_net", "anizm.net"),
+            ("yok", ""),
         ]
+        variants = [f"{origin}/api/v1/video?id={code}&w=1920&h=1080&r={v}" if v
+                    else f"{origin}/api/v1/video?id={code}&w=1920&h=1080" for _, v in refs]
+        variants += [f"{origin}/api/v1/info?id={code}"]
         for api in variants:
             st3, out, _, _ = get(api, {
                 **HDR,
@@ -106,7 +113,10 @@ def main() -> int:
                 "Sec-Fetch-Mode": "cors",
                 "Sec-Fetch-Dest": "empty",
             })
-            log(f"- api {api.replace(origin, '')} → {st3} {len(out)}B {out[:120]!r}")
+            tag = api.replace(origin, "")
+            if "info" in tag:
+                tag = "INFO"
+            log(f"- api {tag} → {st3} {len(out)}B {out[:160]!r}")
     return 0
 
 
