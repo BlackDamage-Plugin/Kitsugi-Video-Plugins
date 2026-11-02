@@ -39,6 +39,9 @@ jobs:
         with:
           python-version: "3.11"
 
+      - name: Bağımlılıklar
+        run: pip install --quiet pycryptodome
+
       - name: Erişim yoklaması (curl)
         continue-on-error: true
         run: |
@@ -59,6 +62,14 @@ jobs:
           python3 -u tools/anizm_gate_probe.py $ARGS > research/anizm-probe/probe.log 2>&1 || true
           echo "--- son satırlar ---"
           tail -20 research/anizm-probe/probe.log || true
+
+      - name: Anizm referans çözücü probu
+        continue-on-error: true
+        run: |
+          ARGS=""
+          if [ -n "${{ github.event.inputs.url }}" ]; then ARGS="--url ${{ github.event.inputs.url }}"; fi
+          python3 -u tools/anizm_resolve_probe.py $ARGS > research/anizm-probe/resolve.log 2>&1 || true
+          tail -30 research/anizm-probe/resolve.log || true
 
       - name: Raporu dala geri yaz
         if: always()
