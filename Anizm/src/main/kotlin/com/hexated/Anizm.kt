@@ -916,6 +916,29 @@ class Anizm : MainAPI(), AnizmHttp {
     override suspend fun get(url: String, referer: String?): String? =
         getText(url, referer ?: mainUrl + "/", xhr = false, timeout = 12L)
 
+    override suspend fun inspectDrive(url: String, referer: String): AnizmDriveResponse = try {
+        val response = app.get(
+            url,
+            headers = headers(referer, xhr = false) + mapOf("Range" to "bytes=0-262143"),
+            timeout = 12L
+        )
+        response.okhttpResponse.use { raw ->
+            // Range can be ignored. Peek only a small prefix and close the response;
+            // response.text would otherwise buffer an entire video on older NiceHttp.
+            val sample = if (raw.isSuccessful) raw.peekBody(4096).bytes() else ByteArray(0)
+            val kind = AnizmPlaybackPolicy.classifyDrive(
+                raw.code, raw.header("Content-Type"), raw.header("Content-Disposition"), sample
+            )
+            val body = if (kind == AnizmDriveKind.HTML) raw.peekBody(262144).string() else null
+            AnizmDriveResponse(kind, body)
+        }
+    } catch (e: CancellationException) {
+        throw e
+    } catch (e: Exception) {
+        Log.w(LOG_TAG, "Drive probe hatası (${e.javaClass.simpleName}): ${url.take(100)}")
+        AnizmDriveResponse(AnizmDriveKind.UNKNOWN)
+    }
+
     /**
      * v3 kaynak uçları (`/bolum/{ep}/cevirmen/{id}`, `/video/{vid}`) AJAX ile
      * beslenir: `X-Requested-With` + `Accept: application/json` + `Sec-Fetch-*: same-origin`.
