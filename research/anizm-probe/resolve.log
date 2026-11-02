@@ -1,0 +1,105 @@
+- https://anizm.net/ → 403 5687B
+- https://anizm.com.tr/ → 200 147432B
+- taban: https://anizm.com.tr
+- bölüm 200 109263B csrf=VAR
+- çevirmen: 1
+
+## çevirmen https://anizm.com.tr/bolum/78177/cevirmen/101517 → 200 839B
+   15 video
+
+- [Aincrad (Reklamsız)] video=1739970 → 200 player=https://anizm.com.tr/player/1739970
+   /player → 302 → https://anizmplayer.com/video/5bf8509788862cf237bc3a048e090698
+      page 200 22050B cookie=['fireplayer_player=b37ca4a0fcf899d18272c8804fe45f8e; path=/; ']
+      getVideo[player+origin] → 200 624B '{"hls":true,"videoImage":"https:\\/\\/anz-gth-2-06.com.tr\\/cdn\\/down\\/7b59f064409c3403a381d29c7676d2c6\\/thumb.jpg","videoSource":"https:\\/\\/anizmplayer.com\\/cdn\\/hls\\/7b59f064409c3403a381d29c7676d2c6\\/m'
+   => getVideo:securedLink :: https://anizmplayer.com/cdn/hls/7b59f064409c3403a381d29c7676d2c6/master.m3u8?md5=Munah9FgFcA_rTwbR6Dc-g&expires=1793617354
+
+- [Sistenn] video=1739962 → 200 player=https://anizm.com.tr/player/1739962
+   /player → 302 → https://sistenn.uns.bio/#epccep
+      api 500 570B '<html>\r\n<head><title>500 Internal Server Error</title></head>\r\n<body>\r\n<center><h1>500 Internal Server Error</h1></center>\r\n<hr><center>nginx</center>\r\n</body>\r'
+   => api 500 :: None
+
+- [Sistenn1] video=1739966 → 200 player=https://anizm.com.tr/player/1739966
+   /player → 302 → https://anizm.rpmvid.com/#8e1lx
+      api 400 39B '{"message": "player is not recognized"}'
+   => çözülemedi: Odd-length string :: None
+
+- [Sistenn2] video=1739967 → 200 player=https://anizm.com.tr/player/1739967
+   /player → 302 → https://anizm.strp2p.com/#nkwqg
+      api 400 39B '{"message": "player is not recognized"}'
+   => çözülemedi: Odd-length string :: None
+
+- [Mail.ru] video=1739930 → 200 player=https://anizm.com.tr/player/1739930
+   /player → 302 → https://my.mail.ru/xmail.ru/seicodesubs/video/embed/_myvideo/29
+      sayfa 200 152514B final=https://my.mail.ru/xmail.ru/seicodesubs/video/embed/_myvideo/29
+   => akış yok :: None
+
+- [GDrive] video=1739928 → 200 player=https://anizm.com.tr/player/1739928
+   /player → 302 → https://drive.google.com/file/d/1le8EVsw5RJ0EwHQHSyxbIZJanXLMakZO/preview
+      preview 401 9085B
+   => AIza anahtarı yok :: None
+
+- [GDrive] video=1739960 → 200 player=https://anizm.com.tr/player/1739960
+   /player → 302 → https://drive.google.com/file/d/1-dJzqs7mRdOc7rZWAhDSPLlDdHuoYQkQ/preview
+      preview 200 131725B
+      playback 429 392B
+   => akış adresi yok :: None
+
+- [Abyss] video=1739959 → 200 player=https://anizm.com.tr/player/1739959
+   /player → 302 → https://player.abyssplayer.com/aRzhgcnST
+      sayfa 200 11214B final=https://player.abyssplayer.com/aRzhgcnST
+   => akış yok :: None
+
+- [Abyss] video=1739968 → 200 player=https://anizm.com.tr/player/1739968
+   /player → 302 → https://player.abyssplayer.com/oaa7fvZZ2
+      sayfa 200 10966B final=https://player.abyssplayer.com/oaa7fvZZ2
+   => akış yok :: None
+
+- [UQload] video=1739963 → 200 player=https://anizm.com.tr/player/1739963
+   /player → 302 → https://uqload.io/embed-k1wrlkfx05sm.html
+      sayfa 200 29969B final=https://uqload.vc/embed-k1wrlkfx05sm.html?utm_source=mirror_io&
+   => akış yok :: None
+
+- [Vidmoly] video=1739932 → 200 player=https://anizm.com.tr/player/1739932
+   /player → 302 → https://vidmoly.biz/embed-l878k7lqgnkx.html
+      sayfa 200 39674B final=https://vidmoly.biz/embed-l878k7lqgnkx.html
+      aday: https://prx-1590-for.vmnow.online/hls2/05/01825/l878k7lqgnkx_,n,l,.urlset/master.m3u8?t=cUab9pcxAsNJCStvd_VUwzKKHydOk9qzeO7mWP8Celc=&s=17936
+      m3u8 200 1152B '#EXTM3U #EXT-X-STREAM-INF:PROGRAM-ID=1,BANDWIDTH=2188920,RESOLUTION=1920x1080,FR'
+   => html:m3u8 :: https://prx-1590-for.vmnow.online/hls2/05/01825/l878k7lqgnkx_,n,l,.urlset/master.m3u8?t=cUab9pcxAsNJCStvd_VUwzKKHydOk9qzeO7mWP8Celc=&s=1793610169&e=43200&v=&srv=rck12&i=0.4&sp=0&asn=8075
+
+- [Vidmoly] video=1739965 → 200 player=https://anizm.com.tr/player/1739965
+   /player → 302 → https://vidmoly.biz/embed-04pnj175izud.html
+      sayfa 404 1663B final=https://vidmoly.biz/embed-04pnj175izud.html
+   => akış yok :: None
+
+- [HDVid] video=1739931 → 200 player=https://anizm.com.tr/player/1739931
+   /player → 302 → https://hdvid.tv/embed-euza9664vhie-950x480.html
+      sayfa 522 7203B final=https://hdvid.tv/embed-euza9664vhie-950x480.html
+   => akış yok :: None
+
+- [Voe] video=1739933 → 200 player=https://anizm.com.tr/player/1739933
+   /player → 302 → https://voe.sx/e/wnikmc7dj5qv
+      sayfa 200 755B final=https://voe.sx/e/wnikmc7dj5qv
+   => akış yok :: None
+
+- [Voe] video=1739969 → 200 player=https://anizm.com.tr/player/1739969
+   /player → 302 → https://voe.sx/e/v0ylw8x0rc39
+      sayfa 404 118943B final=https://voe.sx/e/v0ylw8x0rc39
+   => akış yok :: None
+
+## ÖZET
+- ✓ Aincrad (Reklamsız)    getVideo:securedLink     https://anizmplayer.com/cdn/hls/7b59f064409c3403a381d29c7676d2c6/master.m3u8?md5=Munah9FgF
+- ✗ Sistenn                api 500                  
+- ✗ Sistenn1               çözülemedi: Odd-length string 
+- ✗ Sistenn2               çözülemedi: Odd-length string 
+- ✗ Mail.ru                akış yok                 
+- ✗ GDrive                 AIza anahtarı yok        
+- ✗ GDrive                 akış adresi yok          
+- ✗ Abyss                  akış yok                 
+- ✗ Abyss                  akış yok                 
+- ✗ UQload                 akış yok                 
+- ✓ Vidmoly                html:m3u8                https://prx-1590-for.vmnow.online/hls2/05/01825/l878k7lqgnkx_,n,l,.urlset/master.m3u8?t=cU
+- ✗ Vidmoly                akış yok                 
+- ✗ HDVid                  akış yok                 
+- ✗ Voe                    akış yok                 
+- ✗ Voe                    akış yok                 
+- çözülen: 2/15

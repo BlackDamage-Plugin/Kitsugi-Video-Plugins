@@ -2,19 +2,19 @@
 - UA: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36
 
 ## 1) Alan adı erişimi (çerez kavanozu ile)
-- https://anizm.net/ → 403 5666B başlık='Just a moment...' cf=True via=urllib
+- https://anizm.net/ → 403 5687B başlık='Just a moment...' cf=True via=urllib
 - https://anizm.com.tr/ → 200 147432B başlık='Anime İzle | Türkçe Altyazılı Anime Bölümleri - Anizm' cf=False via=urllib
-    set-cookie: XSRF-TOKEN=eyJpdiI6IlNudWx3QllyUmNlMDRWL21JY2VYRUE9PSIsInZhbHVlIjoiZVRpbEcxL2V0YzZLYjBGVUhqNHJoV3lHT2RYTXhxQjQyU2ZtV1pLQVczOG5UUktPV3luUndwOUdqaklkN01NVGlveDhjY
-- https://www.puffytr.com/ → 525 11010B başlık='puffytr.com | 525: SSL handshake failed' cf=False via=urllib
+    set-cookie: XSRF-TOKEN=eyJpdiI6Im9ZV1NvUDdRRHlNNDZxRFBCNU5kaEE9PSIsInZhbHVlIjoiRElyTjNXandlR1VicnBmQmpPUFVuUC9VS1I0dGQ2c3lsVkYzLzdYQTlleGxLREFEU1NjbnNKb2VMR3JYaURiVzV6dTR2R
+- https://www.puffytr.com/ → 525 11011B başlık='puffytr.com | 525: SSL handshake failed' cf=False via=urllib
 - seçilen taban: https://anizm.com.tr
-- kavanoz: anizm.com.tr|XSRF-TOKEN=eyJpdiI6IlNudWx3QllyUmNlMDRWL21JY2VYRUE9 (exp=1794214699), anizm.com.tr|anizm_session=eyJpdiI6Im5HNnM1ZktBbGowcFV3Q0tTdjMvdkE9 (exp=1794214699)
+- kavanoz: anizm.com.tr|XSRF-TOKEN=eyJpdiI6Im9ZV1NvUDdRRHlNNDZxRFBCNU5kaEE9 (exp=1794214897), anizm.com.tr|anizm_session=eyJpdiI6ImRwb1lLN0VhdEJOaC95Qk0rYVAzNHc9 (exp=1794214897)
 - bölüm adresi: https://anizm.com.tr/shingeki-no-kyojin-movie-kanketsu-hen-the-last-attack-shingeki-no-kyojin-movie-kanketsu-hen---the-last-attack-bolum-izle
 
 ## 2) Bölüm sayfası (onay öncesi)
     (kaydedildi: research/anizm-probe/episode.html 109263B)
 - 200 109263B başlık='Shingeki no Kyojin Movie: Kanketsu-hen - The Last Attack Shingeki no K...' final=https://anizm.com.tr/shingeki-no-kyojin-movie-kanketsu-hen-the-last-attack-shingeki-no-kyojin-movie-kanketsu-hen---the-last-attack-bolum-izle
-    set-cookie: XSRF-TOKEN=eyJpdiI6IlhxZU01Z3BGdDhkSkxDWVVCcS9oRVE9PSIsInZhbHVlIjoicVBGRG9JbStBTHRnWGhMQ2I4eVBYMU5ybjdULzFyS1N5QnQyelJ1ZmVqVk9qOTk1aUlEMFVhbVpLMHZHVElxcFpwRjFYR
-- kavanoz: anizm.com.tr|XSRF-TOKEN=eyJpdiI6IlhxZU01Z3BGdDhkSkxDWVVCcS9oRVE9 (exp=1794214700), anizm.com.tr|anizm_session=eyJpdiI6ImMzbWN4ckJ4c0pVU0lsSzF6RGJOdHc9 (exp=1794214700)
+    set-cookie: XSRF-TOKEN=eyJpdiI6IjdtcDBqQjJFRnhaU25PU3V0LzZMNGc9PSIsInZhbHVlIjoiNGUyRGJ4eHpLay8vT3hYeFFoZzBNdHFWNXJQWHlzaG5EVlJacjVyTG1QUS9zNllUZ0RyUzljdG05RHMzWno1OG5xODN1T
+- kavanoz: anizm.com.tr|XSRF-TOKEN=eyJpdiI6IjdtcDBqQjJFRnhaU25PU3V0LzZMNGc9 (exp=1794214898), anizm.com.tr|anizm_session=eyJpdiI6IkFmVzVDU2piaXAwS3pNeE1YOEF3QXc9 (exp=1794214898)
 - HTML işaretleri:
     'data-translatorclick': 0
     'data-playerclick': 0
@@ -103,8 +103,8 @@ s://anizm.com.tr/magaza"><i data-lucide="sparkles" aria-hidden="true"></i><span>
     'v3-episode-card': 0
     'poster': 18
     '<article': 9
-    (kaydedildi: research/anizm-probe/searchAnime.json 35028B)
-- /searchAnime → 200 35028B ilk='{"data":[{"info_id":3,"info_title":"One Piece","info_titleoriginal":"One Piece","info_titleenglish":"One Piece","info_othernames":"","info_slug":"one-piece","in'
+    (kaydedildi: research/anizm-probe/searchAnime.json 33B)
+- /searchAnime → 500 33B ilk='{\n    "message": "Server Error"\n}'
     (kaydedildi: research/anizm-probe/detail.html 101134B)
 - detay → 200 101134B
     'v3-anime': 52
@@ -124,7 +124,7 @@ s://anizm.com.tr/magaza"><i data-lucide="sparkles" aria-hidden="true"></i><span>
 
 - avi.js?date=20261102&v=0 → 200 6494B
 
-- v833ccba57c9e4_68.js?query=0&id=57&class=video-card&v=1 → 200 19521B
+- v833ccba57c9e4_68.js?query=0&id=57&class=video-card&v=1 → 200 19501B
 
 - anizm-counter.js?v=1.0.0 → 200 809B
 
@@ -347,7 +347,7 @@ s://anizm.com.tr/magaza"><i data-lucide="sparkles" aria-hidden="true"></i><span>
 
 - JS'ten çıkan aday uçlar:
     /video/
-- csrf-token: VAR (9YdZmhEXGb1Z…)
+- csrf-token: VAR (KpksfqTcitxa…)
 - kapı öncesi (kaynak işareti, kapı işareti): (1, 1)
 
 ## 4) Kapıyı aşma denemeleri (sunucu tarafı kapı var mı?)
@@ -460,16 +460,16 @@ s://anizm.com.tr/magaza"><i data-lucide="sparkles" aria-hidden="true"></i><span>
     script: //my4.imgsmail.ru/mail/ru/images/js/myjs/mm/out/min/bundles/all_revac66ec605f.js
     ipucu 'file:': …;sendReport(reportData);}}function getReportData(event) {return {url: window.location.href,message: event.message || '',file: event.filename || '',line: event.lineno || 0,platform: getPlatform(),user: userId,call_stack: (event && event.error && event.error.stack) || '',user_agent: navigator.userAgent || '',referer: document.referrer || ''
 - [GDrive] https://drive.google.com/file/d/1le8EVsw5RJ0EwHQHSyxbIZJanXLMakZO/preview → 401 9085B başlık='-' final=https://drive.google.com/file/d/1le8EVsw5RJ0EwHQHSyxbIZJanXLMakZO/preview
-- [GDrive] https://drive.google.com/file/d/1-dJzqs7mRdOc7rZWAhDSPLlDdHuoYQkQ/preview → 200 131846B başlık='[Seicode] Shingeki no Kyojin Movie - The Last Attack (1080p) Uploaded by: Rinrintan.mp4 - ' final=https://drive.google.com/file/d/1-dJzqs7mRdOc7rZWAhDSPLlDdHuoYQkQ/preview
+- [GDrive] https://drive.google.com/file/d/1-dJzqs7mRdOc7rZWAhDSPLlDdHuoYQkQ/preview → 200 131724B başlık='[Seicode] Shingeki no Kyojin Movie - The Last Attack (1080p) Uploaded by: Rinrintan.mp4 - ' final=https://drive.google.com/file/d/1-dJzqs7mRdOc7rZWAhDSPLlDdHuoYQkQ/preview
     script: https://www.gstatic.com/_/apps-fileview/_/js/k=apps-fileview.v.tr.zR1EmA85pdg.O/am=AAAAwA/d=1/rs=AO0039v59dBscyUpQE-yq7jFFtO-FV4-RA/m=v,wb?wli=v.0OcM9q5zZvE.ink
-- [Abyss] https://player.abyssplayer.com/aRzhgcnST → 200 11226B başlık='[Seicode] Shingeki no Kyojin Movie - The Last Attack (1080p).mp4' final=https://player.abyssplayer.com/aRzhgcnST
+- [Abyss] https://player.abyssplayer.com/aRzhgcnST → 200 11214B başlık='[Seicode] Shingeki no Kyojin Movie - The Last Attack (1080p).mp4' final=https://player.abyssplayer.com/aRzhgcnST
     script: https://iamcdn.net/player/jwplayer.min.js
     script: https://iamcdn.net/player/jwpsrv.js
     script: https://iamcdn.net/player/jwplayer.core.controls.html5.js
     script: https://iamcdn.net/player/stretch-plugin-settings.min.js
     script: https://iamcdn.net/player-v2/danmu/app.js
     script: https://www.googletagmanager.com/gtag/js?id=G-RB29PDDFNK
-- [Abyss] https://player.abyssplayer.com/oaa7fvZZ2 → 200 10984B başlık='[Seicode] Shingeki no Kyojin Movie - The Last Attack (1080p) Uploaded by: Rinrintan.mp4' final=https://player.abyssplayer.com/oaa7fvZZ2
+- [Abyss] https://player.abyssplayer.com/oaa7fvZZ2 → 200 10966B başlık='[Seicode] Shingeki no Kyojin Movie - The Last Attack (1080p) Uploaded by: Rinrintan.mp4' final=https://player.abyssplayer.com/oaa7fvZZ2
     script: https://iamcdn.net/player/jwplayer.min.js
     script: https://iamcdn.net/player/jwpsrv.js
     script: https://iamcdn.net/player/jwplayer.core.controls.html5.js
@@ -483,8 +483,8 @@ s://anizm.com.tr/magaza"><i data-lucide="sparkles" aria-hidden="true"></i><span>
     script: /player/jw8/vast.js
     script: https://pla.uqload.vc/js/pa-goXS7XjHByR3ra1IS9oLZ.js
     script: /ad/pop.adsbox.js
-- [Vidmoly] https://vidmoly.biz/embed-l878k7lqgnkx.html → 200 39678B başlık='02aNIQBAb8a6yKeyGch18wuLJ3fPI7CYIT3i4JT46MWzuynZS3vBejLXDCPE' final=https://vidmoly.biz/embed-l878k7lqgnkx.html
-    medya: https://prx-1590-for.vmnow.online/hls2/05/01825/l878k7lqgnkx_,n,l,.urlset/master.m3u8?t=mGw5jyeArCIB4Y-YSmeOu2SFJorY-oOh93wDSlAbGkw=&s=1793609931&e=43200&v=&srv=rck12&i=0.4&sp=0&asn=8075
+- [Vidmoly] https://vidmoly.biz/embed-l878k7lqgnkx.html → 200 39674B başlık='02aNIQBAb8a6yKeyGch18wuLJ3fPI7CYIT3i4JT46MWzuynZS3vBejLXDCPE' final=https://vidmoly.biz/embed-l878k7lqgnkx.html
+    medya: https://prx-1590-for.vmnow.online/hls2/05/01825/l878k7lqgnkx_,n,l,.urlset/master.m3u8?t=0BRYQzqrk8kTRx82oTC3r2gP221r1GjYZVayIzdkjr0=&s=1793610129&e=43200&v=&srv=rck12&i=0.4&sp=0&asn=8075
     script: https://cdn.staticmoly.me/static/jquery.min.js
     script: https://cdn.staticmoly.me/static/jquery.cookie.js
     script: https://cdn.jsdelivr.net/gh/InteractiveAdvertisingBureau/AdBlockDetection/adblockDetector.js
@@ -492,17 +492,17 @@ s://anizm.com.tr/magaza"><i data-lucide="sparkles" aria-hidden="true"></i><span>
     script: https://ssl.p.jwpcdn.com/player/v/8.36.4/jwplayer.js
     script: https://static.cloudflareinsights.com/beacon.min.js/vce701823e78c4301a35b7e07294d87301792088814092
     ipucu 'file:': …false;     var isFullscreen = false;       var player = jwplayer("vplayer");     var baseTracks = [         {           file: '/api/v1/slides?length=8660&url=https%3A%2F%2Fi1684.imgvm.com%2Fi%2F05%2F01825%2Fl878k7lqgnkx_p.jpg',           kind: 'thumbnails'         }     ];     var playerInstance = player.setup({       sources: [{ file: 'h
-    ipucu 'sources:': …1825%2Fl878k7lqgnkx_p.jpg',           kind: 'thumbnails'         }     ];     var playerInstance = player.setup({       sources: [{ file: 'https://prx-1590-for.vmnow.online/hls2/05/01825/l878k7lqgnkx_,n,l,.urlset/master.m3u8?t=mGw5jyeArCIB4Y-YSmeOu2SFJorY-oOh93wDSlAbGkw=&s=1793609931&e=43200&v=&srv=rck12&i=0.4&sp=0&asn=8075' }],       ima
-    ipucu '.m3u8': …player.setup({       sources: [{ file: 'https://prx-1590-for.vmnow.online/hls2/05/01825/l878k7lqgnkx_,n,l,.urlset/master.m3u8?t=mGw5jyeArCIB4Y-YSmeOu2SFJorY-oOh93wDSlAbGkw=&s=1793609931&e=43200&v=&srv=rck12&i=0.4&sp=0&asn=8075' }],       image: "https://i1684.imgvm.com/i/05/01825/l878k7lqgnkx.jpg",       bitrate: "2160000",       label: "
+    ipucu 'sources:': …1825%2Fl878k7lqgnkx_p.jpg',           kind: 'thumbnails'         }     ];     var playerInstance = player.setup({       sources: [{ file: 'https://prx-1590-for.vmnow.online/hls2/05/01825/l878k7lqgnkx_,n,l,.urlset/master.m3u8?t=0BRYQzqrk8kTRx82oTC3r2gP221r1GjYZVayIzdkjr0=&s=1793610129&e=43200&v=&srv=rck12&i=0.4&sp=0&asn=8075' }],       ima
+    ipucu '.m3u8': …player.setup({       sources: [{ file: 'https://prx-1590-for.vmnow.online/hls2/05/01825/l878k7lqgnkx_,n,l,.urlset/master.m3u8?t=0BRYQzqrk8kTRx82oTC3r2gP221r1GjYZVayIzdkjr0=&s=1793610129&e=43200&v=&srv=rck12&i=0.4&sp=0&asn=8075' }],       image: "https://i1684.imgvm.com/i/05/01825/l878k7lqgnkx.jpg",       bitrate: "2160000",       label: "
 - [Vidmoly] https://vidmoly.biz/embed-04pnj175izud.html → 404 1663B başlık='-' final=https://vidmoly.biz/embed-04pnj175izud.html
     script: //finisheddaysflamboyant.com/a1/ff/c6/a1ffc6001c8cc5574ad230ba9b375b34.js
     script: //finisheddaysflamboyant.com/7f/20/a7/7f20a7d2853e668186848c321f8f199f.js
     script: https://code.jquery.com/jquery-latest.min.js
     script: https://cdn.staticmoly.me/static/jquery.min.js
     script: https://static.cloudflareinsights.com/beacon.min.js/vce701823e78c4301a35b7e07294d87301792088814092
-- [HDVid] https://hdvid.tv/embed-euza9664vhie-950x480.html → 522 7202B başlık='hdvid.tv | 522: Connection timed out' final=https://hdvid.tv/embed-euza9664vhie-950x480.html
+- [HDVid] https://hdvid.tv/embed-euza9664vhie-950x480.html → 522 7203B başlık='hdvid.tv | 522: Connection timed out' final=https://hdvid.tv/embed-euza9664vhie-950x480.html
 - [Voe] https://voe.sx/e/wnikmc7dj5qv → 200 755B başlık='Redirecting...' final=https://voe.sx/e/wnikmc7dj5qv
 
 ## 7) kavanozun son hâli
-- anizm.com.tr|XSRF-TOKEN=eyJpdiI6InNqdVhjTEtaZzBJaXBiNVdEdS81Rnc9 (exp=1794214724), anizm.com.tr|anizm_session=eyJpdiI6IlVMdENybnNBNEZnc1ZhWEl5S1dqR2c9 (exp=1794214724), wargamings.net|PHPSESSID=b9mn6icguppagi1cf5rtecm6u2 (exp=None), anizmplayer.com|fireplayer_player=d34ab555732ffee514c7d8bc05f7f150 (exp=None), .google.com|NID=CuoBCAESnAEBM9AglzyJFy9mugzWOvTFgKS31ZZK (exp=1809421129), .voe.sx|__ddg8_=uzSYNZsT6PSiUIii (exp=1793611152), .voe.sx|__ddg10_=1793609952 (exp=1793611152), .voe.sx|__ddg9_=172.215.216.201 (exp=1793611152), .voe.sx|__ddg1_=fxU6taMSFwnQx0PDLHAu (exp=1825145952), voe.sx|XSRF-TOKEN=eyJpdiI6IkMwckN5Z1JTcm1WOThqcFhpT2t0WGc9 (exp=1793615352), voe.sx|voe_session=eyJpdiI6IjFBNHZKNTg2dGN4OUJnMTFzZTIzMmc9 (exp=1793615352)
+- anizm.com.tr|XSRF-TOKEN=eyJpdiI6IlJnMG5QRmpYY0c4UnYxSVdNWnIwSkE9 (exp=1794214921), anizm.com.tr|anizm_session=eyJpdiI6ImVGQnYweUxEZWNlaTVCUnpnM3I2Q3c9 (exp=1794214921), wargamings.net|PHPSESSID=vf0lqas9gcd2a9na0puul88v96 (exp=None), anizmplayer.com|fireplayer_player=859a1e4b4b1b674c7153baa88190418e (exp=None), .google.com|NID=CukBCAESmwEBM9Agl8HHC1bSr8KcKBO4q1ZH2nDa (exp=1809421327), .voe.sx|__ddg8_=C37SEofd7lFW0QIP (exp=1793611350), .voe.sx|__ddg10_=1793610150 (exp=1793611350), .voe.sx|__ddg9_=52.159.225.194 (exp=1793611350), .voe.sx|__ddg1_=YdKutrAyJKaVb12u2q4I (exp=1825146150), voe.sx|XSRF-TOKEN=eyJpdiI6ImlhTEdxYitldnV2bkh4MEZiZmJFMlE9 (exp=1793615550), voe.sx|voe_session=eyJpdiI6IjVMbTEwSEV6S0FmY2tKTGhCbzZSU1E9 (exp=1793615550)
 - toplam günlük satırı: 432
