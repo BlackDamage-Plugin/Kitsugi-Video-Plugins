@@ -1,4 +1,4 @@
-Aincrad (Reklamsız)	1739970	getVideo:securedLink	https://anizmplayer.com/cdn/hls/7b59f064409c3403a381d29c7676d2c6/master.m3u8?md5=VpsWShkQasLDAPN44Z3GzQ&expires=1793618123
+Aincrad (Reklamsız)	1739970	getVideo:securedLink	https://anizmplayer.com/cdn/hls/7b59f064409c3403a381d29c7676d2c6/master.m3u8?md5=3Btg1koSbfCOnJJQrToVzA&expires=1793618481
 Sistenn	1739962	api 500	
 Sistenn1	1739966	çözülemedi: Odd-length string	
 Sistenn2	1739967	çözülemedi: Odd-length string	
@@ -8,7 +8,7 @@ GDrive	1739960	akış adresi yok
 Abyss	1739959	akış yok	
 Abyss	1739968	akış yok	
 UQload	1739963	akış yok	
-Vidmoly	1739932	html:m3u8	https://prx-1590-for.vmnow.online/hls2/05/01825/l878k7lqgnkx_,n,l,.urlset/master.m3u8?t=SrMhTVNQ-0KMqiST3HqSW0AvAzncw6hsUKN6UYkFS48=&s=1793610936&e=43200&v=&srv=rck12&i=0.4&sp=0&asn=8075
+Vidmoly	1739932	html:m3u8	https://prx-1590-for.vmnow.online/hls2/05/01825/l878k7lqgnkx_,n,l,.urlset/master.m3u8?t=e9at21nmqDqa8sYpW9m7EugWN3hz7kjiE14_pLFdHK0=&s=1793611294&e=43200&v=&srv=rck12&i=0.4&sp=0&asn=8075
 Vidmoly	1739965	akış yok	
 HDVid	1739931	akış yok	
 Voe	1739933	akış yok	
