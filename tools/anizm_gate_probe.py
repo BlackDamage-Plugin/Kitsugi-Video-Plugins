@@ -336,6 +336,25 @@ def main() -> int:
     eps = re.findall(r"""href=["']([^"']*-bolum[^"']*)["']""", detail.text, re.I)
     log(f"    bölüm bağlantısı: {len(eps)} → {list(dict.fromkeys(eps))[:5]}")
 
+    # ── 2.6) çok bölümlü dizi sayfası (parseEpisodes doğrulaması) ──────────
+    log("\n## 2.6) Dizi (çok bölümlü) detay HTML'i")
+    series = req(f"{base}/one-piece", referer=base + "/")
+    save("series.html", series.text)
+    log(f"- /one-piece → {series.status} {len(series.text)}B")
+    for sel in ("v3-episode", "data-episode", "episode-grid", "bolum-izle", "v3-pagination",
+                "v3-season", "data-season", "v3-episode-card", "loadEpisodes", "episodes?"):
+        log(f"    {sel!r}: {count(series.text, sel)}")
+    eps_series = re.findall(r"""href=["']([^"']*-bolum[^"']*)["']""", series.text, re.I)
+    log(f"    bölüm bağlantısı: {len(eps_series)} → {list(dict.fromkeys(eps_series))[:4]}")
+    if eps_series:
+        first = eps_series[0]
+        if first.startswith("/"):
+            first = base + first
+        ep2 = req(first, referer=base + "/")
+        save("episode_series.html", ep2.text)
+        trs = re.findall(r"""data-sources=["']([^"']+)["']""", ep2.text)
+        log(f"- ilk bölüm → {ep2.status} {len(ep2.text)}B çevirmen={len(set(trs))} {list(dict.fromkeys(trs))[:6]}")
+
     # ── 3) script dosyaları ve yaş kapısı mantığı ──────────────────────────
     log("\n## 3) Script dosyaları")
     scripts = scripts_of(page, base)
