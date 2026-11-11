@@ -1,0 +1,8 @@
+{
+  "name": "⚡ Kitsugi Eklentileri (Resmi)",
+  "description": "9 aktif Türkçe CloudStream eklentisi (anime, dizi ve film kaynakları).",
+  "manifestVersion": 1,
+  "pluginLists": [
+    "https://raw.githubusercontent.com/BlackDamage-Plugin/Kitsugi-Video-Plugins/builds/plugins.json"
+  ]
+}
