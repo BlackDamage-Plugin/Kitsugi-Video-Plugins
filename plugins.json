@@ -3,7 +3,7 @@
         "iconUrl": "https://anm.cx/favicon.ico",
         "fileHash": "sha256-9049419b8fb77deb01d7fff888bac67a6702ed2db56614d03cd56b74cfcfbc08",
         "apiVersion": 1,
-        "repositoryUrl": "https://github.com/f26901964-eng/Kitsugi-Plugins",
+        "repositoryUrl": "https://github.com/BlackDamage-Plugin/Kitsugi-Video-Plugins",
         "fileSize": 28223,
         "status": 1,
         "language": "tr",
@@ -18,13 +18,13 @@
         "version": 24,
         "internalName": "AnimeciX",
         "description": "AnimeciX, animeleri keşfedebileceğiniz ve animeler hakkında her şeyi öğrenebileceğiniz bir paylaşım platformudur.",
-        "url": "https://raw.githubusercontent.com/f26901964-eng/Kitsugi-Plugins/builds/AnimeciX.cs3",
+        "url": "https://raw.githubusercontent.com/BlackDamage-Plugin/Kitsugi-Video-Plugins/builds/AnimeciX.cs3",
         "name": "AnimeciX"
     },
     {
         "fileHash": "sha256-8ae8ce4c9e53f6c95530d0ffb8070c8469f4c1d8ea93247f2ef28d6dc7e351fb",
         "apiVersion": 1,
-        "repositoryUrl": "https://github.com/f26901964-eng/Kitsugi-Plugins",
+        "repositoryUrl": "https://github.com/BlackDamage-Plugin/Kitsugi-Video-Plugins",
         "fileSize": 80371,
         "status": 1,
         "authors": [
@@ -34,7 +34,7 @@
         ],
         "version": 25,
         "internalName": "Anizium",
-        "url": "https://raw.githubusercontent.com/f26901964-eng/Kitsugi-Plugins/builds/Anizium.cs3",
+        "url": "https://raw.githubusercontent.com/BlackDamage-Plugin/Kitsugi-Video-Plugins/builds/Anizium.cs3",
         "name": "Anizium",
         "description": "Anizium ile dünyada ilk ve tek 4K Türkçe dublaj platformunda anime keyfini yaşa. En yeni animeleri İngilizce altyazı ve dublaj seçenekleriyle 1080p ve 4K kalitesinde HD izle.",
         "iconUrl": "https://anizium.co/assets/images/logo.png",
@@ -48,7 +48,7 @@
         "iconUrl": "https://t3.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://filmmakinesi.tv&size=128",
         "fileHash": "sha256-f4ec3fd6db00d131404658d25a38054921aeaba39c1fb04674e88d483550b660",
         "apiVersion": 1,
-        "repositoryUrl": "https://github.com/f26901964-eng/Kitsugi-Plugins",
+        "repositoryUrl": "https://github.com/BlackDamage-Plugin/Kitsugi-Video-Plugins",
         "fileSize": 74128,
         "status": 1,
         "language": "tr",
@@ -65,14 +65,14 @@
         "version": 71,
         "internalName": "FilmMakinesi",
         "description": "Film Makinesi, en yeni ve en güncel filmleri sitemizde full HD kalite farkı ile izleyebilirsiniz. HD film izle denildiğinde akla gelen en kaliteli film izleme sitesi.",
-        "url": "https://raw.githubusercontent.com/f26901964-eng/Kitsugi-Plugins/builds/FilmMakinesi.cs3",
+        "url": "https://raw.githubusercontent.com/BlackDamage-Plugin/Kitsugi-Video-Plugins/builds/FilmMakinesi.cs3",
         "name": "FilmMakinesi"
     },
     {
         "iconUrl": "https://www.google.com/s2/favicons?sz=128&domain=http://hdfilmcehennemi.nl",
         "fileHash": "sha256-08a7a529e1c5660744f56d427b0400ed1c435759205012658a7ffb8f37b90d38",
         "apiVersion": 1,
-        "repositoryUrl": "https://github.com/f26901964-eng/Kitsugi-Plugins",
+        "repositoryUrl": "https://github.com/BlackDamage-Plugin/Kitsugi-Video-Plugins",
         "fileSize": 90967,
         "status": 1,
         "language": "tr",
@@ -88,7 +88,7 @@
         "version": 62,
         "internalName": "HDFilmCehennemi",
         "description": "HDFilmCehennemi - Türkiye'nin en hızlı hd film izleme sitesi. Tek ve gerçek HDFilmCehennemi sitesi.",
-        "url": "https://raw.githubusercontent.com/f26901964-eng/Kitsugi-Plugins/builds/HDFilmCehennemi.cs3",
+        "url": "https://raw.githubusercontent.com/BlackDamage-Plugin/Kitsugi-Video-Plugins/builds/HDFilmCehennemi.cs3",
         "name": "HDFilmCehennemi"
     }
 ]
