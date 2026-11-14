@@ -54,6 +54,31 @@ class PlayerDecoderTest {
     )
 
     @Test
+    fun `oynatici gercek data v elemanini arar`() {
+        val html = """
+            <div data-v="wrong"></div><div data-v="guard-value"></div>
+            <script>
+            var configs = { sources: [{file:(function(){
+                try { if(typeof document==='undefined') return '';
+                    var a=document.querySelectorAll('[data-v]'); var ok=false;
+                    for(var i=0;i<a.length;i++){
+                        if(a[i].getAttribute('data-v')==="guard-value"){ok=true;break;}
+                    }
+                    if(!ok) return '';
+                } catch(x){return '';}
+                return 'https://example.com/stream.m3u8';
+            })()}] };
+            jwplayer('player').setup(configs);
+            </script>
+        """.trimIndent()
+        for (targeted in listOf(true, false)) {
+            val result = PlayerDecoder.decode(html, "https://example.com/player", targeted)
+            assertEquals("https://example.com/stream.m3u8", result?.file)
+            assertNull(PlayerDecoder.decode(html.replace("data-v=\"guard-value\"", "data-v=\"other\""), "https://example.com/player", targeted))
+        }
+    }
+
+    @Test
     fun `gercek yayin adresi cozulur`() {
         for (c in cases) {
             val decoded = PlayerDecoder.decode(live(c.fixture), c.pageUrl)
