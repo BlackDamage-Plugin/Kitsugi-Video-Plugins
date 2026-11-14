@@ -17,7 +17,7 @@ def probe(label, url, referer):
     headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36", "Referer": referer, "Accept": "text/html,application/xhtml+xml,*/*"}
     request = urllib.request.Request(url, headers=headers)
     try:
-        with urllib.request.urlopen(request, timeout=25) as response:
+        with urllib.request.urlopen(request, timeout=10) as response:
             status = response.status
             host = urllib.parse.urlsplit(response.url).hostname
             body = response.read(2_000_000).decode("utf-8", errors="replace")
@@ -37,3 +37,15 @@ if __name__ == "__main__":
     print("Kullanıcının paylaştığı Supernatural 1. sezon 1. bölüm oyuncu adresleri; yalnızca HTTP durumu ve yapı işaretçileri, HTML veya token yok.\n")
     for page in PAGES:
         print(probe(*page))
+    print("\n## Alternatif erişim denemeleri\n")
+    # Herkese açık aracı servisler hedef adresi görebilir; çerez, kimlik bilgisi
+    # veya oturum anahtarı gönderilmez. Yanıt gövdeleri de rapora yazılmaz.
+    proxies = {
+        "CodeTabs": "https://api.codetabs.com/v1/proxy?quest=",
+        "AllOrigins": "https://api.allorigins.win/raw?url=",
+        "CorsProxy": "https://corsproxy.io/?",
+    }
+    for label, url, referer in PAGES:
+        for proxy_name, prefix in proxies.items():
+            proxy_url = prefix + urllib.parse.quote(url, safe="")
+            print(probe(f"{label} / {proxy_name}", proxy_url, referer))
