@@ -78,3 +78,14 @@ geciktirebilir ve uygulamanın 15 saniyelik sınırıyla çakışabilir. Bu kodd
 nedenin bu olduğu kanıtlanmış değildir. HD akışında da API ve oyuncular için
 benzer bekleme sınırları bulunur. Güncel oyuncu yanıtları ve cihazda uçtan uca
 sınama olmadan dört kaynağın çalıştığı iddia edilemez.
+
+## S08E01 için ek erişim denemesi
+
+GitHub Actions 43655350292 ve 43655425626: kullanıcının ekranındaki bölüm
+için FilmMakinesi (önceki S01 adresinin sezon yolu temel alınarak denenmiş,
+kimliği bağımsız doğrulanmamış) ve arama sonucunda bulunan HDFilmCehennemi
+S08E01 sayfaları 78 TR listeli proxy üzerinden denendi. İlk denemede HD 301
+alındı; yönlendirme takibi eklenen ikinci denemede FilmMakinesi 1×403 ve 77 ağ
+hatası, HD 78 ağ hatası verdi. Geçerli bölüm/oynatıcı HTML'i alınamadı; bu
+sonuçlar sayfanın var olmadığına veya cihazın aynı ağ sorununu yaşadığına
+kanıt değildir. Doğrudan web alımı FilmMakinesi'nde 451, HD'de 500 döndü.
