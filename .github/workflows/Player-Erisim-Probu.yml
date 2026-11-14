@@ -13,7 +13,7 @@ permissions:
 jobs:
   probe:
     runs-on: ubuntu-latest
-    timeout-minutes: 4
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
       - name: Oynatıcıları kontrol et
@@ -22,6 +22,24 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: python3 tools/probe_turkey_player.py >> /tmp/player-access.md 2>&1 || echo 'Türkiye probu hata ile durdu.' >> /tmp/player-access.md
+      - name: JDK 17
+        if: hashFiles('site-dump/rapid-live.html') != ''
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+      - name: Gerçek Rapid yanıtında çözücüyü sına
+        if: hashFiles('site-dump/rapid-live.html') != ''
+        run: |
+          export LIVE_RAPID_CAPTURE="$GITHUB_WORKSPACE/site-dump/rapid-live.html"
+          chmod +x gradlew
+          if ./gradlew --no-daemon :HDFilmCehennemi:testDebugUnitTest --tests '*PlayerDecoderTest*' > /tmp/rapid-test.log 2>&1; then
+            echo '- Gerçek Rapid HTML üzerinde Kotlin testleri: BAŞARILI' >> /tmp/player-access.md
+          else
+            echo '- Gerçek Rapid HTML üzerinde Kotlin testleri: BAŞARISIZ' >> /tmp/player-access.md
+            grep -E 'FAILED|error:|^e:|What went wrong|Execution failed' /tmp/rapid-test.log | head -25 >> /tmp/player-access.md || true
+          fi
+          rm -f "$LIVE_RAPID_CAPTURE"
       - name: Sonucu PR'a yaz
         env:
           GH_TOKEN: ${{ github.token }}

@@ -50,6 +50,13 @@ def attempt(proxy, page):
         return label, "network"
     lower = text.lower()
     if status == 200 and "jwplayer" in lower and "sources" in lower and "content unavailable in your region" not in lower:
+        if label == "HDFilmCehennemi Rapid":
+            os.makedirs("site-dump", exist_ok=True)
+            try:
+                with open("site-dump/rapid-live.html", "x", encoding="utf-8") as output:
+                    output.write(text)
+            except FileExistsError:
+                pass
         return label, "player_html"
     return label, f"HTTP {status}"  # no untrusted body or proxy endpoint in report
 

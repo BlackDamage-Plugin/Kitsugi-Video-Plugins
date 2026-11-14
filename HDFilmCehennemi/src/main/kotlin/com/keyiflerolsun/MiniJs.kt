@@ -983,7 +983,8 @@ internal class Scope(val parent: Scope?, val funcScope: Boolean) {
  */
 internal class MiniJs(
     private val pageUrl: String = "https://localhost/",
-    private val stepLimit: Long = 3_000_000L
+    private val stepLimit: Long = 3_000_000L,
+    private val dataVAttributes: List<String> = emptyList()
 ) {
     val global = Scope(null, true)
     private var steps = 0L
@@ -1633,6 +1634,20 @@ internal class MiniJs(
         document.props["cookie"] = ""
         document.props["readyState"] = "complete"
         document.props["visibilityState"] = "visible"
+        // Player pages may guard their source with document.querySelectorAll('[data-v]').
+        // Expose only values actually present in the response, never fabricate a match.
+        document.props["querySelectorAll"] = NativeFunction("querySelectorAll") { _, args ->
+            val elements = if (toStr(args.getOrNull(0)) == "[data-v]") {
+                dataVAttributes.map { value ->
+                    val element = JsObject()
+                    element.props["getAttribute"] = NativeFunction("getAttribute") { _, a ->
+                        if (toStr(a.getOrNull(0)) == "data-v") value else null
+                    }
+                    element
+                }
+            } else emptyList()
+            JsArray(elements.map { it as Any? }.toMutableList())
+        }
         g["document"] = document
 
         val navigator = object : JsObject() {
