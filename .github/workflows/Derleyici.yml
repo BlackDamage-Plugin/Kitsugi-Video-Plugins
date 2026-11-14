@@ -135,14 +135,30 @@ jobs:
               ./gradlew $TEST_TASKS
             fi
 
-            # 3) Derlenen cs3 dosyalari prebuilt kopyalarinin UZERINE yazilir.
-            for dir in $BUILT_DIRS; do
-              CS3="$dir/build/$dir.cs3"
-              if [ -f "$CS3" ]; then
-                cp "$CS3" $GITHUB_WORKSPACE/builds/
-                echo "Kopyalandi: $dir.cs3"
-              fi
-            done
+          # 3) Derleme eskiyse daha yeni yayindaki/prebuilt dosyayi ezme.
+          # Ornegin DiziPal kaynak surumu 33 iken Drive'daki paket 102'dir.
+          for dir in $BUILT_DIRS; do
+            CS3="$dir/build/$dir.cs3"
+            if [ ! -f "$CS3" ]; then
+              echo "Derleme ciktisi bulunamadi: $CS3"
+              exit 1
+            fi
+            python3 - "$CS3" "$GITHUB_WORKSPACE/builds/$dir.cs3" <<'PY'
+          import os, shutil, sys
+          from tools.stage_prebuilt import cs3_version
+
+          src, dst = sys.argv[1:]
+          src_version = cs3_version(src)
+          dst_version = cs3_version(dst) if os.path.exists(dst) else -1
+          if src_version < 0:
+              raise SystemExit(f"Gecersiz derleme paketi: {src}")
+          if src_version >= dst_version:
+              shutil.copy2(src, dst)
+              print(f"Kopyalandi: {dst} (surum {src_version})")
+          else:
+              print(f"Daha yeni yayin korundu: {dst} ({dst_version} > {src_version})")
+          PY
+          done
           else
             # ONEMLI: Derleme olmasa bile manifest yeniden uretilmeli; aksi halde
             # enabled_plugins.txt degisikligi builds/plugins.json'a hic yansimaz
