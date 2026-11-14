@@ -55,3 +55,26 @@ uygulamada gerçekten bu sürümlerin kurulu olması ve aynı bölüm/alternatif
 sonucun raporlanması önemlidir. Canlı HTML alınmadan yeni çözücü değişikliğinin
 sorunu gidereceği varsayılmamalıdır. HTTP yanıtları, kullanılacak bilgisayarın
 konumuna, Cloudflare durumuna ve istek bağlamına göre farklılık gösterebilir.
+
+## Kullanıcının cihaz testi ve geçmiş karşılaştırması
+
+Kullanıcının Supernatural S08E01 ekran görüntülerinde FilmMakinesi için
+KTS-CSP-9104, 15 saniyelik eklenti zaman aşımı ve sıfır video görünüyor;
+HDFilmCehennemi için bir Rapidrame DUAL bağlantısı listeleniyor. Görüntüler
+oynatmanın başarısını, yüklü eklenti sürümlerini veya zaman aşımının hangi
+istekte gerçekleştiğini göstermiyor.
+
+Git geçmişi tamamlanıp `3ea10e4` (25 Ekim, PR #19) ile mevcut üretim kaynakları
+karşılaştırıldı. Eklentilerin ana kaynak alma ve paralel çözüm akışı aynı;
+sonraki üretim kodu farkı her iki modülde MiniJs/PlayerDecoder `data-v` desteği.
+Dolayısıyla eski çalışan sürüme dönmek bu kanıtlardan hareketle Close veya
+FilmMakinesi problemini giderecek diye söylenemez.
+
+FilmMakinesi bölüm isteğinin zaman aşımı 20 saniye, oynatıcı çözümünün sınırı
+35 saniye; paralel çözüm sonuçları `awaitAll` sonrasında callback'e veriliyor.
+Dolayısıyla yavaş bir oyuncu hızlı çözülen diğerinin de bildirilmesini
+geciktirebilir ve uygulamanın 15 saniyelik sınırıyla çakışabilir. Bu koddan
+çıkan olası mekanizmadır; mevcut cihazda gecikmenin bu aşamada olduğu veya tek
+nedenin bu olduğu kanıtlanmış değildir. HD akışında da API ve oyuncular için
+benzer bekleme sınırları bulunur. Güncel oyuncu yanıtları ve cihazda uçtan uca
+sınama olmadan dört kaynağın çalıştığı iddia edilemez.
