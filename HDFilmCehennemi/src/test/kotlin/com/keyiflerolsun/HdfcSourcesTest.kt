@@ -62,6 +62,17 @@ class HdfcSourcesTest {
     }
 
     @Test
+    fun `gonderilen bolum yapisindaki iki dugme ve varsayilan iframe`() {
+        val html = """<div class="alternative-links" data-lang="en">
+            <button class="alternative-link" data-active="1" data-video="111">Close</button>
+            <button class="alternative-link" data-active="" data-video="222">Rapidrame</button>
+            </div><iframe class="close" data-src="https://hdfilmcehennemi.mobi/video/embed/CLOSE/?rapidrame_id=RAPID"></iframe>"""
+        val doc = Jsoup.parse(html, pageUrl)
+        assertEquals(listOf("Close", "Rapidrame"), HdfcSources.buttons(doc).map { it.name })
+        assertEquals(listOf("Close", "Rapidrame"), HdfcSources.pageEmbeds(doc, pageUrl, mainUrl).map { it.label })
+    }
+
+    @Test
     fun `json metin alani cozulur`() {
         assertEquals("<a href=\"/x\">é</a>", HdfcSources.jsonStringField("{\"html\":\"<a href=\\\"\\/x\\\">\\u00e9<\\/a>\"}", "html"))
         assertTrue(HdfcSources.isPlayerUrl("https://www.hdfilmcehennemi.nl/rplayer/abc/"))

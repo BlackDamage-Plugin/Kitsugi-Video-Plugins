@@ -51,6 +51,17 @@ class SourceLinksTest {
     }
 
     @Test
+    fun `gonderilen bolum yapisinda iki alternatif yinelenmeden okunur`() {
+        val page = "https://filmmakinesi.to/dizi/example/sezon-1/bolum-1/"
+        val html = """<div class="video-parts">
+          <a class="btn active" data-video_url="https://closeload.filmmakinesi.to/video/embed/CLOSE/?imdb_id=tt123">DUAL Close</a>
+          <a class="btn" data-video_url="https://rapid.filmmakinesi.to/embed-RAPID/">DUAL Rapid</a>
+          </div><div class="after-player"><iframe data-src="https://closeload.filmmakinesi.to/video/embed/CLOSE/?imdb_id=tt123"></iframe></div>"""
+        val result = SourceLinks.collect(Jsoup.parse(html, page), page)
+        assertEquals(listOf(SourceLinks.Kind.CLOSE, SourceLinks.Kind.RAPID), result.map { it.kind })
+    }
+
+    @Test
     fun `adres normalizasyonu`() {
         val page = "https://filmmakinesi.to/film/x/"
         assertEquals("https://rapid.filmmakinesi.to/embed-a/", SourceLinks.normalize("//rapid.filmmakinesi.to/embed-a/", page))

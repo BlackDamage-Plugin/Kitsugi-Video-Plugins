@@ -10,10 +10,6 @@ import com.lagradost.cloudstream3.syncproviders.SyncIdName
 import com.lagradost.cloudstream3.utils.*
 import com.lagradost.cloudstream3.LoadResponse.Companion.addActors
 import com.lagradost.cloudstream3.LoadResponse.Companion.addTrailer
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.withTimeoutOrNull
 
 // TMDB genel (public) API anahtarı — IMDb ID → başlık çözümlemesi için.
 private const val TMDB_API_KEY = "c4ffcab48dfaa7b41625ac13d61aec31"
@@ -424,24 +420,13 @@ private fun Element.toSearchResult(): SearchResponse? {
         if (sources.isEmpty()) return false
 
         val players = sources.filter { it.kind != SourceLinks.Kind.OTHER }
-        val resolved = coroutineScope {
-            players.map { src ->
-                async {
-                    withTimeoutOrNull(35_000L) {
-                        PlayerResolver.resolve(src.url, pageUrl, src.label, FilmMakinesiHttp.interceptor)
-                    }
-                }
-            }.awaitAll()
-        }
-
-        var found = false
         val seenSubtitles = HashSet<String>()
-        for (r in resolved) {
-            if (r == null) continue
-            r.subtitles.forEach { if (seenSubtitles.add(it.url)) subtitleCallback(it) }
-            callback(r.link)
-            found = true
-        }
+        var found = collectPlayerResults(players, 12_000L, resolve = { src ->
+            PlayerResolver.resolve(src.url, pageUrl, src.label, FilmMakinesiHttp.interceptor)
+        }, emit = { result ->
+            result.subtitles.forEach { if (seenSubtitles.add(it.url)) subtitleCallback(it) }
+            callback(result.link)
+        })
 
         // Tanınmayan barındırıcılar için CloudStream'in genel çözücüleri.
         for (src in sources.filter { it.kind == SourceLinks.Kind.OTHER }) {
