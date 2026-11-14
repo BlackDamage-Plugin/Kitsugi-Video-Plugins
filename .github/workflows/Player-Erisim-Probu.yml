@@ -22,6 +22,13 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: python3 tools/probe_turkey_player.py >> /tmp/player-access.md
+      - name: Kısa süreli oyuncu HTML artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: player-html-${{ github.run_id }}
+          path: site-dump/*.html
+          if-no-files-found: warn
+          retention-days: 1
       - name: Sonucu PR'a yaz
         env:
           GH_TOKEN: ${{ github.token }}

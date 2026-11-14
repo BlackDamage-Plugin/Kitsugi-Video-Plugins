@@ -50,6 +50,14 @@ def attempt(proxy, page):
         return label, "network"
     lower = text.lower()
     if status == 200 and "jwplayer" in lower and "sources" in lower and "content unavailable in your region" not in lower:
+        # Kısa ömürlü teşhis artifact'ı; başlık, cookie ve proxy adresi kaydedilmez.
+        os.makedirs("site-dump", exist_ok=True)
+        path = "site-dump/" + label.replace(" ", "-") + ".html"
+        try:
+            with open(path, "x", encoding="utf-8") as output:
+                output.write(text)
+        except FileExistsError:
+            pass
         return label, "player_html"
     return label, f"HTTP {status}"  # no untrusted body or proxy endpoint in report
 
