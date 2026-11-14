@@ -18,6 +18,8 @@ jobs:
       - uses: actions/checkout@v4
       - name: Oynatıcıları kontrol et
         run: python3 tools/probe_player_access.py > /tmp/player-access.md
+      - name: Türkiye konumlu erişim yollarını dene
+        run: python3 tools/probe_turkey_player.py >> /tmp/player-access.md
       - name: Sonucu PR'a yaz
         env:
           GH_TOKEN: ${{ github.token }}
