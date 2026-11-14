@@ -29,6 +29,22 @@ jobs:
           path: site-dump/*.html
           if-no-files-found: warn
           retention-days: 1
+      - name: Şifreli HTML aktarımı
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          if compgen -G 'site-dump/*.html' > /dev/null; then
+            tar czf /tmp/player.tar.gz -C site-dump .
+            openssl rand -hex 32 > /tmp/player-password
+            openssl pkeyutl -encrypt -pubin -inkey tools/player_probe_key.pem -pkeyopt rsa_padding_mode:oaep -in /tmp/player-password -out /tmp/player-key.enc
+            openssl enc -aes-256-cbc -pbkdf2 -salt -in /tmp/player.tar.gz -out /tmp/player-data.enc -pass file:/tmp/player-password
+            { echo 'PLAYER_ENCRYPTED_V1'; base64 -w0 /tmp/player-key.enc; echo; base64 -w0 /tmp/player-data.enc; echo; } > /tmp/player-encrypted.md
+            if [ "$(wc -c < /tmp/player-encrypted.md)" -lt 60000 ]; then
+              gh pr comment "$PR_NUMBER" --body-file /tmp/player-encrypted.md
+            fi
+            rm -f /tmp/player-password /tmp/player.tar.gz
+          fi
       - name: Sonucu PR'a yaz
         env:
           GH_TOKEN: ${{ github.token }}
