@@ -21,7 +21,7 @@ jobs:
       - name: Türkiye konumlu erişim yollarını dene
         env:
           GH_TOKEN: ${{ github.token }}
-        run: python3 tools/probe_turkey_player.py >> /tmp/player-access.md
+        run: python3 tools/probe_turkey_player.py >> /tmp/player-access.md 2>&1 || echo 'Türkiye probu hata ile durdu.' >> /tmp/player-access.md
       - name: Kısa süreli oyuncu HTML artifact
         uses: actions/upload-artifact@v4
         with:
