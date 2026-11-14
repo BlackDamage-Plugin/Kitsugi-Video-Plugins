@@ -24,4 +24,5 @@ TrAnimeIzle
 FilmMakinesi
 HDFilmCehennemi
 DiziBox
+DiziPal
 HDFilmIzle
