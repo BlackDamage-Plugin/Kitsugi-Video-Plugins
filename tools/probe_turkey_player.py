@@ -3,6 +3,7 @@
 import concurrent.futures
 import ipaddress
 import json
+import os
 import urllib.error
 import urllib.request
 
@@ -13,7 +14,11 @@ PROXY_LIST = "https://api.github.com/repos/proxifly/free-proxy-list/contents/pro
 
 def candidates():
     import base64
-    request = urllib.request.Request(PROXY_LIST, headers={"User-Agent": "Kitsugi-player-diagnostic"})
+    headers = {"User-Agent": "Kitsugi-player-diagnostic"}
+    token = os.environ.get("GH_TOKEN")
+    if token:
+        headers["Authorization"] = f"Bearer {token}"
+    request = urllib.request.Request(PROXY_LIST, headers=headers)
     with urllib.request.urlopen(request, timeout=15) as response:
         data = json.loads(base64.b64decode(json.load(response)["content"]))
     out = []
