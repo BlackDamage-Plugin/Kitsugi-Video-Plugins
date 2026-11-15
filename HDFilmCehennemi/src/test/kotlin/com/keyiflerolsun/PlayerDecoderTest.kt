@@ -122,6 +122,17 @@ class PlayerDecoderTest {
     }
 
     @Test
+    fun `kasim 2026 close yaniti querySelectorAll id ile cozulur`() {
+        val decoded = PlayerDecoder.decode(
+            live("hd_close_s01e01.html"),
+            "https://hdfilmcehennemi.mobi/video/embed/RFeVmBTmaCG/?rapidrame_id=6d4mkrakdi1a"
+        )
+        assertNotNull(decoded)
+        assertTrue(decoded!!.file.startsWith("https://srv12.cdnimages2607.cyou/hls/tt0460681-s01e01-dual-hgsnmgssuo27mp4-RFeVmBTmaCG.mp4/txt/master.txt"))
+        assertTrue(decoded.file.contains("cdnimages"))
+    }
+
+    @Test
     fun `opsiyonel yeni close yaniti cozulur`() {
         val path = System.getenv("LIVE_CLOSE_CAPTURE")
         org.junit.Assume.assumeTrue(!path.isNullOrBlank() && File(path).isFile)

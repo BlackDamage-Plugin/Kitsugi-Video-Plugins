@@ -596,7 +596,7 @@ class HDFilmCehennemi : MainAPI() {
         val requests = SingleFlight<String, PlayerResolver.Resolved>()
         // ! Toplam süre uygulamanın 15 sn'lik kaynak sınırının altında kalmalı; her
         // ! kaynak kendi içinde süre sınırına sahip (Close erken gelsin diye).
-        val found = collectPlayerResults(tasks, 12_000L, resolve = { task ->
+        val found = collectPlayerResults(tasks, 14_000L, resolve = { task ->
             val e = task.load() ?: return@collectPlayerResults null
             val result = requests.get(e.url) {
                 val killer = if (PlayerFetch.allowCloudflareKiller(e.url)) interceptor else null

@@ -60,11 +60,13 @@ internal object PlayerDecoder {
         val scripts = inlineScripts(html)
         val document = Jsoup.parse(html)
         val dataVAttributes = document.select("[data-v]").map { it.attr("data-v") }
-        val elementsById = LinkedHashMap<String, String?>()
+        val elementsById = LinkedHashMap<String, Map<String, String>>()
         for (element in document.select("[id]")) {
             val id = element.attr("id")
-            if (!elementsById.containsKey(id)) elementsById[id] =
-                if (element.hasAttr("data-v")) element.attr("data-v") else null
+            if (id.isBlank() || elementsById.containsKey(id)) continue
+            val attrs = LinkedHashMap<String, String>()
+            for (attr in element.attributes()) attrs[attr.key] = attr.value
+            elementsById[id] = attrs
         }
         val chunks = ArrayList<String>()
         for (s in scripts) {
