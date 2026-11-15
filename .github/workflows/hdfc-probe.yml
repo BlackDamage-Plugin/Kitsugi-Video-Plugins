@@ -5,7 +5,6 @@ on:
     branches:
       - "arena/**"
     paths:
-      - "tools/hdfc_close_probe.py"
       - ".github/workflows/hdfc-probe.yml"
   workflow_dispatch:
     inputs:
@@ -15,7 +14,7 @@ on:
         default: ""
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   Probe:
@@ -29,11 +28,32 @@ jobs:
       - name: Close zinciri probu
         run: |
           set +e
-          python3 tools/hdfc_close_probe.py ${{ inputs.page }}
-          echo "çıkış=$?"
-      - name: Ham HTTP başlıkları (kök + .mobi)
+          {
+            echo "# prob başladı"
+            python3 -u tools/hdfc_close_probe.py ${{ inputs.page }} 2>&1
+            echo "çıkış=$?"
+            echo
+            echo "## ham başlıklar"
+            for u in https://www.hdfilmcehennemi.nl/ https://hdfilmcehennemi.mobi/; do
+              echo "== $u"
+              curl -sS -o /dev/null -D - --max-time 25 \
+                -A 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36' \
+                "$u" 2>&1 | head -n 12
+            done
+          } > /tmp/probe.md
+          tail -n 200 /tmp/probe.md
+      - name: Raporu dala it
+        if: always()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          for u in https://www.hdfilmcehennemi.nl/ https://hdfilmcehennemi.mobi/ https://closeload.top/; do
-            echo "== $u"
-            curl -sS -o /dev/null -D - --max-time 25 -A 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36' "$u" 2>&1 | head -n 12
-          done
+          rm -rf /tmp/push && mkdir -p /tmp/push
+          cp /tmp/probe.md /tmp/push/probe.md 2>/dev/null || echo "prob dosyası yok" > /tmp/push/probe.md
+          cd /tmp/push
+          git init -q
+          git config user.email "actions@github.com"
+          git config user.name "GitHub Actions"
+          git checkout -q -b hdfc-probe-data
+          git add -A
+          git commit -qm "probe ${GITHUB_RUN_ID}"
+          git push -q -f "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" HEAD:hdfc-probe-data && echo "rapor hdfc-probe-data dalına itildi"
