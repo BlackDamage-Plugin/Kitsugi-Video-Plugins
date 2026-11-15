@@ -34,6 +34,14 @@ jobs:
                 clean=$(echo "$line" | tr '"' "'" | cut -c1-900)
                 echo "::error::$clean"
               done
+          awk '/\* What went wrong:/{f=1} f{print; c++} c>12{exit}' /tmp/build.log | while IFS= read -r line; do
+            clean=$(echo "$line" | tr '"' "'" | cut -c1-900)
+            echo "::error::neden: $clean"
+          done
+          sed -n '1,60p' /tmp/build.log | while IFS= read -r line; do
+            clean=$(echo "$line" | tr '"' "'" | cut -c1-900)
+            echo "::notice::baş: $clean"
+          done
           PASSED=$(grep -c "PASSED" /tmp/build.log || true)
           FAILEDN=$(grep -c "FAILED" /tmp/build.log || true)
           echo "::notice::test PASSED=$PASSED FAILED=$FAILEDN"
