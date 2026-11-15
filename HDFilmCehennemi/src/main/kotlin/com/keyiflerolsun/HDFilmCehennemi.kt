@@ -81,20 +81,16 @@ class HDFilmCehennemi : MainAPI() {
     class CloudflareInterceptor(private val cloudflareKiller: CloudflareKiller): Interceptor {
         override fun intercept(chain: Interceptor.Chain): Response {
             val response = chain.proceed(chain.request())
-            val contentType = response.header("Content-Type").orEmpty().lowercase()
-            val looksLikeHtml = contentType.contains("text/html") || contentType.contains("application/xhtml+xml")
-            if (!looksLikeHtml && response.code !in 403..503) return response
-
-            val html = response.peekBody(256 * 1024).string()
-            val lower = html.lowercase()
-            val challengePage = lower.contains("just a moment") ||
-                lower.contains("cf-browser-verification") ||
-                lower.contains("checking your browser") ||
-                (response.code in 403..503 && lower.contains("cloudflare"))
-
-            if (!challengePage) return response
-
-            // CloudflareKiller yeniden istekte bulunmadan önce ilk gövdeyi kapat.
+            val url = chain.request().url.toString()
+            if (!PlayerFetch.allowCloudflareKiller(url)) return response
+            val html = try {
+                response.peekBody(256 * 1024).string()
+            } catch (_: Exception) {
+                return response
+            }
+            if (!PlayerFetch.isCloudflareChallenge(response.code, response.header("Content-Type"), html)) {
+                return response
+            }
             response.close()
             return cloudflareKiller.intercept(chain)
         }
@@ -603,7 +599,8 @@ class HDFilmCehennemi : MainAPI() {
         val found = collectPlayerResults(tasks, 12_000L, resolve = { task ->
             val e = task.load() ?: return@collectPlayerResults null
             val result = requests.get(e.url) {
-                PlayerResolver.resolve(e.url, pageUrl, e.label, interceptor)
+                val killer = if (PlayerFetch.allowCloudflareKiller(e.url)) interceptor else null
+                PlayerResolver.resolve(e.url, pageUrl, e.label, killer)
             } ?: return@collectPlayerResults null
             e.url to result
         }, emit = { (embedUrl, result) ->
