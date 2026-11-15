@@ -34,4 +34,31 @@ class PlayerCollectionTest {
             it
         }, emit = {}))
     }
+    @Test fun `page and API sharing embed fetch only once`() = runBlocking {
+        val requests = SingleFlight<String, String>()
+        val emitted = mutableListOf<String>()
+        val seen = mutableSetOf<String>()
+        var calls = 0
+        val found = collectPlayerResults(listOf("page", "api"), 1000, resolve = {
+            val embed = "https://example.test/rplayer/id/"
+            val stream = requests.get(embed) {
+                calls++
+                delay(30)
+                "https://cdn.test/master.m3u8?token=$calls"
+            } ?: return@collectPlayerResults null
+            embed to stream
+        }, emit = { (embed, stream) -> if (seen.add(embed)) emitted.add(stream) })
+        assertTrue(found)
+        assertEquals(1, calls)
+        assertEquals(1, emitted.size)
+    }
+
+    @Test fun `different embeds remain independent`() = runBlocking {
+        val requests = SingleFlight<String, String>()
+        val emitted = mutableListOf<String>()
+        collectPlayerResults(listOf("close", "rapid"), 1000,
+            resolve = { key -> requests.get(key) { key } },
+            emit = { emitted.add(it) })
+        assertEquals(setOf("close", "rapid"), emitted.toSet())
+    }
 }
