@@ -67,7 +67,7 @@ internal object PlayerResolver {
     }
 
     /**
-     * @param embedUrl    oynatıcı sayfası (closeload/rapid/rplayer/hdfilmcehennemi.mobi)
+     * @param embedUrl    FilmMakinesi sayfasında bulunan oynatıcı adresi
      * @param pageReferer oynatıcıyı gömen film/bölüm sayfası
      * @param displayName kaynak adı (ör. "Close · Altyazılı")
      */
@@ -78,6 +78,7 @@ internal object PlayerResolver {
         interceptor: Interceptor? = null,
         pageUserAgent: String? = null
     ): Resolved? {
+        if (SourceLinks.isOtherProvider(embedUrl)) return null
         val response = try {
             app.get(
                 embedUrl,
@@ -102,6 +103,7 @@ internal object PlayerResolver {
         }
         // Yönlendirme sonrası adres: çözücü anahtarı location.hostname'e bağlı.
         val finalUrl = response.url.ifBlank { embedUrl }
+        if (SourceLinks.isOtherProvider(finalUrl)) return null
         val decoded = try {
             runPlayerDecoding { PlayerDecoder.decode(response.text, finalUrl) }
         } catch (e: CancellationException) {
@@ -114,6 +116,7 @@ internal object PlayerResolver {
             Log.w(TAG, "$displayName: yayın adresi çözülemedi ($finalUrl, ${response.text.length} bayt)")
             return null
         }
+        if (SourceLinks.isOtherProvider(decoded.file)) return null
         val origin = originOf(finalUrl) ?: return null
         val link = newExtractorLink(
             source = displayName,

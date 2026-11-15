@@ -62,6 +62,18 @@ class SourceLinksTest {
     }
 
     @Test
+    fun `baska sitenin iframe ve butonlari eklenmez`() {
+        val page = "https://filmmakinesi.to/film/x/"
+        val html = """<div class="video-parts">
+          <a data-video_url="https://hdfilmcehennemi.mobi/video/embed/abc/">Close</a>
+          <a data-video_url="https://rapid.filmmakinesi.to/embed-abc/">Rapid</a>
+          </div><div class="after-player"><iframe src="https://www.hdfilmcehennemi.nl/rplayer/abc/"></iframe></div>"""
+        val sources = SourceLinks.collect(Jsoup.parse(html, page), page)
+        assertEquals(listOf("https://rapid.filmmakinesi.to/embed-abc/"), sources.map { it.url })
+        assertNull(SourceLinks.normalize("https://foo.hdfilmcehennemi.mobi/video/embed/abc/", page))
+    }
+
+    @Test
     fun `adres normalizasyonu`() {
         val page = "https://filmmakinesi.to/film/x/"
         assertEquals("https://rapid.filmmakinesi.to/embed-a/", SourceLinks.normalize("//rapid.filmmakinesi.to/embed-a/", page))

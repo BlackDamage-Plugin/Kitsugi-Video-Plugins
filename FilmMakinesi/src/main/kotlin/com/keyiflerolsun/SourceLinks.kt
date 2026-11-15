@@ -21,6 +21,10 @@ internal object SourceLinks {
     private fun hostOf(url: String): String =
         runCatching { java.net.URI(url).host?.lowercase().orEmpty() }.getOrDefault("")
 
+    /** Never add another provider's player, even if an iframe points to one. */
+    fun isOtherProvider(url: String): Boolean =
+        hostOf(url).split('.').any { Regex("^hdfilmcehennemi[0-9]*$").matches(it) }
+
     fun kindOf(url: String): Kind {
         val host = hostOf(url)
         val lower = url.lowercase()
@@ -45,7 +49,7 @@ internal object SourceLinks {
             runCatching { java.net.URI(pageUrl).resolve(value).toString() }.getOrNull() ?: return null
         }
         val host = hostOf(absolute)
-        if (host.isEmpty()) return null
+        if (host.isEmpty() || isOtherProvider(absolute)) return null
         if (host.contains("youtube.") || host.contains("youtu.be") || host.contains("google.")) return null
         return absolute
     }
