@@ -79,17 +79,29 @@ internal object HdfcSources {
         return if (hostOf(absolute).isEmpty()) null else absolute
     }
 
-    /** Sitenin kendi oynatıcıları: /video/embed/ (Close) ve /rplayer/ (Rapidrame). */
+    /** Sitenin kendi oynatıcıları: /video/embed/ (Close), /rplayer/ (Rapidrame) ve yeni kısa yollar. */
     fun isPlayerUrl(url: String): Boolean {
         val host = hostOf(url)
         val lower = url.lowercase()
         if (host.contains("youtube") || host.contains("youtu.be")) return false
-        return lower.contains("/video/embed/") || lower.contains("/rplayer/") ||
-            host.contains("closeload") || host.contains("rapidrame") || host.contains("rapidvid")
+        if (lower.contains("/video/embed/") || lower.contains("/rplayer/") || lower.contains("/embed-")) return true
+        if (host.contains("closeload") || host.contains("rapidrame") || host.contains("rapidvid")) return true
+        // Site oynatıcı yolunu değiştirebiliyor (/embed/, /player/, /e/...). Yalnızca
+        // oynatıcı ailesine benzeyen host'larda kabul edilir; alakasız iframe'ler dışarıda kalır.
+        val playerHost = host.contains("hdfilmcehennemi") || host.contains("close") || host.contains("rapid")
+        return playerHost && Regex("/(embed|player|e|video|v)/[A-Za-z0-9_-]{4,}/?$").containsMatchIn(lower)
     }
 
-    fun nameForUrl(url: String): String =
-        if (url.lowercase().contains("/rplayer/") || hostOf(url).contains("rapid")) "Rapidrame" else "Close"
+    fun nameForUrl(url: String): String {
+        val host = hostOf(url)
+        val lower = url.lowercase()
+        return when {
+            lower.contains("/rplayer/") || host.contains("rapid") -> "Rapidrame"
+            host.contains("closeload") || host.contains("close") || lower.contains("/video/embed/") -> "Close"
+            host.isEmpty() -> "Kaynak"
+            else -> host.removePrefix("www.").substringBefore('.').replaceFirstChar { it.uppercase() }
+        }
+    }
 
     private fun queryParam(url: String, key: String): String? =
         Regex("[?&]" + Regex.escape(key) + "=([^&#]+)").find(url)?.groupValues?.get(1)?.takeIf { it.isNotBlank() }

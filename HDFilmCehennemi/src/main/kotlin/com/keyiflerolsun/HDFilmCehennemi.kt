@@ -36,6 +36,7 @@ import com.lagradost.cloudstream3.utils.ExtractorLink
 import okhttp3.Interceptor
 import okhttp3.Response
 import org.jsoup.Jsoup
+import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
 
 // TMDB genel (public) API anahtarı — IMDb ID → başlık çözümlemesi için.
@@ -551,6 +552,9 @@ class HDFilmCehennemi : MainAPI() {
      * 3) Oynatıcı sayfaları paralel çözülür: [PlayerDecoder] sayfanın kendi
      *    karartılmış çözücüsünü çalıştırıp jwplayer `sources` değerini alır.
      *    (JSON-LD contentUrl / playmix adresi TUZAKTIR, kullanılmaz.)
+     * 4) Erişim tek UA/Referer'e bağlı değildir ve adres yayında doğrulanır
+     *    (bkz. [PlayerFetch], [StreamCheck]). Close kaynağı, host/UA kuralları
+     *    değişse de listeden düşmez.
      */
     override suspend fun loadLinks(
         data: String,
@@ -559,9 +563,69 @@ class HDFilmCehennemi : MainAPI() {
         callback: (ExtractorLink) -> Unit
     ): Boolean {
         resolveDomain()
-        val pageUrl = migrateUrl(data)
-        val document = app.get(
-            pageUrl,
+        var pageUrl = migrateUrl(data)
+        var document = fetchPage(pageUrl)
+        if (document == null) {
+            // ! Alan adı ölmüş olabilir: sabitlenmiş adres bırakılmaz, yeniden çözülür.
+            Log.w("HDCH", "sayfa alınamadı, alan adı yeniden çözülüyor: $pageUrl")
+            domainResolved = false
+            resolveDomain()
+            pageUrl = migrateUrl(data)
+            document = fetchPage(pageUrl)
+        }
+        val page = document ?: run {
+            Log.w("HDCH", "kaynak sayfası alınamadı: $pageUrl")
+            return false
+        }
+
+        // ! API çağrısı sayfanın kendi host'una gitmeli: domain yedeği (.la vb.)
+        // ! üzerinden açılan kayıtlarda mainUrl başka host olabilir.
+        val pageOrigin = PlayerResolver.originOf(pageUrl) ?: mainUrl.trimEnd('/')
+        val buttons = HdfcSources.buttons(page).sortedBy { if (it.name.contains("close", true)) 0 else 1 }
+        Log.d("HDCH", "kaynak düğmeleri: " + buttons.joinToString(" | ") { "${it.label}=${it.videoId}" })
+
+        // Start the embedded players immediately, in parallel with the site's
+        // /video/{id}/ requests. A slow API must not hold up the default player.
+        val language = buttons.firstOrNull()?.language
+        val pageEmbeds = HdfcSources.pageEmbeds(page, pageUrl, mainUrl).map { e ->
+            if (language.isNullOrBlank()) e else e.copy(label = "${e.label} · $language")
+        }
+        if (buttons.isEmpty() && pageEmbeds.isEmpty()) {
+            Log.w("HDCH", "sayfada oynatıcı yok: ${pageUrl} (${page.html().length} bayt)")
+        }
+        val tasks: List<PlayerTask> =
+            pageEmbeds.map { e -> PlayerTask(e.label, suspend { e }) } +
+                buttons.map { button -> PlayerTask(button.label, suspend { fetchEmbed(button, pageUrl, pageOrigin) }) }
+        val seenSubtitles = HashSet<String>()
+        val seenStreams = HashSet<String>()
+        val seenEmbeds = HashSet<String>()
+        val requests = SingleFlight<String, PlayerResolver.Resolved>()
+        // ! Toplam süre uygulamanın 15 sn'lik kaynak sınırının altında kalmalı; her
+        // ! kaynak kendi içinde süre sınırına sahip (Close erken gelsin diye).
+        val found = collectPlayerResults(tasks, 13_000L, resolve = { task ->
+            val e = task.load() ?: return@collectPlayerResults null
+            val result = requests.get(e.url) {
+                PlayerResolver.resolve(e.url, pageUrl, e.label, interceptor, deadlineMs = 8_500L)
+            } ?: return@collectPlayerResults null
+            e.url to result
+        }, emit = { (embedUrl, result) ->
+            if (seenEmbeds.add(embedUrl) && seenStreams.add(result.link.url)) {
+                result.subtitles.forEach { if (seenSubtitles.add(it.url)) subtitleCallback(it) }
+                callback(result.link)
+            }
+        }, onMiss = { task ->
+            Log.w("HDCH", "kaynak çözülemedi: ${task.label}")
+        })
+
+        return found
+    }
+
+    private class PlayerTask(val label: String, val load: suspend () -> HdfcSources.Embed?)
+
+    /** Film/bölüm sayfası; ağ hatasında null (yönlendirme sonrası adres önemli değil). */
+    private suspend fun fetchPage(url: String): Document? = try {
+        app.get(
+            url,
             headers = mapOf(
                 "User-Agent" to USER_AGENT,
                 "Accept" to "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
@@ -569,58 +633,21 @@ class HDFilmCehennemi : MainAPI() {
             ),
             referer = "$mainUrl/",
             interceptor = interceptor,
+            cacheTime = 0,
             timeout = 20L
         ).document
-
-        val buttons = HdfcSources.buttons(document)
-        Log.d("HDCH", "kaynak düğmeleri: " + buttons.joinToString(" | ") { "${it.label}=${it.videoId}" })
-
-        // Start the embedded players immediately, in parallel with the site's
-        // /video/{id}/ requests. A slow API must not hold up the default player.
-        val language = buttons.firstOrNull()?.language
-        val pageEmbeds = HdfcSources.pageEmbeds(document, pageUrl, mainUrl).map { e ->
-            if (language.isNullOrBlank()) e else e.copy(label = "${e.label} · $language")
-        }
-        val tasks: List<suspend () -> HdfcSources.Embed?> =
-            pageEmbeds.map { e -> suspend { e } } + buttons.map { button -> suspend { fetchEmbed(button, pageUrl) } }
-        val seenSubtitles = HashSet<String>()
-        val seenStreams = HashSet<String>()
-        val seenEmbeds = HashSet<String>()
-        val requests = SingleFlight<String, PlayerResolver.Resolved>()
-        val found = collectPlayerResults(tasks, 12_000L, resolve = { task ->
-            val e = task() ?: return@collectPlayerResults null
-            val result = requests.get(e.url) { PlayerResolver.resolve(e.url, pageUrl, e.label, interceptor) }
-                ?: return@collectPlayerResults null
-            e.url to result
-        }, emit = { (embedUrl, result) ->
-            if (seenEmbeds.add(embedUrl) && seenStreams.add(result.link.url)) {
-                result.subtitles.forEach { if (seenSubtitles.add(it.url)) subtitleCallback(it) }
-                callback(result.link)
-            }
-        })
-
-        return found
+    } catch (e: CancellationException) {
+        throw e
+    } catch (e: Exception) {
+        Log.w("HDCH", "sayfa hatası (${e.message}): $url")
+        null
     }
 
     /** `/video/{id}/` → oynatıcı iframe adresi. */
-    private suspend fun fetchEmbed(button: HdfcSources.Button, pageUrl: String): HdfcSources.Embed? {
-        val body = try {
-            app.get(
-                "${mainUrl.trimEnd('/')}/video/${button.videoId}/",
-                headers = mapOf(
-                    "User-Agent" to USER_AGENT,
-                    "X-Requested-With" to "fetch",
-                    "Accept" to "*/*",
-                    "Content-Type" to "application/json"
-                ),
-                referer = pageUrl,
-                interceptor = interceptor,
-                timeout = 15L
-            ).text
-        } catch (e: CancellationException) {
-            throw e
-        } catch (e: Exception) {
-            Log.w("HDCH", "video API hatası (${button.videoId}): ${e.message}")
+    private suspend fun fetchEmbed(button: HdfcSources.Button, pageUrl: String, pageOrigin: String): HdfcSources.Embed? {
+        val body = getVideoApi(button, pageUrl, pageOrigin)
+        if (body == null) {
+            Log.w("HDCH", "video API boş (${button.videoId})")
             return null
         }
         val url = HdfcSources.embedFromApi(body, pageUrl)
@@ -629,6 +656,29 @@ class HDFilmCehennemi : MainAPI() {
             return null
         }
         return HdfcSources.Embed(button.label, url)
+    }
+
+    private suspend fun getVideoApi(button: HdfcSources.Button, pageUrl: String, pageOrigin: String): String? {
+        return try {
+            app.get(
+                "${pageOrigin.trimEnd('/')}/video/${button.videoId}/",
+                headers = mapOf(
+                    "User-Agent" to USER_AGENT,
+                    "X-Requested-With" to "fetch",
+                    "Accept" to "*/*",
+                    "Content-Type" to "application/json"
+                ),
+                referer = pageUrl,
+                interceptor = interceptor,
+                cacheTime = 0,
+                timeout = 12L
+            ).text
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            Log.w("HDCH", "video API hatası (${button.videoId}): ${e.message}")
+            null
+        }
     }
 
     data class Results(
