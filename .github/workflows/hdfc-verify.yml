@@ -4,8 +4,6 @@ on:
   push:
     branches:
       - "arena/**"
-    paths:
-      - ".github/workflows/hdfc-verify.yml"
 
 permissions:
   contents: read
