@@ -36,6 +36,7 @@ import com.lagradost.cloudstream3.utils.ExtractorLink
 import okhttp3.Interceptor
 import okhttp3.Response
 import org.jsoup.Jsoup
+import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
 
 // TMDB genel (public) API anahtarı — IMDb ID → başlık çözümlemesi için.
@@ -562,34 +563,35 @@ class HDFilmCehennemi : MainAPI() {
         callback: (ExtractorLink) -> Unit
     ): Boolean {
         resolveDomain()
-        val pageUrl = migrateUrl(data)
-        val document = app.get(
-            pageUrl,
-            headers = mapOf(
-                "User-Agent" to USER_AGENT,
-                "Accept" to "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-                "Accept-Language" to "tr-TR,tr;q=0.9,en;q=0.8"
-            ),
-            referer = "$mainUrl/",
-            interceptor = interceptor,
-            cacheTime = 0,
-            timeout = 20L
-        ).document
+        var pageUrl = migrateUrl(data)
+        var document = fetchPage(pageUrl)
+        if (document == null) {
+            // ! Alan adı ölmüş olabilir: sabitlenmiş adres bırakılmaz, yeniden çözülür.
+            Log.w("HDCH", "sayfa alınamadı, alan adı yeniden çözülüyor: $pageUrl")
+            domainResolved = false
+            resolveDomain()
+            pageUrl = migrateUrl(data)
+            document = fetchPage(pageUrl)
+        }
+        val page = document ?: run {
+            Log.w("HDCH", "kaynak sayfası alınamadı: $pageUrl")
+            return false
+        }
 
         // ! API çağrısı sayfanın kendi host'una gitmeli: domain yedeği (.la vb.)
         // ! üzerinden açılan kayıtlarda mainUrl başka host olabilir.
         val pageOrigin = PlayerResolver.originOf(pageUrl) ?: mainUrl.trimEnd('/')
-        val buttons = HdfcSources.buttons(document).sortedBy { if (it.name.contains("close", true)) 0 else 1 }
+        val buttons = HdfcSources.buttons(page).sortedBy { if (it.name.contains("close", true)) 0 else 1 }
         Log.d("HDCH", "kaynak düğmeleri: " + buttons.joinToString(" | ") { "${it.label}=${it.videoId}" })
 
         // Start the embedded players immediately, in parallel with the site's
         // /video/{id}/ requests. A slow API must not hold up the default player.
         val language = buttons.firstOrNull()?.language
-        val pageEmbeds = HdfcSources.pageEmbeds(document, pageUrl, mainUrl).map { e ->
+        val pageEmbeds = HdfcSources.pageEmbeds(page, pageUrl, mainUrl).map { e ->
             if (language.isNullOrBlank()) e else e.copy(label = "${e.label} · $language")
         }
         if (buttons.isEmpty() && pageEmbeds.isEmpty()) {
-            Log.w("HDCH", "sayfada oynatıcı yok: ${pageUrl} (${document.html().length} bayt)")
+            Log.w("HDCH", "sayfada oynatıcı yok: ${pageUrl} (${page.html().length} bayt)")
         }
         val tasks: List<PlayerTask> =
             pageEmbeds.map { e -> PlayerTask(e.label, suspend { e }) } +
@@ -619,6 +621,27 @@ class HDFilmCehennemi : MainAPI() {
     }
 
     private class PlayerTask(val label: String, val load: suspend () -> HdfcSources.Embed?)
+
+    /** Film/bölüm sayfası; ağ hatasında null (yönlendirme sonrası adres önemli değil). */
+    private suspend fun fetchPage(url: String): Document? = try {
+        app.get(
+            url,
+            headers = mapOf(
+                "User-Agent" to USER_AGENT,
+                "Accept" to "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+                "Accept-Language" to "tr-TR,tr;q=0.9,en;q=0.8"
+            ),
+            referer = "$mainUrl/",
+            interceptor = interceptor,
+            cacheTime = 0,
+            timeout = 20L
+        ).document
+    } catch (e: CancellationException) {
+        throw e
+    } catch (e: Exception) {
+        Log.w("HDCH", "sayfa hatası (${e.message}): $url")
+        null
+    }
 
     /** `/video/{id}/` → oynatıcı iframe adresi. */
     private suspend fun fetchEmbed(button: HdfcSources.Button, pageUrl: String, pageOrigin: String): HdfcSources.Embed? {
