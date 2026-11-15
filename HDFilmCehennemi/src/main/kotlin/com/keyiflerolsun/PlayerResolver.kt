@@ -102,7 +102,9 @@ internal object PlayerResolver {
         // Yönlendirme sonrası adres: çözücü anahtarı location.hostname'e bağlı.
         val finalUrl = response.url.ifBlank { embedUrl }
         val decoded = try {
-            PlayerDecoder.decode(response.text, finalUrl)
+            runPlayerDecoding { PlayerDecoder.decode(response.text, finalUrl) }
+        } catch (e: CancellationException) {
+            throw e
         } catch (e: Throwable) {
             Log.e(TAG, "$displayName: çözücü hatası: ${e.message}")
             null
