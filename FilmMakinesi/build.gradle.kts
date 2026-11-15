@@ -1,4 +1,4 @@
-version = 77
+version = 78
 
 dependencies {
     testImplementation("junit:junit:4.13.2")

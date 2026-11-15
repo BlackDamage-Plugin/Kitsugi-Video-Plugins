@@ -75,14 +75,15 @@ internal object PlayerResolver {
         embedUrl: String,
         pageReferer: String?,
         displayName: String,
-        interceptor: Interceptor? = null
+        interceptor: Interceptor? = null,
+        pageUserAgent: String? = null
     ): Resolved? {
         val response = try {
             app.get(
                 embedUrl,
                 referer = pageReferer,
                 headers = mapOf(
-                    "User-Agent" to USER_AGENT,
+                    "User-Agent" to (pageUserAgent ?: USER_AGENT),
                     "Accept" to "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
                     "Accept-Language" to "tr-TR,tr;q=0.9,en-US;q=0.8,en;q=0.7"
                 ),

@@ -3,6 +3,8 @@
 package com.keyiflerolsun
 
 import android.util.Log
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.withTimeoutOrNull
 import com.fasterxml.jackson.annotation.JsonProperty
 import org.jsoup.nodes.Element
 import com.lagradost.cloudstream3.*
@@ -77,6 +79,12 @@ class FilmMakinesi : MainAPI() {
 
     private suspend fun resolveDomain() {
         if (domainResolved) return
+        // Do not spend the application's 15-second search budget serially probing mirrors.
+        withTimeoutOrNull(1500L) { probeDomains() }
+        domainResolved = true
+    }
+
+    private suspend fun probeDomains() {
         for (candidate in domainCandidates) {
             try {
                 val res = app.get(
@@ -103,6 +111,8 @@ class FilmMakinesi : MainAPI() {
                 domainResolved = true
                 Log.d("FLMM", "domain sabitlendi: $mainUrl")
                 return
+            } catch (e: CancellationException) {
+                throw e
             } catch (e: Exception) {
                 Log.d("FLMM", "domain adayi olmadi: $candidate (${e.message})")
             }
@@ -422,18 +432,25 @@ private fun Element.toSearchResult(): SearchResponse? {
         val players = sources.filter { it.kind != SourceLinks.Kind.OTHER }
         // Known Rapidrame IDs can also be tried on HDFilmCehennemi's player.
         // Run both paths concurrently: a stalled original must not block fallback.
-        data class Attempt(val key: String, val url: String, val referer: String, val label: String)
+        data class Attempt(val key: String, val url: String, val referer: String, val label: String, val userAgent: String? = null)
         val attempts = players.flatMap { src ->
             val original = Attempt(src.url, src.url, pageUrl, src.label)
             val alternative = if (src.kind == SourceLinks.Kind.RAPID) RapidFallback.playerUrl(src.url) else null
-            listOfNotNull(original, alternative?.let {
-                Attempt(src.url, it, "https://www.hdfilmcehennemi.nl/", "${src.label} (HDFilmCehennemi)")
-            })
+            val hdClose = if (src.kind == SourceLinks.Kind.CLOSE) {
+                val rapid = players.filter { it.kind == SourceLinks.Kind.RAPID }.singleOrNull()
+                if (players.count { it.kind == SourceLinks.Kind.CLOSE } == 1 && rapid != null)
+                    CloseFallback.playerUrl(src.url, rapid.url) else null
+            } else null
+            listOfNotNull(original,
+                Attempt(src.url, src.url, pageUrl, src.label, "Mozilla/5.0"),
+                alternative?.let { Attempt(src.url, it, "https://www.hdfilmcehennemi.nl/", "${src.label} (HDFilmCehennemi)") },
+                hdClose?.let { Attempt(src.url, it, "https://www.hdfilmcehennemi.nl/", "${src.label} (HDFilmCehennemi)", "Mozilla/5.0") }
+            )
         }
         val seenSubtitles = HashSet<String>()
         val deliveredSources = HashSet<String>()
         var found = collectPlayerResults(attempts, 12_000L, resolve = { attempt ->
-            PlayerResolver.resolve(attempt.url, attempt.referer, attempt.label, FilmMakinesiHttp.interceptor)
+            PlayerResolver.resolve(attempt.url, attempt.referer, attempt.label, FilmMakinesiHttp.interceptor, attempt.userAgent)
                 ?.let { attempt.key to it }
         }, emit = { (key, result) ->
             if (deliveredSources.add(key)) {
