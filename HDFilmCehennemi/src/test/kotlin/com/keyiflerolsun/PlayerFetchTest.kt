@@ -1,7 +1,3 @@
-// ! Close/Rapid erişim katmanı regresyon testleri.
-// ! "Close kaynağı bir süre sonra gelmiyor" şikâyetinin kök nedeni, erişimin tek bir
-// ! User-Agent/Referer'e sabitlenmesiydi. Bu testler varyant sırasını ve kapsamı korur.
-
 package com.keyiflerolsun
 
 import org.junit.Assert.assertEquals
@@ -14,27 +10,20 @@ import org.jsoup.Jsoup
 class PlayerFetchTest {
 
     private val pageUrl = "https://www.hdfilmcehennemi.nl/insidious-out-of-the-further-26/"
-    private val closeEmbed = "https://hdfilmcehennemi.mobi/video/embed/uYHaTijMbIV/?rapidrame_id=mviazhjhc2rx"
-    private val rapidEmbed = "https://www.hdfilmcehennemi.nl/rplayer/mviazhjhc2rx/"
+    private val closeEmbed = "https://hdfilmcehennemi.mobi/video/embed/RFeVmBTmaCG/?rapidrame_id=6d4mkrakdi1a"
+    private val rapidEmbed = "https://www.hdfilmcehennemi.nl/rplayer/6d4mkrakdi1a/"
 
     @Test
-    fun `close hostu once kisa user agent ile denenir`() {
-        val variants = PlayerFetch.variants(closeEmbed, pageUrl)
-        assertEquals(PlayerFetch.SHORT_USER_AGENT, variants.first().userAgent)
-        assertEquals(pageUrl, variants.first().referer)
-        // Masaüstü UA yedek olarak korunur: host değişirse kaynak düşmez.
-        assertTrue(variants.any { it.userAgent == PlayerResolver.USER_AGENT })
-        // Kök referer varyantı da denenir (bazı host'lar yalnız onu kabul ediyor).
-        assertTrue(variants.any { it.referer == "https://www.hdfilmcehennemi.nl/" })
-        // Mobil UA son çare olarak bulunur.
-        assertEquals(PlayerFetch.MOBILE_USER_AGENT, variants.last().userAgent)
+    fun `close hostu kisa user agent kullanir`() {
+        assertEquals(PlayerFetch.SHORT_USER_AGENT, PlayerFetch.userAgentFor(closeEmbed))
+        assertEquals(PlayerFetch.SHORT_USER_AGENT, playerPageUserAgent(closeEmbed))
+        assertEquals(PlayerFetch.SHORT_USER_AGENT, playerPageUserAgent("https://closeload.example.to/video/embed/abc/"))
     }
 
     @Test
-    fun `rapid oynatcisinda masaustu user agent once gelir`() {
-        val variants = PlayerFetch.variants(rapidEmbed, pageUrl)
-        assertEquals(PlayerResolver.USER_AGENT, variants.first().userAgent)
-        assertTrue(variants.any { it.userAgent == PlayerFetch.SHORT_USER_AGENT })
+    fun `rapid oynatcisinda masaustu user agent kullanilir`() {
+        assertEquals(PlayerResolver.USER_AGENT, PlayerFetch.userAgentFor(rapidEmbed))
+        assertEquals(PlayerResolver.USER_AGENT, playerPageUserAgent(rapidEmbed))
     }
 
     @Test
@@ -42,26 +31,9 @@ class PlayerFetchTest {
         assertTrue(PlayerFetch.isCloseLike("https://closeload.example.to/video/embed/abc/"))
         assertTrue(PlayerFetch.isCloseLike("https://closeload.top/video/embed/abc/"))
         assertTrue(PlayerFetch.isCloseLike(closeEmbed))
-        // Alt alan adı taklidi close host'u sayılmaz (mevcut UA testiyle uyumlu).
         assertFalse(PlayerFetch.isCloseLike("https://hdfilmcehennemi.mobi.example.com/video/embed/abc"))
         assertFalse(PlayerFetch.isCloseLike(rapidEmbed))
         assertFalse(PlayerFetch.isCloseLike("bozuk adres"))
-    }
-
-    @Test
-    fun `varyant tekrari yok ve referer yoksa da calisir`() {
-        val variants = PlayerFetch.variants(closeEmbed, null)
-        assertTrue(variants.isNotEmpty())
-        assertEquals(variants.size, variants.distinctBy { it.userAgent to it.referer }.size)
-        assertNull(variants.first().referer)
-    }
-
-    @Test
-    fun `yalnizca calma listesi adresleri dogrulanir`() {
-        assertTrue(StreamCheck.isPlaylistUrl("https://srv9.cdnimages1912.cyou/hls/a.mp4/txt/master.txt"))
-        assertTrue(StreamCheck.isPlaylistUrl("https://s231.rapidrame.com/hls2/01/00037/x_,l,n,.urlset/master.m3u8?t=abc"))
-        assertFalse(StreamCheck.isPlaylistUrl("https://cdn.example/film.mp4"))
-        assertFalse(StreamCheck.isPlaylistUrl("https://cdn.example/film.mkv"))
     }
 
     @Test
@@ -83,11 +55,6 @@ class PlayerFetchTest {
         assertEquals("http://example.test:8080", PlayerFetch.originOf("http://example.test:8080/oynat/1/"))
         assertNull(PlayerFetch.originOf(null))
         assertNull(PlayerFetch.originOf("bozuk adres"))
-        // Aynı (User-Agent, Referer) çifti tekrar denenmez; sayfa referansı ilk sırada.
-        val variants = PlayerFetch.variants(closeEmbed, pageUrl)
-        assertEquals(variants.size, variants.distinctBy { it.userAgent to it.referer }.size)
-        assertEquals(pageUrl, variants.first().referer)
-        assertTrue(variants.any { it.referer == "https://www.hdfilmcehennemi.nl/" })
     }
 
     @Test
@@ -99,5 +66,20 @@ class PlayerFetchTest {
         val buttons = HdfcSources.buttons(Jsoup.parse(html, pageUrl))
             .sortedBy { if (it.name.contains("close", true)) 0 else 1 }
         assertEquals(listOf("Close", "Rapidrame"), buttons.map { it.name })
+    }
+
+    @Test
+    fun `canli bolum sayfasindaki close iframe okunur`() {
+        val html = """<div class="alternative-links" data-lang="en">
+            <button class="alternative-link" data-video="264491">Close</button>
+            <button class="alternative-link" data-video="234442">Rapidrame</button>
+            </div>
+            <iframe class="close" data-src="https://hdfilmcehennemi.mobi/video/embed/RFeVmBTmaCG/?rapidrame_id=6d4mkrakdi1a" scrolling="no" allowfullscreen="true">"""
+        val page = "https://www.hdfilmcehennemi.nl/supernatural-1-sezon-1-bolum/"
+        val embeds = HdfcSources.pageEmbeds(Jsoup.parse(html, page), page, "https://www.hdfilmcehennemi.nl")
+        assertEquals("https://hdfilmcehennemi.mobi/video/embed/RFeVmBTmaCG/?rapidrame_id=6d4mkrakdi1a", embeds.first().url)
+        assertEquals("Close", embeds.first().label)
+        assertTrue(embeds.any { it.label == "Rapidrame" && it.url.contains("/rplayer/6d4mkrakdi1a/") })
+        assertEquals(PlayerFetch.SHORT_USER_AGENT, playerPageUserAgent(embeds.first().url))
     }
 }

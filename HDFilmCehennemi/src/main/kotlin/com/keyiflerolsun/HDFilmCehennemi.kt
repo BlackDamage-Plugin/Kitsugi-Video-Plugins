@@ -552,9 +552,7 @@ class HDFilmCehennemi : MainAPI() {
      * 3) Oynatıcı sayfaları paralel çözülür: [PlayerDecoder] sayfanın kendi
      *    karartılmış çözücüsünü çalıştırıp jwplayer `sources` değerini alır.
      *    (JSON-LD contentUrl / playmix adresi TUZAKTIR, kullanılmaz.)
-     * 4) Erişim tek UA/Referer'e bağlı değildir ve adres yayında doğrulanır
-     *    (bkz. [PlayerFetch], [StreamCheck]). Close kaynağı, host/UA kuralları
-     *    değişse de listeden düşmez.
+     * 4) Close kısa UA, Rapid masaüstü UA; tek istek (uygulama 15 sn keser).
      */
     override suspend fun loadLinks(
         data: String,
@@ -602,10 +600,10 @@ class HDFilmCehennemi : MainAPI() {
         val requests = SingleFlight<String, PlayerResolver.Resolved>()
         // ! Toplam süre uygulamanın 15 sn'lik kaynak sınırının altında kalmalı; her
         // ! kaynak kendi içinde süre sınırına sahip (Close erken gelsin diye).
-        val found = collectPlayerResults(tasks, 13_000L, resolve = { task ->
+        val found = collectPlayerResults(tasks, 12_000L, resolve = { task ->
             val e = task.load() ?: return@collectPlayerResults null
             val result = requests.get(e.url) {
-                PlayerResolver.resolve(e.url, pageUrl, e.label, interceptor, deadlineMs = 8_500L)
+                PlayerResolver.resolve(e.url, pageUrl, e.label, interceptor)
             } ?: return@collectPlayerResults null
             e.url to result
         }, emit = { (embedUrl, result) ->
@@ -634,7 +632,7 @@ class HDFilmCehennemi : MainAPI() {
             referer = "$mainUrl/",
             interceptor = interceptor,
             cacheTime = 0,
-            timeout = 20L
+            timeout = 8L
         ).document
     } catch (e: CancellationException) {
         throw e
@@ -671,7 +669,7 @@ class HDFilmCehennemi : MainAPI() {
                 referer = pageUrl,
                 interceptor = interceptor,
                 cacheTime = 0,
-                timeout = 12L
+                timeout = 8L
             ).text
         } catch (e: CancellationException) {
             throw e
