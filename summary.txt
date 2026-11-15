@@ -1,0 +1,61 @@
+Hedefler (HDFilmCehennemi S09E15 sayfa + S01E01 Close/Rapid):
+- fm-close: closeload.filmmakinesi.to/video/embed/<id>/
+- fm-episode: filmmakinesi.to/dizi/supernatural-2005-fm8t9q/sezon-1/bolum-1/
+- hd-close: hdfilmcehennemi.mobi/video/embed/<id>/
+
+## Katmanlar (GitHub runner, vekilsiz)
+### fm-close
+- direct: HTTP 403, 8279 bayt, challenge
+- jina: HTTP 401, 343 bayt, html
+- allorigins: HTTP 200, 8278 bayt, challenge
+- corsproxy: HTTP 403, 322 bayt, html
+- codetabs: HTTP 522, 7245 bayt, challenge
+- wayback-cdx: HTTP 200, [] 
+
+### fm-episode
+- direct: HTTP 403, 8249 bayt, challenge
+- jina: HTTP 401, 343 bayt, html
+- allorigins: HTTP 522, 7257 bayt, challenge
+- corsproxy: HTTP 403, 322 bayt, html
+- codetabs: HTTP 0, 12 bayt, empty
+- wayback-cdx: HTTP 200, [] 
+
+### hd-close
+- direct: HTTP 403, 5565 bayt, challenge
+- jina: HTTP 401, 343 bayt, html
+- allorigins: HTTP 522, 7257 bayt, challenge
+- corsproxy: HTTP 403, 322 bayt, html
+- codetabs: HTTP 522, 7245 bayt, challenge
+- wayback-cdx: HTTP 200, [] 
+
+## Türkiye vekil listesi
+89 Türkiye olarak listelenen HTTP/SOCKS adayı; TLS doğrulaması açık.
+- fm-close-chrome: HTTP 403: 8, network: 81
+- fm-close-short: HTTP 403: 3, network: 86
+- fm-episode-chrome: HTTP 403: 2, HTTP 451: 1, network: 86
+- fm-episode-short: HTTP 403: 3, network: 86
+- hd-close-chrome: HTTP 404: 1, network: 4
+- hd-close-short: network: 5, player_html: 1
+
+## Yakalanan gövde tanısı
+- yazıldı /tmp/hdfc-probe/hd-close.html (33211 bayt)
+### hd-close
+- kind: player
+- bytes: 33211
+- title: tt0460681-S01E01-DUAL-hgsnmgssuo27.mp4
+- jwplayer: 29
+- sources: 2
+- eval_packer: 1
+- querySelector_data_v: False
+- getElementById: True
+- location_hostname: False
+- data_v_count: 0
+- data_v_values: []
+- ids: ['g4w59', 'player', 'videoplayer']
+- embed_hosts: []
+- trap_contentUrl: True
+- commented_file_link: False
+- tag_player: <div class="player" id="player"> <div class="brand"> <a href="https://www.hdfilmcehennemi.nl/hd-hdfilmcehennemi-yardim-sayfasi/" class="yardim" target="_blank" title="Yardım">Yardım</a> <a href="https
+- tag_videoplayer: <div id="videoplayer"></div> <form action="" method="post" class="user-subtitle-form" style="display:none;"> <input type="file" name="user-subtitle-input" class="user-subtitle-input" accept=".vtt, .srt" />
+- sources_snip: sources: [{file: j39, type: "hls"}], image: "https://hdfilmcehennemi.mobi/img/_autocdn-default.jpg", tracks: [{"file":"https:\/\/hdfilmcehennemi.mobi\/vtt\/2026\/10\/RFeVmBTmaCG-en-os1852234-tt0460681s01e01dualhgsnmgssuo27mp4.vtt","kind":"captions","label":"English","default":false},{"file":"https:\/\/hdfilmcehennemi.mobi\/vtt\/2026\/10\/RFeVmBTmaCG-fr-os6664972-tt0460681s01e01dualhgsnmgssuo27mp
+
