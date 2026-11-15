@@ -343,22 +343,14 @@ private fun Element.toSearchResult(): SearchResponse? {
 
     /** /dizi/... sayfalarındaki bölüm bağlantılarını ayrıştırır. */
     private fun parseSeriesEpisodes(document: org.jsoup.nodes.Document): List<Episode> {
-        return document.select("a[href*='bolum'], div.episodes a, div.partlar a")
-            .mapNotNull { el ->
-                val href = fixUrlNull(el.attr("href")) ?: return@mapNotNull null
-                if (!href.contains("bolum") && !href.contains("/dizi/")) return@mapNotNull null
-                val epTitle = el.text().trim().ifBlank { el.attr("title").trim() }
-                val season  = Regex("""(\d+)\.\s*Sezon""").find(epTitle)?.groupValues?.get(1)?.toIntOrNull() ?: 1
-                // ! Genel sayı yakalama KULLANILMIYOR: "2. Sezon" başlığındaki 2'yi
-                // ! bölüm numarası sanıp yanlış eşleşmeye yol açıyordu.
-                val episode = Regex("""(\d+)\.\s*B[öo]l[üu]m""").find(epTitle)?.groupValues?.get(1)?.toIntOrNull() ?: 1
-                newEpisode(href) {
-                    this.name    = epTitle.ifBlank { "Bölüm" }
-                    this.season  = season
-                    this.episode = episode ?: 1
-                }
+        return SeriesEpisodes.list(document).mapNotNull { ref ->
+            val href = fixUrlNull(ref.href) ?: return@mapNotNull null
+            newEpisode(href) {
+                this.name = ref.name
+                this.season = ref.season
+                this.episode = ref.episode
             }
-            .distinctBy { it.data }
+        }.distinctBy { it.data }
     }
 
     override suspend fun load(url: String): LoadResponse? {
@@ -459,7 +451,7 @@ private fun Element.toSearchResult(): SearchResponse? {
                 "Accept-Language" to "tr-TR,tr;q=0.9,en;q=0.8"
             ),
             interceptor = FilmMakinesiHttp.interceptor,
-            timeout = 20L
+            timeout = 8L
         ).document
 
         val sources = SourceLinks.collect(document, pageUrl)
@@ -471,7 +463,7 @@ private fun Element.toSearchResult(): SearchResponse? {
         val attempts = PlayerAttempts.forSources(players, pageUrl)
         val seenSubtitles = HashSet<String>()
         val deliveredSources = HashSet<String>()
-        var found = collectPlayerResults(attempts, 12_000L, resolve = { attempt ->
+        var found = collectPlayerResults(attempts, 10_000L, resolve = { attempt ->
             PlayerResolver.resolve(attempt.url, attempt.referer, attempt.label, FilmMakinesiHttp.interceptor, attempt.userAgent)
                 ?.let { attempt.key to it }
         }, emit = { (key, result) ->
