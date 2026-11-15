@@ -19,6 +19,7 @@ PAGES = {
 def proxies():
     # Independent TR lists, without transmitting cookies or authorization to them.
     urls = [
+        "https://api.github.com/repos/stormsia/proxy-list/contents/web/public/proxies.json",
         "https://api.github.com/repos/ProxyScrape/free-proxy-list/contents/proxies/countries/tr/data.json",
         "https://api.github.com/repos/litportnet/free-proxy-list/contents/proxies/countries/tr/all.json",
         "https://api.github.com/repos/proxifly/free-proxy-list/contents/proxies/countries/TR/data.json",
@@ -32,7 +33,13 @@ def proxies():
             for item in listing:
                 try:
                     scheme = item["protocol"]
-                    address = ipaddress.ip_address(item["ip"])
+                    if "geolocation" in item and (item.get("geolocation") or {}).get("country", {}).get("iso_code") != "TR":
+                        continue
+                    if item.get("username") or item.get("password"):
+                        continue
+                    if "https" in item and item["https"] is False:
+                        continue
+                    address = ipaddress.ip_address(item.get("ip") or item["host"])
                     port = int(item["port"])
                     if scheme not in ("http", "socks4", "socks5") or not address.is_global or not 1 <= port <= 65535:
                         continue
@@ -43,7 +50,7 @@ def proxies():
                     continue
         except Exception as exc:
             print(f"Liste alınamadı: {type(exc).__name__}")
-    return out[:150]
+    return out[:180]
 
 
 def fetch(pair):
