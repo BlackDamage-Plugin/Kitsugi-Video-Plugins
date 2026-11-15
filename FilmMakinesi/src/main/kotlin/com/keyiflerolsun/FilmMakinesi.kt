@@ -420,12 +420,26 @@ private fun Element.toSearchResult(): SearchResponse? {
         if (sources.isEmpty()) return false
 
         val players = sources.filter { it.kind != SourceLinks.Kind.OTHER }
+        // Known Rapidrame IDs can also be tried on HDFilmCehennemi's player.
+        // Run both paths concurrently: a stalled original must not block fallback.
+        data class Attempt(val key: String, val url: String, val referer: String, val label: String)
+        val attempts = players.flatMap { src ->
+            val original = Attempt(src.url, src.url, pageUrl, src.label)
+            val alternative = if (src.kind == SourceLinks.Kind.RAPID) RapidFallback.playerUrl(src.url) else null
+            listOfNotNull(original, alternative?.let {
+                Attempt(src.url, it, "https://www.hdfilmcehennemi.nl/", "${src.label} (HDFilmCehennemi)")
+            })
+        }
         val seenSubtitles = HashSet<String>()
-        var found = collectPlayerResults(players, 12_000L, resolve = { src ->
-            PlayerResolver.resolve(src.url, pageUrl, src.label, FilmMakinesiHttp.interceptor)
-        }, emit = { result ->
-            result.subtitles.forEach { if (seenSubtitles.add(it.url)) subtitleCallback(it) }
-            callback(result.link)
+        val deliveredSources = HashSet<String>()
+        var found = collectPlayerResults(attempts, 12_000L, resolve = { attempt ->
+            PlayerResolver.resolve(attempt.url, attempt.referer, attempt.label, FilmMakinesiHttp.interceptor)
+                ?.let { attempt.key to it }
+        }, emit = { (key, result) ->
+            if (deliveredSources.add(key)) {
+                result.subtitles.forEach { if (seenSubtitles.add(it.url)) subtitleCallback(it) }
+                callback(result.link)
+            }
         })
 
         // Tanınmayan barındırıcılar için CloudStream'in genel çözücüleri.
