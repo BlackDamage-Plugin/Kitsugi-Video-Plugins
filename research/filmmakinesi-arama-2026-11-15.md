@@ -1,0 +1,7 @@
+# FilmMakinesi arama çubuğu incelemesi
+
+Kullanıcının kaydettiği sonuç HTML'inde mobil ve masaüstü formu `action="/arama/"`, metin alanı `name="s"` ve `<title>supernatural Arama Sonuçları</title>` bulunuyor. Sonuç içinde `.film-list .item-relative a.item` yapısıyla hem `/dizi/supernatural-2005-fm8t9q/` hem `/film/.../` kayıtları var. Bu, görsel bir sayfa olmasa da site arama gönderiminin sonuç URL'si kullandığını gösterir. Eklenti bu formu GET parametresiyle simüle eder; başlık, tür, bağlantı ve afiş için test eklenmiştir.
+
+GitHub Actions 43702725775 ile sitenin app.js dosyası TR olarak listelenen proxy üzerinden alındı: yazarken en az 3 karakterden sonra `GET /ajax/autocomplete/?s=...` ile `sonuc_kodu` ve HTML `kayitlar` alanlarını kullanır, Enter/arama düğmesi `arama/?s=...` adresine gider. Actions 43702871442 bu AJAX yanıtını alamadı: 83 adaydan kısa User-Agent 2 HTTP 403, 81 ağ hatası; Chrome 4 HTTP 403, 79 ağ hatası. Önceki canlı arama isteği de 403/451 veya ağ hatası döndü. Hata, URL'nin bulunmadığını göstermez ve kullanıcının kendi ağında aynı olacağını kanıtlamaz.
+
+Ana arama sonucu başarısız veya boşsa JS'te tanımlanan autocomplete endpoint'i yedek olarak denenir; yalnızca aynı siteye ait `/film/` ve `/dizi/` linkleri işlenir. Testte kullanılan öneri HTML'i sentetiktir; gerçek autocomplete cevap biçimi ve cihazda uçtan uca arama henüz doğrulanmamıştır. Gerçek JS ve kullanıcı HTML'i depoya dahil edilmemiştir.

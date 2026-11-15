@@ -236,21 +236,49 @@ private fun Element.toSearchResult(): SearchResponse? {
         return newMovieSearchResponse(title, migrateUrl(href), TvType.Movie) { this.posterUrl = posterUrl }
     }
 
-    override suspend fun search(query: String): List<SearchResponse> {
-        resolveDomain()
-        val encoded = java.net.URLEncoder.encode(query, "UTF-8")
-        val document = app.get(
-            "${mainUrl}/arama/?s=$encoded",
-            headers = mapOf(
-                "User-Agent" to USER_AGENT,
-                "Referer" to "$mainUrl/",
-                "Accept" to "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-                "Accept-Language" to "tr-TR,tr;q=0.9,en;q=0.8"
-            ),
-            interceptor = FilmMakinesiHttp.interceptor
-        ).document
+    private data class AutocompleteResponse(
+        @JsonProperty("sonuc_kodu") val status: String? = null,
+        @JsonProperty("kayitlar") val html: String? = null
+    )
 
-        return document.select("div.film-list div.item-relative").mapNotNull { it.toSearchResult() }
+    private fun searchResponse(card: SearchPage.Card): SearchResponse =
+        if (card.series) newTvSeriesSearchResponse(card.title, card.url, TvType.TvSeries) { posterUrl = card.poster }
+        else newMovieSearchResponse(card.title, card.url, TvType.Movie) { posterUrl = card.poster }
+
+    override suspend fun search(query: String): List<SearchResponse> {
+        val text = query.trim()
+        if (text.isBlank()) return emptyList()
+        resolveDomain()
+        val cards = searchWithFallback(primary = {
+            val response = app.get(
+                SearchPage.queryUrl(mainUrl, text),
+                headers = mapOf(
+                    "User-Agent" to USER_AGENT,
+                    "Referer" to "$mainUrl/",
+                    "Accept" to "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+                    "Accept-Language" to "tr-TR,tr;q=0.9,en;q=0.8"
+                ),
+                interceptor = FilmMakinesiHttp.interceptor,
+                timeout = 8L
+            )
+            if (response.isSuccessful) SearchPage.results(response.document, mainUrl) else emptyList()
+        }, fallback = {
+            if (text.codePointCount(0, text.length) < 3) return@searchWithFallback emptyList()
+            val response = app.get(
+                SearchPage.queryUrl(mainUrl, text, autocomplete = true),
+                headers = mapOf(
+                    "User-Agent" to USER_AGENT,
+                    "Referer" to "$mainUrl/",
+                    "Accept" to "application/json, text/javascript, */*; q=0.01",
+                    "X-Requested-With" to "XMLHttpRequest"
+                ),
+                interceptor = FilmMakinesiHttp.interceptor,
+                timeout = 5L
+            )
+            val payload = if (response.isSuccessful) AppUtils.tryParseJson<AutocompleteResponse>(response.text) else null
+            if (payload?.status == "1") SearchPage.suggestions(payload.html.orEmpty(), mainUrl) else emptyList()
+        })
+        return cards.map(::searchResponse)
     }
 
     override suspend fun quickSearch(query: String): List<SearchResponse> = search(query)
