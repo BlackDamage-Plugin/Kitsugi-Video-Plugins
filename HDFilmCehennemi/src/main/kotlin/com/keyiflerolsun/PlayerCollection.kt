@@ -61,3 +61,7 @@ internal class SingleFlight<K, V : Any> {
         return pending.await()
     }
 }
+
+/** Keep the synchronous JS interpreter off the coroutine dispatcher handling network completions. */
+internal suspend fun <T> runPlayerDecoding(decode: () -> T): T =
+    kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Default) { decode() }

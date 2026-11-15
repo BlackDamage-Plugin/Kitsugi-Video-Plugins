@@ -1,6 +1,7 @@
 package com.keyiflerolsun
 
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -33,5 +34,28 @@ class PlayerCollectionTest {
             delay(1000)
             it
         }, emit = {}))
+    }
+    @Test fun `slow synchronous decode does not prevent another player being reported`() = runBlocking {
+        val started = java.util.concurrent.CountDownLatch(1)
+        val release = java.util.concurrent.CountDownLatch(1)
+        val delivered = kotlinx.coroutines.CompletableDeferred<String>()
+        val work = launch {
+            collectPlayerResults(listOf("slow", "fast"), 2_000, resolve = { player ->
+                if (player == "slow") runPlayerDecoding {
+                    started.countDown()
+                    release.await()
+                    player
+                } else {
+                    while (started.count != 0L) delay(1)
+                    player
+                }
+            }, emit = { delivered.complete(it) })
+        }
+        try {
+            assertEquals("fast", kotlinx.coroutines.withTimeout(1_000) { delivered.await() })
+        } finally {
+            release.countDown()
+            work.join()
+        }
     }
 }
