@@ -76,6 +76,16 @@ class PlayerDecoderTest {
     }
 
     @Test
+    fun `opsiyonel yeni close yaniti cozulur`() {
+        val path = System.getenv("LIVE_CLOSE_CAPTURE")
+        org.junit.Assume.assumeTrue(!path.isNullOrBlank() && File(path).isFile)
+        val html = File(path!!).readText(Charsets.UTF_8)
+        val result = PlayerDecoder.decode(html, "https://hdfilmcehennemi.mobi/video/embed/RFeVmBTmaCG/?rapidrame_id=6d4mkrakdi1a")
+        assertNotNull("Yeni Close oynatıcı yanıtı çözülemedi", result)
+        assertTrue(result!!.file.startsWith("https://"))
+    }
+
+    @Test
     fun `opsiyonel yeni rapid yaniti cozulur`() {
         val path = System.getenv("LIVE_RAPID_CAPTURE")
         org.junit.Assume.assumeTrue(!path.isNullOrBlank() && File(path).isFile)
