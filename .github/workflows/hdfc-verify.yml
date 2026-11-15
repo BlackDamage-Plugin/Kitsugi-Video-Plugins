@@ -6,10 +6,9 @@ on:
       - "arena/**"
     paths:
       - ".github/workflows/hdfc-verify.yml"
-  workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   Derle:
@@ -28,32 +27,17 @@ jobs:
           set +e
           ./gradlew --no-daemon :HDFilmCehennemi:testDebugUnitTest > /tmp/build.log 2>&1
           STATUS=$?
+          set -e
           echo "çıkış=$STATUS"
-          {
-            echo "# çıkış=$STATUS"
-            echo '```'
-            grep -nE "^e: |error:|Unresolved reference|FAILED|expected:|AssertionError|FAILURE:|What went wrong|Caused by:" /tmp/build.log | head -n 120
-            echo '```'
-            echo
-            echo "## log sonu"
-            echo '```'
-            tail -n 80 /tmp/build.log
-            echo '```'
-          } > /tmp/report.md
-          tail -n 200 /tmp/report.md
+          echo "::warning::gradle çıkışı $STATUS"
+          # Hata satırlarını iş akışı ekine (annotation) yaz: bu ortamdan log indirilemiyor.
+          grep -nE "^e: |error:|Unresolved reference|FAILED|expected:|AssertionError|What went wrong|Caused by:|BUILD FAILED" /tmp/build.log \
+            | head -n 10 | while IFS= read -r line; do
+                clean=$(echo "$line" | tr '"' "'" | cut -c1-900)
+                echo "::error::$clean"
+              done
+          tail -n 6 /tmp/build.log | while IFS= read -r line; do
+            clean=$(echo "$line" | tr '"' "'" | cut -c1-900)
+            echo "::notice::$clean"
+          done
           exit 0
-      - name: Raporu dala it
-        if: always()
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          rm -rf /tmp/push && mkdir -p /tmp/push
-          cp /tmp/report.md /tmp/push/kotlin-report.md 2>/dev/null || echo "rapor yok" > /tmp/push/kotlin-report.md
-          cd /tmp/push
-          git init -q
-          git config user.email "actions@github.com"
-          git config user.name "GitHub Actions"
-          git checkout -q -b hdfc-probe-data
-          git add -A
-          git commit -qm "kotlin raporu ${GITHUB_RUN_ID}"
-          git push -q -f "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" HEAD:hdfc-probe-data && echo "rapor itildi"
