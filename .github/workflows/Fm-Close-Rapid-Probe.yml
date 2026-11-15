@@ -1,0 +1,27 @@
+name: Oyuncu HTML İncelemesi
+on:
+  pull_request:
+    paths:
+      - "tools/fm_close_rapid_probe.py"
+      - ".github/workflows/Fm-Close-Rapid-Probe.yml"
+permissions:
+  contents: read
+  pull-requests: write
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: FilmMakinesi Close ve Rapid
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 tools/fm_close_rapid_probe.py | tee /tmp/player-summary.txt
+      - name: Özeti paylaş
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          { echo "## FilmMakinesi Close / Rapid"; echo; head -c 55000 /tmp/player-summary.txt; } > /tmp/report.md
+          gh pr comment "$PR_NUMBER" --body-file /tmp/report.md
