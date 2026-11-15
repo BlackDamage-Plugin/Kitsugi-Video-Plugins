@@ -89,3 +89,17 @@ alındı; yönlendirme takibi eklenen ikinci denemede FilmMakinesi 1×403 ve 77 
 hatası, HD 78 ağ hatası verdi. Geçerli bölüm/oynatıcı HTML'i alınamadı; bu
 sonuçlar sayfanın var olmadığına veya cihazın aynı ağ sorununu yaşadığına
 kanıt değildir. Doğrudan web alımı FilmMakinesi'nde 451, HD'de 500 döndü.
+
+## Bağımsız TR proxy listeleriyle yeni deneme
+
+Önceki canlı incelemenin yöntemi (GitHub Actions, Türkiye çıkışı, doğrulanmış
+TLS, bölüm Referer'ı) üç farklı proxy listesinden adaylarla tekrarlandı:
+ProxyScrape, Litport ve Proxifly; ayrıca Stormsia'nın Türkiye adayları ayrı
+katıldı. Runs 43659082963 ve 43659279731. S01E01 oyuncularında ilk denemede
+150 adaydan FilmMakinesi Close 1×403, Rapid 2×403, HD Close 1×403/2×404;
+diğerleri ağ hatası. İkinci denemede 40 adaydan FilmMakinesi Close 4×403,
+Rapid 3×403, HD Close 1×403/1×404; diğerleri ağ hatası. Geçerli oyuncu HTML'i
+elde edilmedi. Aday ülkesi liste verisidir, bağımsız konum doğrulaması değildir;
+genel proxy sonuçları kullanıcı cihazındaki erişimle eş tutulamaz. Hiçbir
+çerez veya özel oturum bilgisi gönderilmedi. Ham yanıt ya da imzalı video
+bağlantısı depoya eklenmedi. HTTP 404'ün sebebi doğrulanmadı.
