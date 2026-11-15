@@ -1,6 +1,12 @@
 name: HDCH Close Probu
 
 on:
+  push:
+    branches:
+      - "arena/**"
+    paths:
+      - "tools/hdfc_close_probe.py"
+      - ".github/workflows/hdfc-probe.yml"
   workflow_dispatch:
     inputs:
       page:
