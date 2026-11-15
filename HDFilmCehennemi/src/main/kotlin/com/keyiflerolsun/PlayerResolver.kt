@@ -82,7 +82,7 @@ internal object PlayerResolver {
                 embedUrl,
                 referer = pageReferer,
                 headers = mapOf(
-                    "User-Agent" to USER_AGENT,
+                    "User-Agent" to playerPageUserAgent(embedUrl),
                     "Accept" to "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
                     "Accept-Language" to "tr-TR,tr;q=0.9,en-US;q=0.8,en;q=0.7"
                 ),
