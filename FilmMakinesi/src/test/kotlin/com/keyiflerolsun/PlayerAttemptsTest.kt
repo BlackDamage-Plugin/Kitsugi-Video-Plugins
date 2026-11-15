@@ -13,10 +13,11 @@ class PlayerAttemptsTest {
     @Test fun `istekler yalnizca sayfada verilen iki adrese gider`() {
         val unrelated = SourceLinks.Source("HD", "https://hdfilmcehennemi.mobi/video/embed/RFeVmBTmaCG/", SourceLinks.Kind.CLOSE)
         val attempts = PlayerAttempts.forSources(listOf(close, rapid, close, unrelated), page)
-        assertEquals(4, attempts.size)
-        assertEquals(setOf(close.url, rapid.url), attempts.map { it.url }.toSet())
+        assertEquals(2, attempts.size)
+        assertEquals(listOf(close.url, rapid.url), attempts.map { it.url })
         assertTrue(attempts.all { it.key == it.url && it.referer == page && !it.label.contains("HDFilmCehennemi") })
-        assertEquals(setOf(null, "Mozilla/5.0"), attempts.filter { it.url == close.url }.map { it.userAgent }.toSet())
+        assertEquals("Mozilla/5.0", attempts.single { it.url == close.url }.userAgent)
+        assertEquals(null, attempts.single { it.url == rapid.url }.userAgent)
     }
 
     @Test fun `iki kullanici aracisi tek kaynak olarak bildirilir`() = runBlocking {

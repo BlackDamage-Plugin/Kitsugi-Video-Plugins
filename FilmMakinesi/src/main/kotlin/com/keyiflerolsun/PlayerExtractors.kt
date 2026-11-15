@@ -20,7 +20,9 @@ open class CloseLoad : ExtractorApi() {
         subtitleCallback: (SubtitleFile) -> Unit,
         callback: (ExtractorLink) -> Unit
     ) {
-        val resolved = PlayerResolver.resolve(url, referer, name, FilmMakinesiHttp.interceptor) ?: return
+        val resolved = PlayerResolver.resolve(
+            url, referer, name, FilmMakinesiHttp.interceptor, PlayerResolver.CLOSE_USER_AGENT
+        ) ?: return
         resolved.subtitles.forEach(subtitleCallback)
         callback(resolved.link)
     }

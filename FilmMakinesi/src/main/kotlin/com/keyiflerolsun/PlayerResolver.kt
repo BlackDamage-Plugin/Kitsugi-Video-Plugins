@@ -26,6 +26,12 @@ internal object PlayerResolver {
 
     const val USER_AGENT =
         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
+    const val CLOSE_USER_AGENT = "Mozilla/5.0"
+
+    fun embedUserAgent(url: String): String {
+        val host = runCatching { java.net.URI(url).host?.lowercase().orEmpty() }.getOrDefault("")
+        return if (host.contains("closeload")) CLOSE_USER_AGENT else USER_AGENT
+    }
 
     class Resolved(val link: ExtractorLink, val subtitles: List<SubtitleFile>)
 
@@ -84,7 +90,7 @@ internal object PlayerResolver {
                 embedUrl,
                 referer = pageReferer,
                 headers = mapOf(
-                    "User-Agent" to (pageUserAgent ?: USER_AGENT),
+                    "User-Agent" to (pageUserAgent ?: embedUserAgent(embedUrl)),
                     "Accept" to "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
                     "Accept-Language" to "tr-TR,tr;q=0.9,en-US;q=0.8,en;q=0.7"
                 ),
