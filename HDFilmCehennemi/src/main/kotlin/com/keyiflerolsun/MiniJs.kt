@@ -984,7 +984,8 @@ internal class Scope(val parent: Scope?, val funcScope: Boolean) {
 internal class MiniJs(
     private val pageUrl: String = "https://localhost/",
     private val stepLimit: Long = 3_000_000L,
-    private val dataVAttributes: List<String> = emptyList()
+    private val dataVAttributes: List<String> = emptyList(),
+    private val elementsById: Map<String, String?> = emptyMap()
 ) {
     val global = Scope(null, true)
     private var steps = 0L
@@ -1647,6 +1648,15 @@ internal class MiniJs(
                 }
             } else emptyList()
             JsArray(elements.map { it as Any? }.toMutableList())
+        }
+        // getElementById guard: only expose IDs and data-v values from the real HTML.
+        document.props["getElementById"] = NativeFunction("getElementById") { _, args ->
+            val id = toStr(args.getOrNull(0))
+            if (!elementsById.containsKey(id)) null else JsObject().apply {
+                props["getAttribute"] = NativeFunction("getAttribute") { _, a ->
+                    if (toStr(a.getOrNull(0)) == "data-v") elementsById[id] else null
+                }
+            }
         }
         g["document"] = document
 
