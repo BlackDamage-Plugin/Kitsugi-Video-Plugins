@@ -585,11 +585,15 @@ class HDFilmCehennemi : MainAPI() {
             pageEmbeds.map { e -> suspend { e } } + buttons.map { button -> suspend { fetchEmbed(button, pageUrl) } }
         val seenSubtitles = HashSet<String>()
         val seenStreams = HashSet<String>()
+        val seenEmbeds = HashSet<String>()
+        val requests = SingleFlight<String, PlayerResolver.Resolved>()
         val found = collectPlayerResults(tasks, 12_000L, resolve = { task ->
             val e = task() ?: return@collectPlayerResults null
-            PlayerResolver.resolve(e.url, pageUrl, e.label, interceptor)
-        }, emit = { result ->
-            if (seenStreams.add(result.link.url)) {
+            val result = requests.get(e.url) { PlayerResolver.resolve(e.url, pageUrl, e.label, interceptor) }
+                ?: return@collectPlayerResults null
+            e.url to result
+        }, emit = { (embedUrl, result) ->
+            if (seenEmbeds.add(embedUrl) && seenStreams.add(result.link.url)) {
                 result.subtitles.forEach { if (seenSubtitles.add(it.url)) subtitleCallback(it) }
                 callback(result.link)
             }

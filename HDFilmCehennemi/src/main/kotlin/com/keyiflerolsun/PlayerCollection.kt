@@ -34,3 +34,30 @@ internal suspend fun <T, R : Any> collectPlayerResults(
     }
     return found
 }
+
+/** Share one in-flight request for the same embed; signed stream URLs can differ per fetch. */
+internal class SingleFlight<K, V : Any> {
+    private val lock = Mutex()
+    private val requests = HashMap<K, kotlinx.coroutines.CompletableDeferred<V?>>()
+
+    suspend fun get(key: K, load: suspend () -> V?): V? {
+        var owner = false
+        val pending = lock.withLock {
+            requests[key] ?: kotlinx.coroutines.CompletableDeferred<V?>().also {
+                requests[key] = it
+                owner = true
+            }
+        }
+        if (owner) {
+            try {
+                pending.complete(load())
+            } catch (e: CancellationException) {
+                pending.complete(null)
+                throw e
+            } catch (e: Exception) {
+                pending.complete(null)
+            }
+        }
+        return pending.await()
+    }
+}
