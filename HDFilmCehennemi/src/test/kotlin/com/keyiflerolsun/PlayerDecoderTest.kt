@@ -76,6 +76,29 @@ class PlayerDecoderTest {
     }
 
     @Test
+    fun `rapid id guard gercek dom elemanini kullanir`() {
+        val html = """
+            <div id="pk" data-v="SEC5738RX"></div>
+            <script>
+            var configs = { sources: [{file:(function(){
+                if(typeof document==='undefined'||!document) return '';
+                try { var e=document.getElementById('pk');
+                    if(!e||e.getAttribute('data-v')!=="SEC5738RX") return '';
+                } catch(x) { return ''; }
+                return 'https://example.com/stream.m3u8';
+            })()}] };
+            jwplayer('player').setup(configs);
+            </script>
+        """.trimIndent()
+        for (targeted in listOf(true, false)) {
+            assertEquals("https://example.com/stream.m3u8", PlayerDecoder.decode(html, "https://example.com/player", targeted)?.file)
+            assertNull(PlayerDecoder.decode(html.replace("id=\"pk\"", "id=\"other\""), "https://example.com/player", targeted))
+            assertNull(PlayerDecoder.decode(html.replace("data-v=\"SEC5738RX\"", "data-v=\"wrong\""), "https://example.com/player", targeted))
+            assertNull(PlayerDecoder.decode(html.replace("data-v=\"SEC5738RX\"", ""), "https://example.com/player", targeted))
+        }
+    }
+
+    @Test
     fun `opsiyonel yeni close yaniti cozulur`() {
         val path = System.getenv("LIVE_CLOSE_CAPTURE")
         org.junit.Assume.assumeTrue(!path.isNullOrBlank() && File(path).isFile)
