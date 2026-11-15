@@ -59,7 +59,7 @@ internal object PlayerResolver {
         }
     }
 
-    private fun buildLink(displayName: String, streamUrl: String, referer: String): ExtractorLink {
+    private suspend fun buildLink(displayName: String, streamUrl: String, referer: String): ExtractorLink {
         val origin = originOf(referer)
         val headers = linkedMapOf(
             "User-Agent" to USER_AGENT,
