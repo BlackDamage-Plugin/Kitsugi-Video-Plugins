@@ -34,6 +34,13 @@ jobs:
                 clean=$(echo "$line" | tr '"' "'" | cut -c1-900)
                 echo "::error::$clean"
               done
+          PASSED=$(grep -c "PASSED" /tmp/build.log || true)
+          FAILEDN=$(grep -c "FAILED" /tmp/build.log || true)
+          echo "::notice::test PASSED=$PASSED FAILED=$FAILEDN"
+          grep -E "PASSED|FAILED" /tmp/build.log | head -n 5 | while IFS= read -r line; do
+            clean=$(echo "$line" | tr '"' "'" | cut -c1-300)
+            echo "::notice::ornek: $clean"
+          done
           tail -n 6 /tmp/build.log | while IFS= read -r line; do
             clean=$(echo "$line" | tr '"' "'" | cut -c1-900)
             echo "::notice::$clean"
