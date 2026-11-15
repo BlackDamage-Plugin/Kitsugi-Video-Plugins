@@ -28,18 +28,16 @@ UA_CHROME = (
 UA_SHORT = "Mozilla/5.0"
 REFERER = "https://www.hdfilmcehennemi.nl/dizi/supernatural/sezon-9/bolum-15-hd1/"
 
-# HDFilmCehennemi: S09E15 (kullanıcı ekranı) + S01E01 Close iframe (Drive).
+# FilmMakinesi Close (aynı CloseLoad ailesi) + HD Close doğrulama.
 PAGES = {
-    "hd-s09": "https://www.hdfilmcehennemi.nl/dizi/supernatural/sezon-9/bolum-15-hd1/",
-    "hd-s01": "https://www.hdfilmcehennemi.nl/dizi/supernatural/sezon-1/bolum-1-hd11/",
+    "fm-close": "https://closeload.filmmakinesi.to/video/embed/RFeVmBTmaCG/?imdb_id=tt0460681",
+    "fm-episode": "https://filmmakinesi.to/dizi/supernatural-2005-fm8t9q/sezon-1/bolum-1/",
     "hd-close": "https://hdfilmcehennemi.mobi/video/embed/RFeVmBTmaCG/?rapidrame_id=6d4mkrakdi1a",
-    "hd-rapid": "https://www.hdfilmcehennemi.nl/rplayer/6d4mkrakdi1a/",
 }
 REFERERS = {
-    "hd-s09": "https://www.hdfilmcehennemi.nl/",
-    "hd-s01": "https://www.hdfilmcehennemi.nl/",
+    "fm-close": "https://filmmakinesi.to/dizi/supernatural-2005-fm8t9q/sezon-1/bolum-1/",
+    "fm-episode": "https://filmmakinesi.to/",
     "hd-close": "https://www.hdfilmcehennemi.nl/dizi/supernatural/sezon-1/bolum-1-hd11/",
-    "hd-rapid": "https://www.hdfilmcehennemi.nl/dizi/supernatural/sezon-1/bolum-1-hd11/",
 }
 
 GEO_MARKERS = (
@@ -123,6 +121,8 @@ def analyze(html: str, name: str) -> dict:
         kind = "challenge"
     elif name.startswith("hd-s") and ("data-video" in low or "alternative-link" in low):
         kind = "episode"
+    elif name.startswith("fm-episode") and "data-video_url" in low:
+        kind = "episode"
     elif "jwplayer" in low and "sources" in low:
         kind = "player"
     hosts = sorted(
@@ -159,6 +159,8 @@ def valid_body(name: str, status: str, text: str) -> bool:
         return False
     if name.startswith("hd-s"):
         return ("data-video" in low or "alternative-link" in low) and "hdfilmcehennemi" in low
+    if name.startswith("fm-episode"):
+        return "data-video_url" in low and "filmmakinesi" in low
     return "jwplayer" in low and "sources" in low
 
 
