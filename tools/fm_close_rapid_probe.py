@@ -26,13 +26,20 @@ UA_CHROME = (
     "(KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
 )
 UA_SHORT = "Mozilla/5.0"
-REFERER = "https://filmmakinesi.to/dizi/supernatural-2005-fm8t9q/sezon-1/bolum-1/"
+REFERER = "https://www.hdfilmcehennemi.nl/dizi/supernatural/sezon-9/bolum-15-hd1/"
 
-# Real FilmMakinesi S01E01 embeds from the user's episode HTML (Drive capture).
+# HDFilmCehennemi: S09E15 (kullanıcı ekranı) + S01E01 Close iframe (Drive).
 PAGES = {
-    "fm-close": "https://closeload.filmmakinesi.to/video/embed/RFeVmBTmaCG/?imdb_id=tt0460681",
-    "fm-rapid": "https://rapid.filmmakinesi.to/embed-6d4mkrakdi1a/",
-    "fm-episode": "https://filmmakinesi.to/dizi/supernatural-2005-fm8t9q/sezon-1/bolum-1/",
+    "hd-s09": "https://www.hdfilmcehennemi.nl/dizi/supernatural/sezon-9/bolum-15-hd1/",
+    "hd-s01": "https://www.hdfilmcehennemi.nl/dizi/supernatural/sezon-1/bolum-1-hd11/",
+    "hd-close": "https://hdfilmcehennemi.mobi/video/embed/RFeVmBTmaCG/?rapidrame_id=6d4mkrakdi1a",
+    "hd-rapid": "https://www.hdfilmcehennemi.nl/rplayer/6d4mkrakdi1a/",
+}
+REFERERS = {
+    "hd-s09": "https://www.hdfilmcehennemi.nl/",
+    "hd-s01": "https://www.hdfilmcehennemi.nl/",
+    "hd-close": "https://www.hdfilmcehennemi.nl/dizi/supernatural/sezon-1/bolum-1-hd11/",
+    "hd-rapid": "https://www.hdfilmcehennemi.nl/dizi/supernatural/sezon-1/bolum-1-hd11/",
 }
 
 GEO_MARKERS = (
@@ -114,7 +121,7 @@ def analyze(html: str, name: str) -> dict:
         kind = "geo"
     elif any(marker in low for marker in BLOCK_MARKERS):
         kind = "challenge"
-    elif name.startswith("fm-episode") and "data-video_url" in low:
+    elif name.startswith("hd-s") and ("data-video" in low or "alternative-link" in low):
         kind = "episode"
     elif "jwplayer" in low and "sources" in low:
         kind = "player"
@@ -150,8 +157,8 @@ def valid_body(name: str, status: str, text: str) -> bool:
     low = text.lower()
     if any(marker in low for marker in GEO_MARKERS + BLOCK_MARKERS):
         return False
-    if name.startswith("fm-episode"):
-        return "data-video_url" in low and "filmmakinesi" in low
+    if name.startswith("hd-s"):
+        return ("data-video" in low or "alternative-link" in low) and "hdfilmcehennemi" in low
     return "jwplayer" in low and "sources" in low
 
 
@@ -234,7 +241,7 @@ def curl_fetch(proxy: str, name: str, url: str, ua: str) -> tuple[str, str, str]
     args = [
         "curl", "-sS", "--location", "--max-redirs", "3", "--proto-redir", "=https",
         "--max-time", "9", "--connect-timeout", "5", "--max-filesize", "2000000",
-        "--proxy", proxy, "-A", agent, "-e", REFERER,
+        "--proxy", proxy, "-A", agent, "-e", REFERERS.get(name, REFERER),
         "-H", "Accept: text/html,application/xhtml+xml,*/*",
         "-w", "\nKITSUGI_STATUS:%{http_code}", url,
     ]
@@ -265,7 +272,7 @@ def print_analysis(name: str, html: str) -> None:
 
 def main() -> None:
     captured: dict[str, str] = {}
-    print("Hedefler (FilmMakinesi S01E01, bölüm sayfasındaki gerçek adresler):")
+    print("Hedefler (HDFilmCehennemi S09E15 sayfa + S01E01 Close/Rapid):")
     for name, url in PAGES.items():
         print(f"- {name}: {shape_url(url)}")
     print()
@@ -330,6 +337,20 @@ def main() -> None:
         return
     for name, html in captured.items():
         print_analysis(name, html)
+        if name.startswith("hd-s"):
+            buttons = re.findall(
+                r'data-video\s*=\s*["\'](\d+)["\'][^>]*>(.*?)</button>',
+                html,
+                re.I | re.S,
+            )
+            print("- buttons:")
+            for vid, label in buttons[:8]:
+                print(f"    · {vid} { ' '.join(label.split())[:40]}")
+            frames = re.findall(r'(?:data-src|src)\s*=\s*["\']([^"\']+)["\']', html, re.I)
+            for src in frames[:6]:
+                if any(k in src.lower() for k in ("embed", "rplayer", "close", "rapid")):
+                    print(f"- iframe: {shape_url(src)}")
+            print()
 
 
 if __name__ == "__main__":
