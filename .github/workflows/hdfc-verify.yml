@@ -26,31 +26,12 @@ jobs:
           ./gradlew --no-daemon :HDFilmCehennemi:testDebugUnitTest > /tmp/build.log 2>&1
           STATUS=$?
           set -e
-          echo "çıkış=$STATUS"
           echo "::warning::gradle çıkışı $STATUS"
-          # Hata satırlarını iş akışı ekine (annotation) yaz: bu ortamdan log indirilemiyor.
-          grep -nE "^e: |error:|Unresolved reference|FAILED|expected:|AssertionError|What went wrong|Caused by:|BUILD FAILED" /tmp/build.log \
-            | head -n 10 | while IFS= read -r line; do
-                clean=$(echo "$line" | tr '"' "'" | cut -c1-900)
-                echo "::error::$clean"
-              done
-          awk '/\* What went wrong:/{f=1} f{print; c++} c>12{exit}' /tmp/build.log | while IFS= read -r line; do
-            clean=$(echo "$line" | tr '"' "'" | cut -c1-900)
-            echo "::error::neden: $clean"
+          echo "::warning::test PASSED=$(grep -c 'PASSED' /tmp/build.log || true) FAILED=$(grep -c ' FAILED' /tmp/build.log || true)"
+          awk '/\* What went wrong:/{f=1} f{print}' /tmp/build.log | head -n 6 | while IFS= read -r line; do
+            echo "::error::neden: $(echo "$line" | cut -c1-800)"
           done
-          sed -n '1,60p' /tmp/build.log | while IFS= read -r line; do
-            clean=$(echo "$line" | tr '"' "'" | cut -c1-900)
-            echo "::notice::baş: $clean"
-          done
-          PASSED=$(grep -c "PASSED" /tmp/build.log || true)
-          FAILEDN=$(grep -c "FAILED" /tmp/build.log || true)
-          echo "::notice::test PASSED=$PASSED FAILED=$FAILEDN"
-          grep -E "PASSED|FAILED" /tmp/build.log | head -n 5 | while IFS= read -r line; do
-            clean=$(echo "$line" | tr '"' "'" | cut -c1-300)
-            echo "::notice::ornek: $clean"
-          done
-          tail -n 6 /tmp/build.log | while IFS= read -r line; do
-            clean=$(echo "$line" | tr '"' "'" | cut -c1-900)
-            echo "::notice::$clean"
+          grep -E "^e: | FAILED$" /tmp/build.log | head -n 4 | while IFS= read -r line; do
+            echo "::error::$(echo "$line" | cut -c1-800)"
           done
           exit 0
