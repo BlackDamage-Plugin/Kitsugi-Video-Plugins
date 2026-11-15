@@ -267,6 +267,19 @@ def print_analysis(name: str, html: str) -> None:
     print(f"### {name}")
     for key, value in info.items():
         print(f"- {key}: {value}")
+    ids = re.findall(r'getElementById\(\s*[\'"]([^\'"]+)[\'"]', html)
+    if ids:
+        print("- getElementById_calls:", sorted(set(ids))[:12])
+    attrs = re.findall(r'\.([a-zA-Z_][\w]*)', " ".join(re.findall(r'getElementById\([^)]+\)\.[a-zA-Z_][\w]*', html)))
+    if attrs:
+        print("- getElementById_props:", sorted(set(attrs))[:12])
+    for eid in ("hm00v", "player", "videoplayer"):
+        m = re.search(r"<[^>]+\bid=[\"']" + re.escape(eid) + r"[\"'][^>]*>.{0,200}", html, re.I | re.S)
+        if m:
+            print("- tag_" + eid + ":", re.sub(r"\s+", " ", m.group(0))[:240])
+    src = re.search(r"sources\s*:\s*\[.{0,400}", html, re.S)
+    if src:
+        print("- sources_snip:", re.sub(r"\s+", " ", src.group(0))[:400])
     print()
 
 
@@ -332,6 +345,14 @@ def main() -> None:
         print("- " + label + ": " + (", ".join(f"{k}: {v}" for k, v in sorted(results.items())) or "aday yok"))
     print()
     print("## Yakalanan gövde tanısı")
+    out_dir = os.environ.get("HDFC_PROBE_OUT", "")
+    if out_dir:
+        os.makedirs(out_dir, exist_ok=True)
+        for name, html in captured.items():
+            path = os.path.join(out_dir, name + ".html")
+            with open(path, "w", encoding="utf-8") as fh:
+                fh.write(html)
+            print(f"- yazıldı {path} ({len(html)} bayt)")
     if not captured:
         print("Oyuncu veya bölüm HTML'i alınamadı.")
         return
