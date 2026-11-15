@@ -100,6 +100,28 @@ class PlayerDecoderTest {
     }
 
     @Test
+    fun `close querySelectorAll id ve data yildiz anahtari`() {
+        val html = """
+            <i id="n0y" data-u2oi="secretK" hidden></i>
+            <script>
+            var configs = { sources: [{file:(function(){
+                try {
+                    var k = document.querySelectorAll('#n0y')[0].getAttribute('data-u2oi');
+                    k += document.createElement('Div').tagName;
+                    if(k!=='secretKDIV') return '';
+                } catch(x) { return ''; }
+                return 'https://cdn.example/hls/master.txt';
+            })()}] };
+            jwplayer('p').setup(configs);
+            </script>
+        """.trimIndent()
+        for (targeted in listOf(true, false)) {
+            assertEquals("https://cdn.example/hls/master.txt", PlayerDecoder.decode(html, "https://closeload.filmmakinesi.to/video/embed/abc/", targeted)?.file)
+            assertNull(PlayerDecoder.decode(html.replace("id=\"n0y\"", "id=\"other\""), "https://closeload.filmmakinesi.to/video/embed/abc/", targeted))
+        }
+    }
+
+    @Test
     fun `oynatici gercek data v elemanini arar`() {
         val html = """
             <div data-v="wrong"></div><div data-v="guard-value"></div>
