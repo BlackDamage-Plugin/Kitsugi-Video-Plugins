@@ -1,0 +1,47 @@
+name: Oyuncu HTML İncelemesi
+on:
+  pull_request:
+    paths:
+      - 'tools/episode_probe.py'
+      - 'tools/episode_probe_public.pem'
+      - '.github/workflows/Episode-Probe.yml'
+permissions:
+  contents: read
+  pull-requests: write
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - name: TLS doğrulamalı oynatıcı kontrolü
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 tools/episode_probe.py > /tmp/player-summary.txt 2>&1
+      - name: HTML'leri güvenli aktar
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          shopt -s nullglob
+          for file in site-dump/*.html; do
+            name=$(basename "$file")
+            gzip -c "$file" > /tmp/html.gz
+            openssl rand -hex 32 > /tmp/pass
+            openssl pkeyutl -encrypt -pubin -inkey tools/episode_probe_public.pem -pkeyopt rsa_padding_mode:oaep -in /tmp/pass -out /tmp/key.enc
+            openssl enc -aes-256-cbc -pbkdf2 -salt -in /tmp/html.gz -out /tmp/html.enc -pass file:/tmp/pass
+            { echo 'PLAYER_CAPTURE_V2'; echo "$name"; base64 -w0 /tmp/key.enc; echo; base64 -w0 /tmp/html.enc; echo; } > /tmp/encrypted.md
+            if [ "$(wc -c < /tmp/encrypted.md)" -lt 60000 ]; then
+              gh pr comment "$PR_NUMBER" --body-file /tmp/encrypted.md
+            else
+              echo "- $name: şifreli içerik aktarım sınırını aştı" >> /tmp/player-summary.txt
+            fi
+          done
+          rm -rf site-dump /tmp/pass /tmp/html.gz /tmp/html.enc /tmp/key.enc
+      - name: Özeti paylaş
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          { echo '## Oyuncu erişim raporu'; echo; cat /tmp/player-summary.txt; } > /tmp/report.md
+          gh pr comment "$PR_NUMBER" --body-file /tmp/report.md
