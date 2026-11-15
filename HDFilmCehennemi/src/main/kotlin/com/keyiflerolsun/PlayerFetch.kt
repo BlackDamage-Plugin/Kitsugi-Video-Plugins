@@ -77,7 +77,8 @@ internal object PlayerFetch {
      * Referer'ı, sonra kök Referer, sonra yedek UA'lar.
      */
     fun variants(embedUrl: String, pageReferer: String?): List<Variant> {
-        val preferred = if (isCloseLike(embedUrl)) SHORT_USER_AGENT else PlayerResolver.USER_AGENT
+        // İlk tercih host'a göre seçilir (bkz. playerPageUserAgent); yanlışsa yedek UA devreye girer.
+        val preferred = playerPageUserAgent(embedUrl)
         val alternate = if (preferred == SHORT_USER_AGENT) PlayerResolver.USER_AGENT else SHORT_USER_AGENT
         val page = pageReferer?.takeIf { it.isNotBlank() }
         val root = originOf(page)?.let { "$it/" }

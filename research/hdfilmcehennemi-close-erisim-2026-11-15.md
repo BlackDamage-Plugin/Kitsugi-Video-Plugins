@@ -63,6 +63,14 @@ kaynakta ve sessiz.
   bilinmiyor.
 - Cihazda uçtan uca oynatma doğrulanmadı.
 
+## Ölçüm aracı
+
+`tools/hdfc_close_probe.py` — TR ağından çalıştırılınca site kökü, kaynak düğmeleri,
+`/video/{id}/` yanıtı, oynatıcı sayfasının üç User-Agent ile HTTP kodu/boyutu/
+`Cache-Control` değeri ve sayfadaki CDN host'larını (sorgu dizgeleri gizlenmiş hâlde)
+raporlar. Bu ortamdan ve GitHub runner'larından site 451/403 verdiği için canlı
+gövde alınamadı; aracın kendisi bu raporda üretildi.
+
 ## Kullanıcıdan gereken (varsa hâlâ sorun)
 
 Uygulama günlüğünde `KitsugiPlayer` / `HDCH` satırları sorunu tek adımda ayırır:
