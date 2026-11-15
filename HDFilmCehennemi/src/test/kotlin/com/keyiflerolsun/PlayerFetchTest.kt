@@ -27,6 +27,17 @@ class PlayerFetchTest {
     }
 
     @Test
+    fun `cloudflare killer close mobi ve embed yoluna girmez`() {
+        assertFalse(PlayerFetch.allowCloudflareKiller(closeEmbed))
+        assertFalse(PlayerFetch.allowCloudflareKiller("https://closeload.top/video/embed/abc/"))
+        assertFalse(PlayerFetch.allowCloudflareKiller(rapidEmbed))
+        assertTrue(PlayerFetch.allowCloudflareKiller(pageUrl))
+        assertFalse(PlayerFetch.isCloudflareChallenge(404, "text/html", "<html>cloudflare 404</html>"))
+        assertTrue(PlayerFetch.isCloudflareChallenge(403, "text/html", "<html>Just a moment...</html>"))
+        assertFalse(PlayerFetch.isCloudflareChallenge(200, "text/html", "<html>jwplayer</html>"))
+    }
+
+    @Test
     fun `yeni close hostu da close sayilir`() {
         assertTrue(PlayerFetch.isCloseLike("https://closeload.example.to/video/embed/abc/"))
         assertTrue(PlayerFetch.isCloseLike("https://closeload.top/video/embed/abc/"))

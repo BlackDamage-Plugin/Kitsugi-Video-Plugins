@@ -38,4 +38,31 @@ internal object PlayerFetch {
 
     fun userAgentFor(url: String): String =
         if (isCloseLike(url)) SHORT_USER_AGENT else PlayerResolver.USER_AGENT
+
+    /**
+     * Cloudflare WebView yalnızca site kökünde (.nl/.la) çalışsın.
+     * Close `.mobi` 404 sayfası Cloudflare imzası taşıyınca Killer takılıyor
+     * ve Close 15 sn içinde hiç dönmüyor; Rapid tek kaynak kalıyor.
+     */
+    fun allowCloudflareKiller(url: String): Boolean {
+        val host = hostOf(url)
+        if (host.isEmpty() || host.endsWith(".mobi") || host.contains("closeload") ||
+            host.contains("rapidrame") || host.contains("cdnimages")
+        ) return false
+        val path = runCatching { java.net.URI(url).rawPath?.lowercase().orEmpty() }.getOrDefault("")
+        if (path.contains("/video/embed") || path.contains("/rplayer") || path.contains("/embed-")) return false
+        return host.contains("hdfilmcehennemi")
+    }
+
+    fun isCloudflareChallenge(code: Int, contentType: String?, bodyHead: String): Boolean {
+        if (code == 404) return false
+        val type = contentType.orEmpty().lowercase()
+        val looksLikeHtml = type.contains("text/html") || type.contains("application/xhtml+xml")
+        if (!looksLikeHtml && code !in 403..503) return false
+        val lower = bodyHead.lowercase()
+        return lower.contains("just a moment") ||
+            lower.contains("cf-browser-verification") ||
+            lower.contains("checking your browser") ||
+            (code in 403..503 && lower.contains("cloudflare"))
+    }
 }
