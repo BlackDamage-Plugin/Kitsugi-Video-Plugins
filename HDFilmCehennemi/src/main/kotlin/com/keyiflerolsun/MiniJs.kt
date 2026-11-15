@@ -985,7 +985,7 @@ internal class MiniJs(
     private val pageUrl: String = "https://localhost/",
     private val stepLimit: Long = 3_000_000L,
     private val dataVAttributes: List<String> = emptyList(),
-    private val elementsById: Map<String, String?> = emptyMap()
+    private val elementsById: Map<String, Map<String, String>> = emptyMap()
 ) {
     val global = Scope(null, true)
     private var steps = 0L
@@ -1607,6 +1607,29 @@ internal class MiniJs(
 
     // ── Genel nesneler ──
 
+    private fun htmlElement(attrs: Map<String, String>): JsObject {
+        val el = JsObject()
+        el.props["getAttribute"] = NativeFunction("getAttribute") { _, a ->
+            val name = toStr(a.getOrNull(0))
+            attrs[name] ?: attrs[name.lowercase()]
+        }
+        el.props["id"] = attrs["id"]
+        el.props["tagName"] = (attrs["tag"] ?: "I").uppercase()
+        return el
+    }
+
+    private fun selectElements(selector: String): List<JsObject> {
+        if (selector == "[data-v]") {
+            return dataVAttributes.map { value -> htmlElement(mapOf("data-v" to value)) }
+        }
+        if (selector.startsWith("#") && selector.length > 1) {
+            val id = selector.substring(1)
+            val attrs = elementsById[id] ?: return emptyList()
+            return listOf(htmlElement(attrs))
+        }
+        return emptyList()
+    }
+
     private fun installGlobals() {
         val g = global.vars
         val window = JsObject(g)
@@ -1635,36 +1658,34 @@ internal class MiniJs(
         document.props["cookie"] = ""
         document.props["readyState"] = "complete"
         document.props["visibilityState"] = "visible"
-        // Player pages may guard their source with document.querySelectorAll('[data-v]').
-        // Expose only values actually present in the response, never fabricate a match.
+        // Player pages may guard their source with document.querySelectorAll('[data-v]')
+        // or querySelectorAll('#rotatingId')[0].getAttribute('data-…'). Only values
+        // actually present in the response are exposed.
         document.props["querySelectorAll"] = NativeFunction("querySelectorAll") { _, args ->
-            val elements = if (toStr(args.getOrNull(0)) == "[data-v]") {
-                dataVAttributes.map { value ->
-                    val element = JsObject()
-                    element.props["getAttribute"] = NativeFunction("getAttribute") { _, a ->
-                        if (toStr(a.getOrNull(0)) == "data-v") value else null
-                    }
-                    element
-                }
-            } else emptyList()
-            JsArray(elements.map { it as Any? }.toMutableList())
+            JsArray(selectElements(toStr(args.getOrNull(0))).map { it as Any? }.toMutableList())
         }
-        // querySelector returns the first actual data-v element, or null when absent.
         document.props["querySelector"] = NativeFunction("querySelector") { _, args ->
-            if (toStr(args.getOrNull(0)) != "[data-v]" || dataVAttributes.isEmpty()) null
-            else JsObject().apply {
-                props["getAttribute"] = NativeFunction("getAttribute") { _, a ->
-                    if (toStr(a.getOrNull(0)) == "data-v") dataVAttributes.first() else null
+            selectElements(toStr(args.getOrNull(0))).firstOrNull()
+        }
+        document.props["getElementById"] = NativeFunction("getElementById") { _, args ->
+            val id = toStr(args.getOrNull(0))
+            val attrs = elementsById[id] ?: return@NativeFunction null
+            htmlElement(attrs)
+        }
+        document.props["createElement"] = NativeFunction("createElement") { _, args ->
+            val tag = toStr(args.getOrNull(0)).ifBlank { "div" }
+            JsObject().apply {
+                props["tagName"] = tag.uppercase()
+                if (tag.equals("canvas", ignoreCase = true)) {
+                    props["getContext"] = NativeFunction("getContext") { _, _ -> JsObject() }
                 }
             }
         }
-        // getElementById guard: only expose IDs and data-v values from the real HTML.
-        document.props["getElementById"] = NativeFunction("getElementById") { _, args ->
-            val id = toStr(args.getOrNull(0))
-            if (!elementsById.containsKey(id)) null else JsObject().apply {
-                props["getAttribute"] = NativeFunction("getAttribute") { _, a ->
-                    if (toStr(a.getOrNull(0)) == "data-v") elementsById[id] else null
-                }
+        document.props["getElementsByTagName"] = NativeFunction("getElementsByTagName") { _, args ->
+            if (toStr(args.getOrNull(0)).equals("script", ignoreCase = true)) {
+                JsArray(mutableListOf(JsObject(), JsObject()))
+            } else {
+                JsArray(mutableListOf())
             }
         }
         g["document"] = document

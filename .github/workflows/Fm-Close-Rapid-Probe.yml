@@ -5,7 +5,7 @@ on:
       - "tools/fm_close_rapid_probe.py"
       - ".github/workflows/Fm-Close-Rapid-Probe.yml"
 permissions:
-  contents: read
+  contents: write
   pull-requests: write
 jobs:
   probe:
@@ -13,15 +13,32 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
-      - name: FilmMakinesi Close ve Rapid
+      - name: HDFilmCehennemi Close ve Rapid
         env:
           GH_TOKEN: ${{ github.token }}
+          HDFC_PROBE_OUT: /tmp/hdfc-probe
         run: python3 tools/fm_close_rapid_probe.py | tee /tmp/player-summary.txt
+      - name: HTML'i hdfc-probe-data dalına yaz
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if [ ! -d /tmp/hdfc-probe ]; then echo "html yok"; exit 0; fi
+          rm -rf /tmp/hdfcpush && mkdir -p /tmp/hdfcpush
+          cp -r /tmp/hdfc-probe/. /tmp/hdfcpush/
+          cp /tmp/player-summary.txt /tmp/hdfcpush/summary.txt
+          cd /tmp/hdfcpush
+          git init -q
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config user.name "github-actions[bot]"
+          git add -A
+          git commit -qm "hdfc probe ${GITHUB_RUN_ID}"
+          git push -q -f "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" HEAD:hdfc-probe-data
       - name: Özeti paylaş
         if: always()
         env:
           GH_TOKEN: ${{ github.token }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
         run: |
-          { echo "## FilmMakinesi Close / Rapid"; echo; head -c 55000 /tmp/player-summary.txt; } > /tmp/report.md
+          { echo "## HDFilmCehennemi Close / Rapid"; echo; head -c 55000 /tmp/player-summary.txt; } > /tmp/report.md
           gh pr comment "$PR_NUMBER" --body-file /tmp/report.md

@@ -108,6 +108,22 @@ class MiniJsTest {
     }
 
     @Test
+    fun `close anahtari querySelectorAll id ve createElement tagName`() {
+        val js = MiniJs(
+            "https://hdfilmcehennemi.mobi/video/embed/abc/",
+            elementsById = mapOf("n0y" to mapOf("id" to "n0y", "data-u2oi" to "wuE8xN1KVd"))
+        )
+        val code = """
+            var k = '';
+            k += window.location['hos'+'tname'];
+            k += document.querySelectorAll('#n0y')[0].getAttribute('data-u2oi');
+            k += document.createElement('Div').tagName;
+            k
+        """.trimIndent()
+        assertEquals("hdfilmcehennemi.mobiwuE8xN1KVdDIV", MiniJs.toStr(js.runCode(code, tolerant = false)))
+    }
+
+    @Test
     fun `adim siniri sonsuz donguyu durdurur`() {
         val js = MiniJs("https://x.y/", stepLimit = 10_000L)
         var stopped = false

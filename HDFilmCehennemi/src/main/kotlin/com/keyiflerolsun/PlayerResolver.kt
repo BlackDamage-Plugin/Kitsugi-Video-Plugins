@@ -14,8 +14,8 @@ import okhttp3.Interceptor
 /**
  * Oynatıcı sayfasını indirir, [PlayerDecoder] ile gerçek yayın adresini çözer.
  *
-     * Close: kısa UA, 404/403 olursa bir kez masaüstü UA (her biri 5 sn).
-     * Rapid: masaüstü UA. Cloudflare Killer Close `.mobi` isteğine girmez.
+     * Close: kısa UA, tek GET. Rapid: masaüstü UA.
+     * Close HTML `querySelectorAll('#id')` + data-* ile anahtar üretiyor.
      */
 internal object PlayerResolver {
     private const val TAG = "KitsugiPlayer"
@@ -57,41 +57,31 @@ internal object PlayerResolver {
         displayName: String,
         interceptor: Interceptor? = null
     ): Resolved? {
-        val agents = LinkedHashSet<String>().apply {
-            add(playerPageUserAgent(embedUrl))
-            if (PlayerFetch.isCloseLike(embedUrl)) add(USER_AGENT)
+        val response = try {
+            app.get(
+                embedUrl,
+                referer = pageReferer,
+                headers = mapOf(
+                    "User-Agent" to playerPageUserAgent(embedUrl),
+                    "Accept" to "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+                    "Accept-Language" to "tr-TR,tr;q=0.9,en-US;q=0.8,en;q=0.7"
+                ),
+                interceptor = interceptor,
+                cacheTime = 0,
+                timeout = 15L
+            )
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            Log.w(TAG, "$displayName: oynatıcı sayfası alınamadı ($embedUrl): ${e.message}")
+            return null
         }
-        var body: String? = null
-        var finalUrl = embedUrl
-        for (agent in agents) {
-            val response = try {
-                app.get(
-                    embedUrl,
-                    referer = pageReferer,
-                    headers = mapOf(
-                        "User-Agent" to agent,
-                        "Accept" to "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-                        "Accept-Language" to "tr-TR,tr;q=0.9,en-US;q=0.8,en;q=0.7"
-                    ),
-                    interceptor = interceptor,
-                    cacheTime = 0,
-                    timeout = 5L
-                )
-            } catch (e: CancellationException) {
-                throw e
-            } catch (e: Exception) {
-                Log.w(TAG, "$displayName: oynatıcı sayfası alınamadı ($embedUrl): ${e.message}")
-                continue
-            }
-            if (response.isSuccessful) {
-                body = response.text
-                finalUrl = response.url.ifBlank { embedUrl }
-                break
-            }
-            Log.w(TAG, "$displayName: oynatıcı sayfası HTTP ${response.code} (ua=${agent.take(24)})")
-            if (response.code !in listOf(403, 404)) return null
+        if (!response.isSuccessful) {
+            Log.w(TAG, "$displayName: oynatıcı sayfası HTTP ${response.code} ($embedUrl)")
+            return null
         }
-        val html = body ?: return null
+        val html = response.text
+        val finalUrl = response.url.ifBlank { embedUrl }
         val decoded = try {
             runPlayerDecoding { PlayerDecoder.decode(html, finalUrl) }
         } catch (e: CancellationException) {
