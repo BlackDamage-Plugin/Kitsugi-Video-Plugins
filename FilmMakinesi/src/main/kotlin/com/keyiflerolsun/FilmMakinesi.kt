@@ -29,7 +29,9 @@ class FilmMakinesi : MainAPI() {
         "https://filmmakinesi.de",
         "https://filmmakinesi.com",
     )
-    private var domainResolved        = false
+    @Volatile private var domainResolved = false
+    @Volatile private var lastDomainAttempt = 0L
+    private val domainMutex = kotlinx.coroutines.sync.Mutex()
     override var name                 = "FilmMakinesi"
     override val hasMainPage          = true
     override var lang                 = "tr"
@@ -78,10 +80,16 @@ class FilmMakinesi : MainAPI() {
     )
 
     private suspend fun resolveDomain() {
-        if (domainResolved) return
-        // Do not spend the application's 15-second search budget serially probing mirrors.
-        withTimeoutOrNull(1500L) { probeDomains() }
-        domainResolved = true
+        if (domainResolved || System.currentTimeMillis() - lastDomainAttempt < 60_000L) return
+        domainMutex.lock()
+        try {
+            if (domainResolved || System.currentTimeMillis() - lastDomainAttempt < 60_000L) return
+            lastDomainAttempt = System.currentTimeMillis()
+            // Keep discovery within the application's search budget. Retry later if it timed out.
+            withTimeoutOrNull(1500L) { probeDomains() }
+        } finally {
+            domainMutex.unlock()
+        }
     }
 
     private suspend fun probeDomains() {
