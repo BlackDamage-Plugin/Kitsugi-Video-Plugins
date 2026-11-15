@@ -10,9 +10,9 @@ import urllib.request
 from collections import Counter
 
 PAGES = {
- "fm-episode": ("https://filmmakinesi.to/dizi/supernatural-2005-fm8t9q/sezon-8/bolum-13/", "https://filmmakinesi.to/"),
- "fm-search": ("https://filmmakinesi.to/arama/?s=Supernatural", "https://filmmakinesi.to/"),
- "hd-rapid": ("https://www.hdfilmcehennemi.nl/rplayer/kpkke3koqhit/", "https://www.hdfilmcehennemi.nl/dizi/supernatural/sezon-8/bolum-13-hd1/"),
+ "hd-close": ("https://hdfilmcehennemi.mobi/video/embed/rrOWBnsoOsg/?rapidrame_id=kpkke3koqhit", "https://www.hdfilmcehennemi.nl/"),
+ "fm-close": ("https://closeload.filmmakinesi.to/video/embed/rrOWBnsoOsg/?imdb_id=tt0460681", "https://filmmakinesi.to/"),
+ "fm-rapid": ("https://rapid.filmmakinesi.to/embed-kpkke3koqhit/", "https://filmmakinesi.to/"),
 }
 
 

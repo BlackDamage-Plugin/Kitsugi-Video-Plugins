@@ -1649,6 +1649,15 @@ internal class MiniJs(
             } else emptyList()
             JsArray(elements.map { it as Any? }.toMutableList())
         }
+        // querySelector returns the first actual data-v element, or null when absent.
+        document.props["querySelector"] = NativeFunction("querySelector") { _, args ->
+            if (toStr(args.getOrNull(0)) != "[data-v]" || dataVAttributes.isEmpty()) null
+            else JsObject().apply {
+                props["getAttribute"] = NativeFunction("getAttribute") { _, a ->
+                    if (toStr(a.getOrNull(0)) == "data-v") dataVAttributes.first() else null
+                }
+            }
+        }
         // getElementById guard: only expose IDs and data-v values from the real HTML.
         document.props["getElementById"] = NativeFunction("getElementById") { _, args ->
             val id = toStr(args.getOrNull(0))
