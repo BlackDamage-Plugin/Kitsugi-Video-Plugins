@@ -125,6 +125,19 @@ class PlayerDecoderTest {
     }
 
     @Test
+    fun `kasim 2026 Rapid data-v ve i8k yayin adresini cozer`() {
+        val pageUrl = "https://rapid.filmmakinesi.to/embed-6d4mkrakdi1a/"
+        val decoded = PlayerDecoder.decode(live("fm_rapid_s01e01_2026-11-15.html"), pageUrl)
+        assertNotNull(decoded)
+        assertEquals(
+            "https://s230.rapidrame.com/hls2/01/00029/6d4mkrakdi1a_,l,n,.urlset/master.m3u8?t=JPXwNhwRzhX-WZ_lojzeUUTqz_ru1J5Y9ScxdMo29XA&s=1794698899&e=14400&f=145463&srv=s427&i=0.0&sp=0&n=i54db4hg6timh04j&p1=s230&p2=s230",
+            decoded!!.file
+        )
+        assertFalse(decoded.file.contains("filmakinesimp4"))
+        assertTrue(decoded.tracks.any { it.file.contains("6d4mkrakdi1a") && it.file.endsWith(".vtt") })
+    }
+
+    @Test
     fun `gercek yayin adresi cozulur`() {
         for (c in cases) {
             val decoded = PlayerDecoder.decode(live(c.fixture), c.pageUrl)

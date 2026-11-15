@@ -51,6 +51,29 @@ class SourceLinksTest {
     }
 
     @Test
+    fun `supernatural s01e01 Close ve Rapid adresleri okunur`() {
+        val pageUrl = "https://filmmakinesi.to/dizi/supernatural-2005-fm8t9q/sezon-1/bolum-1/"
+        val html = """
+            <div class="video-parts">
+              <a class="btn active" data-video_url="https://closeload.filmmakinesi.to/video/embed/RFeVmBTmaCG/?imdb_id=tt0460681">DUAL Close</a>
+              <a class="btn" data-video_url="https://rapid.filmmakinesi.to/embed-6d4mkrakdi1a/">DUAL Rapid</a>
+            </div>
+            <div class="after-player">
+              <iframe data-src="https://closeload.filmmakinesi.to/video/embed/RFeVmBTmaCG/?imdb_id=tt0460681" scrolling="no" allowfullscreen="true"></iframe>
+            </div>
+        """.trimIndent()
+        val sources = SourceLinks.collect(Jsoup.parse(html, pageUrl), pageUrl)
+        assertEquals(
+            listOf(
+                "https://closeload.filmmakinesi.to/video/embed/RFeVmBTmaCG/?imdb_id=tt0460681",
+                "https://rapid.filmmakinesi.to/embed-6d4mkrakdi1a/"
+            ),
+            sources.map { it.url }
+        )
+        assertEquals(listOf(SourceLinks.Kind.CLOSE, SourceLinks.Kind.RAPID), sources.map { it.kind })
+    }
+
+    @Test
     fun `gonderilen bolum yapisinda iki alternatif yinelenmeden okunur`() {
         val page = "https://filmmakinesi.to/dizi/example/sezon-1/bolum-1/"
         val html = """<div class="video-parts">
