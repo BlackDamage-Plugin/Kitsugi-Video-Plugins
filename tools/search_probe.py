@@ -10,8 +10,7 @@ import urllib.request
 from collections import Counter
 
 PAGES = {
- "appjs": ("https://filmmakinesi.to/Tema/v1/template/js/app.js?v=1794467872", "https://filmmakinesi.to/"),
- "search": ("https://filmmakinesi.to/arama/?s=supernatural", "https://filmmakinesi.to/"),
+ "autocomplete": ("https://filmmakinesi.to/ajax/autocomplete/?s=supernatural", "https://filmmakinesi.to/"),
 }
 
 
@@ -39,14 +38,14 @@ def proxies():
 def fetch(pair):
     proxy, (name, (url, referer)), ua = pair
     name = name + "-" + ua
-    args = ["curl", "-sS", "--location", "--max-redirs", "3", "--proto-redir", "=https", "--max-time", "9", "--connect-timeout", "5", "--max-filesize", "2000000", "--proxy", proxy, "-A", ("Mozilla/5.0" if ua == "short" else "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"), "-e", referer, "-H", "Accept: text/html,application/xhtml+xml,*/*", "-w", "\\nKITSUGI_STATUS:%{http_code}", url]
+    args = ["curl", "-sS", "--location", "--max-redirs", "3", "--proto-redir", "=https", "--max-time", "9", "--connect-timeout", "5", "--max-filesize", "2000000", "--proxy", proxy, "-A", ("Mozilla/5.0" if ua == "short" else "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"), "-e", referer, "-H", "Accept: application/json, text/javascript, */*; q=0.01", "-H", "X-Requested-With: XMLHttpRequest", "-w", "\\nKITSUGI_STATUS:%{http_code}", url]
     try:
         result = subprocess.run(args, capture_output=True, timeout=12, check=False)
         body, _, status = result.stdout.rpartition(b"\nKITSUGI_STATUS:")
         status = status.decode("ascii", errors="replace")
         text = body.decode("utf-8", errors="replace")
         low = text.lower()
-        valid = status == "200" and ("autocomplete" in low and ("search-form" in low or "autocomplete-kayit-list" in low)) and not any(s in low for s in ("content unavailable in your region", "just a moment", "cf-error-details"))
+        valid = status == "200" and ("sonuc_kodu" in low and "kayitlar" in low) and not any(s in low for s in ("content unavailable in your region", "just a moment", "cf-error-details"))
         if valid:
             os.makedirs("site-dump", exist_ok=True)
             try:
