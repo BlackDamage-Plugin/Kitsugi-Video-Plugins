@@ -1,0 +1,33 @@
+name: HDCH Close Probu
+
+on:
+  workflow_dispatch:
+    inputs:
+      page:
+        description: "İncelenecek sayfa adresi (boşsa varsayılan)"
+        required: false
+        default: ""
+
+permissions:
+  contents: read
+
+jobs:
+  Probe:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4.2.2
+      - name: Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Close zinciri probu
+        run: |
+          set +e
+          python3 tools/hdfc_close_probe.py ${{ inputs.page }}
+          echo "çıkış=$?"
+      - name: Ham HTTP başlıkları (kök + .mobi)
+        run: |
+          for u in https://www.hdfilmcehennemi.nl/ https://hdfilmcehennemi.mobi/ https://closeload.top/; do
+            echo "== $u"
+            curl -sS -o /dev/null -D - --max-time 25 -A 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36' "$u" 2>&1 | head -n 12
+          done
