@@ -449,6 +449,7 @@ private fun Element.toSearchResult(): SearchResponse? {
     ): Boolean {
         resolveDomain()
         val pageUrl = migrateUrl(data)
+        if (SourceLinks.isOtherProvider(pageUrl)) return false
         val document = app.get(
             pageUrl,
             headers = mapOf(
@@ -466,23 +467,8 @@ private fun Element.toSearchResult(): SearchResponse? {
         if (sources.isEmpty()) return false
 
         val players = sources.filter { it.kind != SourceLinks.Kind.OTHER }
-        // Known Rapidrame IDs can also be tried on HDFilmCehennemi's player.
-        // Run both paths concurrently: a stalled original must not block fallback.
-        data class Attempt(val key: String, val url: String, val referer: String, val label: String, val userAgent: String? = null)
-        val attempts = players.flatMap { src ->
-            val original = Attempt(src.url, src.url, pageUrl, src.label)
-            val alternative = if (src.kind == SourceLinks.Kind.RAPID) RapidFallback.playerUrl(src.url) else null
-            val hdClose = if (src.kind == SourceLinks.Kind.CLOSE) {
-                val rapid = players.filter { it.kind == SourceLinks.Kind.RAPID }.singleOrNull()
-                if (players.count { it.kind == SourceLinks.Kind.CLOSE } == 1 && rapid != null)
-                    CloseFallback.playerUrl(src.url, rapid.url) else null
-            } else null
-            listOfNotNull(original,
-                Attempt(src.url, src.url, pageUrl, src.label, "Mozilla/5.0"),
-                alternative?.let { Attempt(src.url, it, "https://www.hdfilmcehennemi.nl/", "${src.label} (HDFilmCehennemi)") },
-                hdClose?.let { Attempt(src.url, it, "https://www.hdfilmcehennemi.nl/", "${src.label} (HDFilmCehennemi)", "Mozilla/5.0") }
-            )
-        }
+        // Both requests use the exact embed URL offered by FilmMakinesi.
+        val attempts = PlayerAttempts.forSources(players, pageUrl)
         val seenSubtitles = HashSet<String>()
         val deliveredSources = HashSet<String>()
         var found = collectPlayerResults(attempts, 12_000L, resolve = { attempt ->
@@ -498,7 +484,14 @@ private fun Element.toSearchResult(): SearchResponse? {
         // Tanınmayan barındırıcılar için CloudStream'in genel çözücüleri.
         for (src in sources.filter { it.kind == SourceLinks.Kind.OTHER }) {
             try {
-                if (loadExtractor(src.url, pageUrl, subtitleCallback) { link -> found = true; callback(link) }) found = true
+                loadExtractor(src.url, pageUrl, subtitleCallback) { link ->
+                    if (!SourceLinks.isOtherProvider(link.url) && !SourceLinks.isOtherProvider(link.referer)) {
+                        found = true
+                        callback(link)
+                    }
+                }
+            } catch (e: CancellationException) {
+                throw e
             } catch (e: Exception) {
                 Log.w("FLMM", "genel çözücü başarısız: ${src.url} (${e.message})")
             }
