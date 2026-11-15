@@ -3,6 +3,7 @@
 package com.keyiflerolsun
 
 import android.util.Log
+import kotlinx.coroutines.CancellationException
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
@@ -32,10 +33,6 @@ import com.lagradost.cloudstream3.newTvSeriesLoadResponse
 import com.lagradost.cloudstream3.newTvSeriesSearchResponse
 import com.lagradost.cloudstream3.utils.AppUtils
 import com.lagradost.cloudstream3.utils.ExtractorLink
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.withTimeoutOrNull
 import okhttp3.Interceptor
 import okhttp3.Response
 import org.jsoup.Jsoup
@@ -578,39 +575,26 @@ class HDFilmCehennemi : MainAPI() {
         val buttons = HdfcSources.buttons(document)
         Log.d("HDCH", "kaynak düğmeleri: " + buttons.joinToString(" | ") { "${it.label}=${it.videoId}" })
 
-        val embeds = ArrayList<HdfcSources.Embed>()
-        val fromApi = coroutineScope {
-            buttons.map { button ->
-                async { withTimeoutOrNull(20_000L) { fetchEmbed(button, pageUrl) } }
-            }.awaitAll()
-        }
-        fromApi.filterNotNull().forEach { e -> if (embeds.none { it.url == e.url }) embeds.add(e) }
-
-        // API yanıt vermezse: sayfadaki varsayılan oynatıcı + rapidrame_id'den Rapidrame.
+        // Start the embedded players immediately, in parallel with the site's
+        // /video/{id}/ requests. A slow API must not hold up the default player.
         val language = buttons.firstOrNull()?.language
-        for (e in HdfcSources.pageEmbeds(document, pageUrl, mainUrl)) {
-            if (embeds.none { it.url == e.url }) {
-                embeds.add(if (language.isNullOrBlank()) e else e.copy(label = "${e.label} · $language"))
-            }
+        val pageEmbeds = HdfcSources.pageEmbeds(document, pageUrl, mainUrl).map { e ->
+            if (language.isNullOrBlank()) e else e.copy(label = "${e.label} · $language")
         }
-        Log.d("HDCH", "oynatıcılar: " + embeds.joinToString(" | ") { "${it.label} -> ${it.url}" })
-        if (embeds.isEmpty()) return false
-
-        val resolved = coroutineScope {
-            embeds.map { e ->
-                async { withTimeoutOrNull(35_000L) { PlayerResolver.resolve(e.url, pageUrl, e.label, interceptor) } }
-            }.awaitAll()
-        }
-
-        var found = false
+        val tasks: List<suspend () -> HdfcSources.Embed?> =
+            pageEmbeds.map { e -> suspend { e } } + buttons.map { button -> suspend { fetchEmbed(button, pageUrl) } }
         val seenSubtitles = HashSet<String>()
         val seenStreams = HashSet<String>()
-        for (r in resolved) {
-            if (r == null || !seenStreams.add(r.link.url)) continue
-            r.subtitles.forEach { if (seenSubtitles.add(it.url)) subtitleCallback(it) }
-            callback(r.link)
-            found = true
-        }
+        val found = collectPlayerResults(tasks, 12_000L, resolve = { task ->
+            val e = task() ?: return@collectPlayerResults null
+            PlayerResolver.resolve(e.url, pageUrl, e.label, interceptor)
+        }, emit = { result ->
+            if (seenStreams.add(result.link.url)) {
+                result.subtitles.forEach { if (seenSubtitles.add(it.url)) subtitleCallback(it) }
+                callback(result.link)
+            }
+        })
+
         return found
     }
 
@@ -629,6 +613,8 @@ class HDFilmCehennemi : MainAPI() {
                 interceptor = interceptor,
                 timeout = 15L
             ).text
+        } catch (e: CancellationException) {
+            throw e
         } catch (e: Exception) {
             Log.w("HDCH", "video API hatası (${button.videoId}): ${e.message}")
             return null

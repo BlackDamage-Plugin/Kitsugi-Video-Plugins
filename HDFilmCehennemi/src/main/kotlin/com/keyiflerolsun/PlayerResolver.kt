@@ -1,6 +1,7 @@
 package com.keyiflerolsun
 
 import android.util.Log
+import kotlinx.coroutines.CancellationException
 import com.lagradost.cloudstream3.SubtitleFile
 import com.lagradost.cloudstream3.app
 import com.lagradost.cloudstream3.newSubtitleFile
@@ -88,6 +89,8 @@ internal object PlayerResolver {
                 interceptor = interceptor,
                 timeout = 20L
             )
+        } catch (e: CancellationException) {
+            throw e
         } catch (e: Exception) {
             Log.w(TAG, "$displayName: oynatıcı sayfası alınamadı ($embedUrl): ${e.message}")
             return null
