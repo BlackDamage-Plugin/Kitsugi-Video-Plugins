@@ -116,7 +116,7 @@ internal object PlayerResolver {
             val decodeUrls = listOf(page.finalUrl, embedUrl).distinct().filter { it.isNotBlank() }
             for (decodeUrl in decodeUrls) {
                 val targeted = decode(page.body, decodeUrl, variant, displayName, targeted = true) ?: continue
-                val (resolved, playable) = evaluate(targeted, displayName, decodeUrl, variant)
+                val (resolved, playable) = evaluate(targeted, displayName, decodeUrl, variant, deadline)
                 if (playable != false) return resolved
                 if (fallback == null) {
                     fallback = resolved
@@ -126,7 +126,7 @@ internal object PlayerResolver {
                 // çalıştırılıp yakalanan setup() yapılandırması ikinci aday olarak denenir.
                 val general = decode(page.body, decodeUrl, variant, displayName, targeted = false)
                 if (general != null && general.file != targeted.file) {
-                    val (resolvedGeneral, playableGeneral) = evaluate(general, displayName, decodeUrl, variant)
+                    val (resolvedGeneral, playableGeneral) = evaluate(general, displayName, decodeUrl, variant, deadline)
                     if (playableGeneral != false) return resolvedGeneral
                     if (fallback == null) {
                         fallback = resolvedGeneral
@@ -173,9 +173,16 @@ internal object PlayerResolver {
         candidate: PlayerDecoder.Decoded,
         displayName: String,
         playerUrl: String,
-        variant: PlayerFetch.Variant
+        variant: PlayerFetch.Variant,
+        deadline: Long
     ): Pair<Resolved, Boolean?> {
-        val verdict = StreamCheck.verify(candidate.file, playerUrl, displayName)
+        // Bütçe bitmek üzereyse doğrulama atlanır; kaynak "bilinmiyor" olarak sunulur.
+        val budgetLeft = deadline - System.currentTimeMillis()
+        val verdict = if (budgetLeft > 2_000L) {
+            StreamCheck.verify(candidate.file, playerUrl, displayName)
+        } else {
+            StreamCheck.Verdict(null, playerUrl)
+        }
         val resolved = Resolved(
             buildLink(displayName, candidate.file, verdict.referer),
             candidate.tracks.map { newSubtitleFile(subtitleLabel(it), it.file) }

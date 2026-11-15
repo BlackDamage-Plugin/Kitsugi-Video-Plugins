@@ -173,7 +173,7 @@ internal object StreamCheck {
             )
             if (!origin.isNullOrBlank()) headers["Origin"] = origin
             val res = try {
-                app.get(streamUrl, referer = referer, headers = headers, cacheTime = 0, timeout = 8L)
+                app.get(streamUrl, referer = referer, headers = headers, cacheTime = 0, timeout = 6L)
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
@@ -195,7 +195,10 @@ internal object StreamCheck {
                 }
                 continue
             }
-            if (res.code in 400..499) {
+            if (res.code == 416) {
+                // Aralık isteği reddedildi: adres ölü sayılmaz.
+                unknown = true
+            } else if (res.code in 400..499) {
                 Log.w(TAG, "$displayName: akış HTTP ${res.code} (referer=${referer.take(48)})")
                 blocked = true
             } else {
