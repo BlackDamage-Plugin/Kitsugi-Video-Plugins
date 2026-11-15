@@ -9,7 +9,8 @@ import kotlinx.coroutines.withTimeoutOrNull
 
 /** Deliver each successful result immediately, without waiting for slower siblings. */
 internal suspend fun <T, R : Any> collectPlayerResults(
-    inputs: List<T>, timeoutMs: Long, resolve: suspend (T) -> R?, emit: (R) -> Unit
+    inputs: List<T>, timeoutMs: Long, resolve: suspend (T) -> R?, emit: (R) -> Unit,
+    onMiss: ((T) -> Unit)? = null
 ): Boolean {
     val lock = Mutex()
     var found = false
@@ -27,6 +28,8 @@ internal suspend fun <T, R : Any> collectPlayerResults(
                     if (result != null) lock.withLock {
                         emit(result)
                         found = true
+                    } else {
+                        onMiss?.invoke(input)
                     }
                 }
             }
