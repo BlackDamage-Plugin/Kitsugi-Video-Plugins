@@ -10,7 +10,9 @@ import urllib.request
 from collections import Counter
 
 PAGES = {
-    "episode": ("https://www.hdfilmcehennemi.nl/dizi/supernatural/sezon-8/bolum-13-hd1/", "https://www.hdfilmcehennemi.nl/"),
+    "rapid": ("https://www.hdfilmcehennemi.nl/rplayer/kpkke3koqhit/", "https://www.hdfilmcehennemi.nl/dizi/supernatural/sezon-8/bolum-13-hd1/"),
+    "rapid-alt": ("https://rapid.filmmakinesi.to/embed-kpkke3koqhit/", "https://filmmakinesi.to/"),
+    "rapid-api": ("https://www.hdfilmcehennemi.nl/video/234558/", "https://www.hdfilmcehennemi.nl/dizi/supernatural/sezon-8/bolum-13-hd1/"),
 }
 
 
@@ -45,7 +47,7 @@ def fetch(pair):
         status = status.decode("ascii", errors="replace")
         text = body.decode("utf-8", errors="replace")
         low = text.lower()
-        valid = status == "200" and ("rapidrame_id" in low or "alternative-link" in low) and not any(s in low for s in ("content unavailable in your region", "just a moment", "cf-error-details"))
+        valid = status == "200" and ("jwplayer" in low and "sources" in low or name.startswith("rapid-api") and "iframe" in low) and not any(s in low for s in ("content unavailable in your region", "just a moment", "cf-error-details"))
         if valid:
             os.makedirs("site-dump", exist_ok=True)
             try:
