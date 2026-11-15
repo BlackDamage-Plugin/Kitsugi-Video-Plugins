@@ -33,7 +33,7 @@ def proxies():
             for item in listing:
                 try:
                     scheme = item["protocol"]
-                    if "geolocation" in item and (item.get("geolocation") or {}).get("country", {}).get("iso_code") != "TR":
+                    if "geolocation" in item and ((item.get("geolocation") or {}).get("country") or {}).get("iso_code") != "TR":
                         continue
                     if item.get("username") or item.get("password"):
                         continue
@@ -46,7 +46,7 @@ def proxies():
                     proxy = f"{scheme}://{address}:{port}"
                     if proxy not in out:
                         out.append(proxy)
-                except (KeyError, ValueError):
+                except (KeyError, ValueError, TypeError, AttributeError):
                     continue
         except Exception as exc:
             print(f"Liste alınamadı: {type(exc).__name__}")
