@@ -54,6 +54,52 @@ class PlayerDecoderTest {
     )
 
     @Test
+    fun `rapid querySelector guard ilk gercek data v elemanini kullanir`() {
+        val html = """
+            <div id="pk" data-v="PzfFNe"></div>
+            <script>
+            var configs = { sources: [{file:(function(){
+                try { if(typeof document==='undefined') return '';
+                    var e=document.querySelector('[data-v]');
+                    if(!e||e.getAttribute('data-v')!=="PzfFNe") return '';
+                } catch(x) { return ''; }
+                return 'https://example.com/stream.m3u8';
+            })()}] };
+            jwplayer('player').setup(configs);
+            </script>
+        """.trimIndent()
+        for (targeted in listOf(true, false)) {
+            assertEquals("https://example.com/stream.m3u8", PlayerDecoder.decode(html, "https://example.com/player", targeted)?.file)
+            assertNull(PlayerDecoder.decode(html.replace("data-v=\"PzfFNe\"", "data-v=\"wrong\""), "https://example.com/player", targeted))
+            assertNull(PlayerDecoder.decode(html.replace("data-v=\"PzfFNe\"", ""), "https://example.com/player", targeted))
+            assertNull(PlayerDecoder.decode("<div data-v=\"wrong\"></div>" + html, "https://example.com/player", targeted))
+        }
+    }
+
+    @Test
+    fun `rapid id guard gercek dom elemanini kullanir`() {
+        val html = """
+            <div id="pk" data-v="SEC5738RX"></div>
+            <script>
+            var configs = { sources: [{file:(function(){
+                if(typeof document==='undefined'||!document) return '';
+                try { var e=document.getElementById('pk');
+                    if(!e||e.getAttribute('data-v')!=="SEC5738RX") return '';
+                } catch(x) { return ''; }
+                return 'https://example.com/stream.m3u8';
+            })()}] };
+            jwplayer('player').setup(configs);
+            </script>
+        """.trimIndent()
+        for (targeted in listOf(true, false)) {
+            assertEquals("https://example.com/stream.m3u8", PlayerDecoder.decode(html, "https://example.com/player", targeted)?.file)
+            assertNull(PlayerDecoder.decode(html.replace("id=\"pk\"", "id=\"other\""), "https://example.com/player", targeted))
+            assertNull(PlayerDecoder.decode(html.replace("data-v=\"SEC5738RX\"", "data-v=\"wrong\""), "https://example.com/player", targeted))
+            assertNull(PlayerDecoder.decode(html.replace("data-v=\"SEC5738RX\"", ""), "https://example.com/player", targeted))
+        }
+    }
+
+    @Test
     fun `oynatici gercek data v elemanini arar`() {
         val html = """
             <div data-v="wrong"></div><div data-v="guard-value"></div>

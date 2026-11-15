@@ -1,0 +1,7 @@
+# FilmMakinesi oyuncu uyumluluğu
+
+HD 70 için doğrulanan `getElementById` guard desteği FilmMakinesi çözücüsünde eksikti ve aktarıldı. Aynı S08E13 Rapidrame oyuncusunun daha sonraki bir gerçek yanıtında `querySelector('[data-v]')` guard'ı kullanıldığı görüldü; bu yöntem iki çözücüde de eksikti. Her iki modüle, yalnız gerçek sayfadaki ilk `data-v` öğesini döndüren yöntem eklendi. Gerçek eleman yokken veya yanlış değerde guard'ı geçirmeyen testler iki yolda da eklendi.
+
+GitHub Actions 43701286358: TR olarak listelenen 83 proxy adayında FM S08E13 sayfası ve Supernatural aramasına 403/451 veya ağ hatası; HD aynı bölüm Rapid oyuncusu için iki masaüstü UA yanıtı alındı. 43701559913: HD aynı bölüm Close oyuncusu için kısa UA ile iki yanıt; FM Close ve Rapid örnekleri için 403/451 veya ağ hatası. FM Close/Rapid URL'leri HD sayfasındaki ID'lerden türetilen inceleme adaylarıdır, FilmMakinesi bölümünde bu ID'lerin kullanıldığı doğrulanmadı.
+
+Alınan HD Rapid ve HD Close gerçek oyuncu HTML'leri FilmMakinesi Kotlin çözücüsüyle test edildi. Her biri için çıkan adres, oyuncu JavaScript'inin Node VM üzerinde ürettiği adresle birebir aynıydı; Rapid querySelector guard'ı eklenmeden önce çözülemiyordu. HTML ve imzalı URL'ler depoya eklenmedi. FM'nin kendi araması, bölüm sayfasından bu adreslere kadar tüm ağ zinciri ve kullanıcı cihazında oynatma doğrulanamadı; bu testler bütün içeriklerin eşleştiği ya da çalıştığı anlamına gelmez.

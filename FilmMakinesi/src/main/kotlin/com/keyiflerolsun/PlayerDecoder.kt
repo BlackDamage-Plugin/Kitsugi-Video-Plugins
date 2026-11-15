@@ -58,7 +58,14 @@ internal object PlayerDecoder {
 
     fun decode(html: String, pageUrl: String, targeted: Boolean = true): Decoded? {
         val scripts = inlineScripts(html)
-        val dataVAttributes = Jsoup.parse(html).select("[data-v]").map { it.attr("data-v") }
+        val document = Jsoup.parse(html)
+        val dataVAttributes = document.select("[data-v]").map { it.attr("data-v") }
+        val elementsById = LinkedHashMap<String, String?>()
+        for (element in document.select("[id]")) {
+            val id = element.attr("id")
+            if (!elementsById.containsKey(id)) elementsById[id] =
+                if (element.hasAttr("data-v")) element.attr("data-v") else null
+        }
         val chunks = ArrayList<String>()
         for (s in scripts) {
             chunks.add(s)
@@ -75,7 +82,7 @@ internal object PlayerDecoder {
 
         // 1) Hedefli: sources ifadesinin bağlı olduğu tanımları çalıştır.
         if (targeted && sourceExprs.isNotEmpty()) {
-            val js = MiniJs(pageUrl, dataVAttributes = dataVAttributes)
+            val js = MiniJs(pageUrl, dataVAttributes = dataVAttributes, elementsById = elementsById)
             val executed = HashSet<Int>()
             for (expr in sourceExprs) {
                 val names = freeIdents(expr)
@@ -102,7 +109,7 @@ internal object PlayerDecoder {
         }
 
         // 2) Genel: tüm script'leri sırayla çalıştır, jwplayer setup() yakala.
-        val js = MiniJs(pageUrl, dataVAttributes = dataVAttributes)
+        val js = MiniJs(pageUrl, dataVAttributes = dataVAttributes, elementsById = elementsById)
         for (s in scripts) {
             try {
                 js.runCode(s)
