@@ -1,0 +1,34 @@
+name: FilmMakinesi Canlı HTML Probi
+on:
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Bağımlılıkları kur
+        run: pip install cloudscraper
+      - name: Canlı HTML'leri çek
+        env:
+          GH_TOKEN: ${{ github.token }}
+          FM_PROBE_OUT: /tmp/fm-probe
+        run: python3 tools/fm_canli_probe.py | tee /tmp/fm-probe-summary.txt
+      - name: HTML'leri fm-probe-data dalına yaz
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if [ ! -d /tmp/fm-probe ]; then echo "html yok"; exit 0; fi
+          rm -rf /tmp/fmpush && mkdir -p /tmp/fmpush
+          cp /tmp/fm-probe/*.html /tmp/fmpush/
+          cp /tmp/fm-probe-summary.txt /tmp/fmpush/summary.txt
+          cd /tmp/fmpush
+          git init -q
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config user.name "github-actions[bot]"
+          git add -A
+          git commit -qm "fm probe ${GITHUB_RUN_ID}"
+          git push -q -f "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" HEAD:fm-probe-data
