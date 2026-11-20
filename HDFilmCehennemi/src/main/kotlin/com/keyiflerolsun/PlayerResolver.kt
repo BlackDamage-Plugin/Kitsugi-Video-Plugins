@@ -58,61 +58,71 @@ internal object PlayerResolver {
         displayName: String,
         interceptor: Interceptor? = null
     ): Resolved? {
-        val response = try {
-            app.get(
-                embedUrl,
-                referer = pageReferer,
-                headers = mapOf(
-                    "User-Agent" to playerPageUserAgent(embedUrl),
-                    "Accept" to "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-                    "Accept-Language" to "tr-TR,tr;q=0.9,en-US;q=0.8,en;q=0.7"
-                ),
-                interceptor = interceptor,
-                cacheTime = 0,
-                timeout = 15L
-            )
-        } catch (e: CancellationException) {
-            throw e
-        } catch (e: Exception) {
-            Log.w(TAG, "$displayName: oynatıcı sayfası alınamadı ($embedUrl): ${e.message}")
-            return null
+        // Site bir kimliği engellediğinde (403/404) diğer kimlik devreye girer.
+        var lastHttp = 0
+        for (variant in PlayerFetch.variantsFor(embedUrl, pageReferer)) {
+            val response = try {
+                app.get(
+                    embedUrl,
+                    referer = variant.referer,
+                    headers = mapOf(
+                        "User-Agent" to variant.userAgent,
+                        "Accept" to "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+                        "Accept-Language" to "tr-TR,tr;q=0.9,en-US;q=0.8,en;q=0.7"
+                    ),
+                    interceptor = interceptor,
+                    cacheTime = 0,
+                    timeout = 15L
+                )
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                Log.w(TAG, "$displayName: istek hatası (${variant.userAgent.take(24)}): ${e.message}")
+                continue
+            }
+            lastHttp = response.code
+            if (!response.isSuccessful) {
+                Log.w(
+                    TAG,
+                    "$displayName: HTTP ${response.code} (UA=${variant.userAgent.take(24)}, referer=${variant.referer ?: "yok"})"
+                )
+                continue
+            }
+            val html = response.text
+            val finalUrl = response.url.ifBlank { embedUrl }
+            val decoded = try {
+                runPlayerDecoding { PlayerDecoder.decode(html, finalUrl) }
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Throwable) {
+                Log.e(TAG, "$displayName: çözücü hatası: ${e.message}")
+                null
+            }
+            if (decoded == null) {
+                Log.w(TAG, "$displayName: yayın adresi çözülemedi ($finalUrl, ${html.length} bayt)")
+                continue
+            }
+            val origin = originOf(finalUrl) ?: continue
+            val link = newExtractorLink(
+                source = displayName,
+                name = displayName,
+                url = decoded.file,
+                type = linkTypeFor(decoded.file)
+            ) {
+                this.referer = finalUrl
+                this.quality = Qualities.Unknown.value
+                this.headers = mapOf(
+                    "User-Agent" to USER_AGENT,
+                    "Referer" to finalUrl,
+                    "Origin" to origin,
+                    "Accept" to "*/*"
+                )
+            }
+            val subtitles = decoded.tracks.map { newSubtitleFile(subtitleLabel(it), it.file) }
+            Log.i(TAG, "$displayName -> ${decoded.file} [${decoded.method}, ${subtitles.size} altyazı]")
+            return Resolved(link, subtitles)
         }
-        if (!response.isSuccessful) {
-            Log.w(TAG, "$displayName: oynatıcı sayfası HTTP ${response.code} ($embedUrl)")
-            return null
-        }
-        val html = response.text
-        val finalUrl = response.url.ifBlank { embedUrl }
-        val decoded = try {
-            runPlayerDecoding { PlayerDecoder.decode(html, finalUrl) }
-        } catch (e: CancellationException) {
-            throw e
-        } catch (e: Throwable) {
-            Log.e(TAG, "$displayName: çözücü hatası: ${e.message}")
-            null
-        }
-        if (decoded == null) {
-            Log.w(TAG, "$displayName: yayın adresi çözülemedi ($finalUrl, ${html.length} bayt)")
-            return null
-        }
-        val origin = originOf(finalUrl) ?: return null
-        val link = newExtractorLink(
-            source = displayName,
-            name = displayName,
-            url = decoded.file,
-            type = linkTypeFor(decoded.file)
-        ) {
-            this.referer = finalUrl
-            this.quality = Qualities.Unknown.value
-            this.headers = mapOf(
-                "User-Agent" to USER_AGENT,
-                "Referer" to finalUrl,
-                "Origin" to origin,
-                "Accept" to "*/*"
-            )
-        }
-        val subtitles = decoded.tracks.map { newSubtitleFile(subtitleLabel(it), it.file) }
-        Log.i(TAG, "$displayName -> ${decoded.file} [${decoded.method}, ${subtitles.size} altyazı]")
-        return Resolved(link, subtitles)
+        Log.w(TAG, "$displayName: hiçbir kimlik sonuç vermedi (son HTTP $lastHttp)")
+        return null
     }
 }

@@ -10,6 +10,9 @@ package com.keyiflerolsun
 internal object PlayerFetch {
     const val SHORT_USER_AGENT = "Mozilla/5.0"
 
+    /** Bir oynatıcı sayfası için denenecek kimlikler. */
+    data class Variant(val userAgent: String, val referer: String?)
+
     fun hostOf(url: String): String =
         runCatching { java.net.URI(url).host?.lowercase().orEmpty() }.getOrDefault("")
 
@@ -38,6 +41,24 @@ internal object PlayerFetch {
 
     fun userAgentFor(url: String): String =
         if (isCloseLike(url)) SHORT_USER_AGENT else PlayerResolver.USER_AGENT
+
+    /**
+     * Oynatıcı sayfası için denenecek kimlikler, önce bilinen iyi kimlik.
+     * Site bir kimliği engellerse (403/404) sıradaki denenir; böylece bir
+     * kısıtlama tek kaynağın sessizce düşmesine yol açmaz.
+     */
+    fun variantsFor(url: String, pageReferer: String?): List<Variant> {
+        val primary = userAgentFor(url)
+        val alternate = if (primary == SHORT_USER_AGENT) PlayerResolver.USER_AGENT else SHORT_USER_AGENT
+        val origin = originOf(url)
+        return listOf(
+            Variant(primary, pageReferer),
+            Variant(primary, origin),
+            Variant(alternate, pageReferer),
+            Variant(alternate, origin),
+            Variant(alternate, null)
+        ).distinctBy { it.userAgent to it.referer }
+    }
 
     /**
      * Cloudflare WebView yalnızca site kökünde (.nl/.la) çalışsın.

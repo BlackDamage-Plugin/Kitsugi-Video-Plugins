@@ -61,6 +61,24 @@ class PlayerFetchTest {
     }
 
     @Test
+    fun `oynatici kimlikleri bilinen iyiyi one alir ve yedekleri icerir`() {
+        val closeVariants = PlayerFetch.variantsFor(closeEmbed, pageUrl)
+        assertEquals(PlayerFetch.SHORT_USER_AGENT, closeVariants.first().userAgent)
+        assertEquals(pageUrl, closeVariants.first().referer)
+        assertTrue(closeVariants.any { it.userAgent == PlayerResolver.USER_AGENT })
+
+        val rapidVariants = PlayerFetch.variantsFor(rapidEmbed, pageUrl)
+        assertEquals(PlayerResolver.USER_AGENT, rapidVariants.first().userAgent)
+        assertEquals(pageUrl, rapidVariants.first().referer)
+        assertTrue(rapidVariants.any { it.userAgent == PlayerFetch.SHORT_USER_AGENT })
+        assertTrue(rapidVariants.size <= 5)
+        assertEquals(
+            rapidVariants.size,
+            rapidVariants.distinctBy { it.userAgent to it.referer }.size
+        )
+    }
+
+    @Test
     fun `kok referer ve port korunur`() {
         assertEquals("https://www.hdfilmcehennemi.nl", PlayerFetch.originOf(pageUrl))
         assertEquals("http://example.test:8080", PlayerFetch.originOf("http://example.test:8080/oynat/1/"))

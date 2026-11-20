@@ -654,26 +654,43 @@ class HDFilmCehennemi : MainAPI() {
     }
 
     private suspend fun getVideoApi(button: HdfcSources.Button, pageUrl: String, pageOrigin: String): String? {
-        return try {
-            app.get(
-                "${pageOrigin.trimEnd('/')}/video/${button.videoId}/",
-                headers = mapOf(
-                    "User-Agent" to USER_AGENT,
-                    "X-Requested-With" to "fetch",
-                    "Accept" to "*/*",
-                    "Content-Type" to "application/json"
-                ),
-                referer = pageUrl,
-                interceptor = interceptor,
-                cacheTime = 0,
-                timeout = 8L
-            ).text
-        } catch (e: CancellationException) {
-            throw e
-        } catch (e: Exception) {
-            Log.w("HDCH", "video API hatası (${button.videoId}): ${e.message}")
-            null
+        val url = "${pageOrigin.trimEnd('/')}/video/${button.videoId}/"
+        // Site bir kimliği/istek sıklığını engellediğinde ikinci kimlik devreye girer.
+        val attempts = listOf(
+            mapOf(
+                "User-Agent" to USER_AGENT,
+                "X-Requested-With" to "fetch",
+                "Accept" to "*/*",
+                "Content-Type" to "application/json"
+            ),
+            mapOf(
+                "User-Agent" to PlayerFetch.SHORT_USER_AGENT,
+                "X-Requested-With" to "fetch",
+                "Accept" to "*/*",
+                "Content-Type" to "application/json"
+            )
+        )
+        for ((index, headers) in attempts.withIndex()) {
+            val response = try {
+                app.get(
+                    url,
+                    headers = headers,
+                    referer = if (index == 0) pageUrl else pageOrigin,
+                    interceptor = interceptor,
+                    cacheTime = 0,
+                    timeout = 8L
+                )
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                Log.w("HDCH", "video API hatası (${button.videoId}): ${e.message}")
+                continue
+            }
+            if (response.isSuccessful) return response.text
+            Log.w("HDCH", "video API HTTP ${response.code} (${button.videoId}, deneme ${index + 1})")
+            if (index == 0) kotlinx.coroutines.delay(600L)
         }
+        return null
     }
 
     data class Results(
