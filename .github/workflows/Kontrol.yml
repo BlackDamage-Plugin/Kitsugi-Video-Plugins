@@ -29,10 +29,14 @@ jobs:
       - name : Depo Kontrolü
         uses : actions/checkout@v4
 
-      - name : Python 3.11.8 Yükle
+      # Sabit yama sürümü (3.11.8) yeni ubuntu-latest (26.04) görüntüsünde yok:
+      # python-versions bildirimi 3.11.8 için linux-26.04 paketi sunmuyor, bu
+      # yüzden setup-python "Version not found" diyerek 1 saniyede düşüyordu.
+      # "3.11" yöntemi önbellekteki 3.11.18'e çözülür (26.04 paketi var).
+      - name : Python 3.11 Yükle
         uses : actions/setup-python@v5
         with :
-          python-version: 3.11.8
+          python-version: "3.11"
 
       - name : Python Sürümünü Göster
         run  : python -c "import sys; print(sys.version)"

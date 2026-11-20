@@ -984,7 +984,7 @@ internal class Scope(val parent: Scope?, val funcScope: Boolean) {
 internal class MiniJs(
     private val pageUrl: String = "https://localhost/",
     private val stepLimit: Long = 3_000_000L,
-    private val dataVAttributes: List<String> = emptyList(),
+    private val elements: List<Map<String, String>> = emptyList(),
     private val elementsById: Map<String, Map<String, String>> = emptyMap()
 ) {
     val global = Scope(null, true)
@@ -1619,8 +1619,14 @@ internal class MiniJs(
     }
 
     private fun selectElements(selector: String): List<JsObject> {
-        if (selector == "[data-v]") {
-            return dataVAttributes.map { value -> htmlElement(mapOf("data-v" to value)) }
+        // [data-…] / [nitelik] seçicisi: site her yanıtta başka bir ad ve başka
+        // bir data-* niteliği kullanabiliyor (örn. [data-v], [data-s907]).
+        // Bu yüzden ad sabitlenmez; yalnızca gerçek sayfada bulunan nitelikler
+        // arasında arama yapılır.
+        if (selector.length > 2 && selector.startsWith("[") && selector.endsWith("]")) {
+            val name = selector.substring(1, selector.length - 1).lowercase()
+            return elements.filter { el -> el.keys.any { it.lowercase() == name } }
+                .map { htmlElement(it) }
         }
         if (selector.startsWith("#") && selector.length > 1) {
             val id = selector.substring(1)
@@ -1658,7 +1664,8 @@ internal class MiniJs(
         document.props["cookie"] = ""
         document.props["readyState"] = "complete"
         document.props["visibilityState"] = "visible"
-        // CloseLoad: querySelectorAll('#id')[0].getAttribute('data-…') + createElement tagName.
+        // CloseLoad: querySelectorAll('#id')[0].getAttribute('data-…') veya
+        // querySelector('[data-…]').getAttribute('data-…') + createElement tagName.
         // Rapid: querySelectorAll('[data-v]'). Only real HTML values are exposed.
         document.props["querySelectorAll"] = NativeFunction("querySelectorAll") { _, args ->
             JsArray(selectElements(toStr(args.getOrNull(0))).map { it as Any? }.toMutableList())

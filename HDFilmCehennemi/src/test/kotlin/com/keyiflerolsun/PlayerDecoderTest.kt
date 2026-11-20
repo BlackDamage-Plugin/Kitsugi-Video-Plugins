@@ -133,6 +133,23 @@ class PlayerDecoderTest {
     }
 
     @Test
+    fun `kasim 2026 close yaniti data niteligi secicisi ile cozulur`() {
+        // 15 Kasım 2026'da TR vekiliyle alınan canlı Close yanıtı anahtarı
+        // querySelector('[data-s907]').getAttribute('data-s907') ile üretiyor.
+        val decoded = PlayerDecoder.decode(
+            live("hd_close_data_attr_2026-11-15.html"),
+            "https://hdfilmcehennemi.mobi/video/embed/RFeVmBTmaCG/?rapidrame_id=6d4mkrakdi1a"
+        )
+        assertNotNull("data-* seçicili Close yanıtı çözülemedi", decoded)
+        val file = decoded!!.file
+        assertTrue("CDN adresi değil: $file", file.contains("cdnimages"))
+        assertTrue(
+            "Beklenen HLS yolu yok: $file",
+            file.substringBefore('?').endsWith("tt0460681-s01e01-dual-hgsnmgssuo27mp4-RFeVmBTmaCG.mp4/txt/master.txt")
+        )
+    }
+
+    @Test
     fun `opsiyonel yeni close yaniti cozulur`() {
         val path = System.getenv("LIVE_CLOSE_CAPTURE")
         org.junit.Assume.assumeTrue(!path.isNullOrBlank() && File(path).isFile)
