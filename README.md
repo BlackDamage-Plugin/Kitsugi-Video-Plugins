@@ -128,8 +128,12 @@ Kitsugi uygulamasında eklentileri yükleyebilmek için aşağıdaki depo bağla
 
 ### 🔗 Depo Bağlantı Adresi (Repository URL)
 ```text
-https://raw.githubusercontent.com/f26901964-eng/Kitsugi-Plugins/builds/repo.json
+https://raw.githubusercontent.com/BlackDamage-Plugin/Kitsugi-Video-Plugins/builds/repo.json
 ```
+
+> Uygulama eski adresi (`f26901964-eng/Kitsugi-Plugins`) sorduğunda bu depo
+> canlıdır; eski adres ve `BlackDamage-Dev/Kitsugi-Plugins` aynısı artık
+> güncellenmiyor ( FilmMakinesi v73 / HDFilmCehennemi v64 kalıyor).
 
 ### 🛠️ Kurulum Adımları
 1. **Kitsugi** uygulamasını açın.
@@ -142,7 +146,9 @@ https://raw.githubusercontent.com/f26901964-eng/Kitsugi-Plugins/builds/repo.json
 ---
 
 ## 🔄 Otomatik Yönlendirme ve Geçiş
-Eski eklenti depolarını (`keyiflerolsun`, `maarrem/cs-Kekik` vb.) kullanan kullanıcılar için Kitsugi uygulaması otomatik yönlendirme sunar. Eski depoları eklediğinizde uygulama bunu algılar ve otomatik olarak bu güncel depoya (`f26901964-eng/Kitsugi-Plugins`) yönlendirerek eklentileri en güncel sürümleriyle günceller.
+Eski eklenti depolarını (`keyiflerolsun`, `maarrem/cs-Kekik` vb.) kullanan kullanıcılar için Kitsugi uygulaması otomatik yönlendirme sunar. Eski depoları eklediğinizde uygulama bunu algılar ve otomatik olarak bu güncel depoya (`BlackDamage-Plugin/Kitsugi-Video-Plugins`) yönlendirerek eklentileri en güncel sürümleriyle günceller.
+
+Depo eklendikten sonra liste eski sürümleri gösteriyorsa: **Eklentiler → Cloudstream Uzantıları** ekranında depoyu **yenileyip** (pull-to-refresh) eklentiyi yeniden kurun; uygulama kurulu sürümü depo listesinden ayırmaz.
 
 ---
 
