@@ -122,6 +122,29 @@ class PlayerDecoderTest {
     }
 
     @Test
+    fun `close querySelector data yildiz anahtari`() {
+        // Site her yanıtta başka bir data-* adı kullanabiliyor (örn. [data-s907]).
+        val html = """
+            <i id="g4w59" data-s907="secretK" hidden></i>
+            <script>
+            var configs = { sources: [{file:(function(){
+                try {
+                    var k = document.querySelector('[data-s907]').getAttribute('data-s907');
+                    k += document.createElement('Div').tagName;
+                    if(k!=='secretKDIV') return '';
+                } catch(x) { return ''; }
+                return 'https://cdn.example/hls/master.txt';
+            })()}] };
+            jwplayer('p').setup(configs);
+            </script>
+        """.trimIndent()
+        for (targeted in listOf(true, false)) {
+            assertEquals("https://cdn.example/hls/master.txt", PlayerDecoder.decode(html, "https://closeload.filmmakinesi.to/video/embed/abc/", targeted)?.file)
+            assertNull(PlayerDecoder.decode(html.replace("data-s907=\"secretK\"", "data-s907=\"wrong\""), "https://closeload.filmmakinesi.to/video/embed/abc/", targeted))
+        }
+    }
+
+    @Test
     fun `oynatici gercek data v elemanini arar`() {
         val html = """
             <div data-v="wrong"></div><div data-v="guard-value"></div>

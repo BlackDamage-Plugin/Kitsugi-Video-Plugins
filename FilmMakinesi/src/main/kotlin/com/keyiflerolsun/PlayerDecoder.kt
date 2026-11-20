@@ -59,14 +59,18 @@ internal object PlayerDecoder {
     fun decode(html: String, pageUrl: String, targeted: Boolean = true): Decoded? {
         val scripts = inlineScripts(html)
         val document = Jsoup.parse(html)
-        val dataVAttributes = document.select("[data-v]").map { it.attr("data-v") }
+        // Sayfadaki gerçek öğeler: [data-…] seçicileri (site her yanıtta başka
+        // başka bir ad/nitelik kullanır) ve #id seçicileri için anahtar.
+        val elements = ArrayList<Map<String, String>>()
         val elementsById = LinkedHashMap<String, Map<String, String>>()
-        for (element in document.select("[id]")) {
-            val id = element.attr("id")
-            if (id.isBlank() || elementsById.containsKey(id)) continue
+        for (element in document.getAllElements()) {
             val attrs = LinkedHashMap<String, String>()
             for (attr in element.attributes()) attrs[attr.key] = attr.value
-            elementsById[id] = attrs
+            val id = attrs["id"].orEmpty()
+            if (id.isNotBlank() && !elementsById.containsKey(id)) elementsById[id] = attrs
+            if (attrs.keys.none { it.lowercase().startsWith("data-") }) continue
+            attrs["tag"] = element.tagName()
+            elements.add(attrs)
         }
         val chunks = ArrayList<String>()
         for (s in scripts) {
@@ -84,7 +88,7 @@ internal object PlayerDecoder {
 
         // 1) Hedefli: sources ifadesinin bağlı olduğu tanımları çalıştır.
         if (targeted && sourceExprs.isNotEmpty()) {
-            val js = MiniJs(pageUrl, dataVAttributes = dataVAttributes, elementsById = elementsById)
+            val js = MiniJs(pageUrl, elements = elements, elementsById = elementsById)
             val executed = HashSet<Int>()
             for (expr in sourceExprs) {
                 val names = freeIdents(expr)
@@ -111,7 +115,7 @@ internal object PlayerDecoder {
         }
 
         // 2) Genel: tüm script'leri sırayla çalıştır, jwplayer setup() yakala.
-        val js = MiniJs(pageUrl, dataVAttributes = dataVAttributes, elementsById = elementsById)
+        val js = MiniJs(pageUrl, elements = elements, elementsById = elementsById)
         for (s in scripts) {
             try {
                 js.runCode(s)

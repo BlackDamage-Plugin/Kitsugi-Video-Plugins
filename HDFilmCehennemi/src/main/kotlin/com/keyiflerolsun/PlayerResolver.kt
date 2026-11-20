@@ -15,7 +15,8 @@ import okhttp3.Interceptor
  * Oynatıcı sayfasını indirir, [PlayerDecoder] ile gerçek yayın adresini çözer.
  *
      * Close: kısa UA, tek GET. Rapid: masaüstü UA.
-     * Close HTML `querySelectorAll('#id')` + data-* ile anahtar üretiyor.
+     * Close HTML `querySelectorAll('#id')` / `querySelector('[data-…]')` +
+     * data-* ile anahtar üretiyor.
      */
 internal object PlayerResolver {
     private const val TAG = "KitsugiPlayer"

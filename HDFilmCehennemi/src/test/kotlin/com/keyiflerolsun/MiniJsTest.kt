@@ -4,6 +4,7 @@
 package com.keyiflerolsun
 
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
@@ -121,6 +122,33 @@ class MiniJsTest {
             k
         """.trimIndent()
         assertEquals("hdfilmcehennemi.mobiwuE8xN1KVdDIV", MiniJs.toStr(js.runCode(code, tolerant = false)))
+    }
+
+    @Test
+    fun `data yildiz secici her nitelik adini cozer`() {
+        // Canlı Close yanıtı (15 Kasım 2026) anahtarı [data-s907] ile üretiyor;
+        // site her yanıtta başka bir ad kullanabiliyor.
+        val js = MiniJs(
+            "https://hdfilmcehennemi.mobi/video/embed/abc/",
+            elements = listOf(
+                mapOf("id" to "g4w59", "data-s907" to "acriI1NrzAL", "tag" to "i"),
+                mapOf("id" to "player", "class" to "player", "tag" to "div")
+            )
+        )
+        val code = """
+            var k = '';
+            k += window.location['hos'+'tname'];
+            k += document.querySelector('[data-s907]').getAttribute('data-s907');
+            k += document.querySelectorAll('[data-s907]')[0].getAttribute('data-s907');
+            k += document.createElement('DIV').tagName;
+            k
+        """.trimIndent()
+        assertEquals(
+            "hdfilmcehennemi.mobiacriI1NrzALacriI1NrzALDIV",
+            MiniJs.toStr(js.runCode(code, tolerant = false))
+        )
+        // Sayfada olmayan nitelik için boş döner (sahte anahtar üretilmez).
+        assertNull(js.runCode("document.querySelector('[data-yok]')", tolerant = false))
     }
 
     @Test
