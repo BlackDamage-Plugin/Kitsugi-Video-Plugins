@@ -9,7 +9,7 @@ import org.schabi.newpipe.extractor.InfoItem
 import org.schabi.newpipe.extractor.stream.StreamInfo
 
 class YoutubeProvider : MainAPI() {
-    override var mainUrl = "https://www.youtube.com"
+    override var mainUrl = "https://m.youtube.com"
     override var name = "YouTube"
     override var lang = "en"
     override val hasMainPage = true

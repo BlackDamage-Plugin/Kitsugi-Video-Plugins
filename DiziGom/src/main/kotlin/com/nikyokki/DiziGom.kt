@@ -33,7 +33,7 @@ import com.lagradost.cloudstream3.utils.newExtractorLink
 import org.jsoup.nodes.Element
 
 class DiziGom : MainAPI() {
-    override var mainUrl = "https://dizigom101.com"
+    override var mainUrl = "https://www.alliance4creativity.com/watch-it-legally/?utm_source=dizigom101.com&utm_medium=Domain&utm_campaign=Redirect&site-category=movies"
     override var name = "DiziGom"
     override val hasMainPage = true
     override var lang = "tr"
