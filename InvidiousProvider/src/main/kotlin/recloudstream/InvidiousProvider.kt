@@ -25,7 +25,7 @@ import com.lagradost.cloudstream3.utils.loadExtractor
 import com.lagradost.cloudstream3.utils.newExtractorLink
 
 class InvidiousProvider : MainAPI() { // all providers must be an instance of MainAPI
-    override var mainUrl = "https://inv.nadeko.net"
+    override var mainUrl = "https://inv.nadeko.net/feed/popular"
     override var name = "Invidious" // name of provider
     override val supportedTypes = setOf(TvType.Others)
 
